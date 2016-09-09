@@ -1,0 +1,3 @@
+node {
+	echo(this.dump())
+}
