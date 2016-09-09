@@ -1,6 +1,6 @@
-node {
-	def vars = load('oi-janky-groovy/update.sh/vars.groovy')
+def vars = load('oi-janky-groovy/update.sh/vars.groovy')
 
+node {
 	def workspace = sh(returnStdout: true, script: 'pwd').trim()
 
 	env.BASHBREW_CACHE = workspace + '/bashbrew-cache'
