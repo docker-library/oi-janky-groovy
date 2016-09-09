@@ -1,3 +1,3 @@
 node {
-	echo(this.dump())
+	echo(getClass().protectionDomain.codeSource.location.path)
 }
