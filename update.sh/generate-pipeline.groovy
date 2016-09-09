@@ -1,4 +1,7 @@
-def vars = load('oi-janky-groovy/update.sh/vars.groovy')
+def vars
+node('master') {
+	vars = load('oi-janky-groovy/update.sh/vars.groovy')
+}
 
 node {
 	def workspace = sh(returnStdout: true, script: 'pwd').trim()
