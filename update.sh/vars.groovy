@@ -72,7 +72,7 @@ for (int i = 0; i < rawReposData.size(); ++i) {
 	// apply "defaultRepoMeta" for missing bits
 	//   wouldn't it be grand if we could just use "map1 + map2" here??
 	//   dat Jenkins sandbox...
-	for (int j = 0; j < defaultRepoMeta.size(); ++i) {
+	for (int j = 0; j < defaultRepoMeta.size(); ++j) {
 		def key = defaultRepoMeta[j][0]
 		def val = defaultRepoMeta[j][1]
 		if (repoMeta[key] == null) {
