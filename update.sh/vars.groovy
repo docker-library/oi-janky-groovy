@@ -66,15 +66,15 @@ def repos = []
 def reposMeta = [:]
 
 for (int i = 0; i < rawReposData.size(); ++i) {
-	repo = rawReposData[0]
-	repoMeta = rawReposData[1]
+	def repo = rawReposData[0]
+	def repoMeta = rawReposData[1]
 
 	// apply "defaultRepoMeta" for missing bits
 	//   wouldn't it be grand if we could just use "map1 + map2" here??
 	//   dat Jenkins sandbox...
 	for (int j = 0; j < defaultRepoMeta.size(); ++i) {
-		key = defaultRepoMeta[j][0]
-		val = defaultRepoMeta[j][1]
+		def key = defaultRepoMeta[j][0]
+		def val = defaultRepoMeta[j][1]
 		if (repoMeta[key] == null) {
 			repoMeta[key] = val
 		}
