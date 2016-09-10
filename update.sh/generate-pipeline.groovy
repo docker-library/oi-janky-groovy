@@ -1,4 +1,10 @@
-def vars = fileLoader.fromGit('update.sh/vars.groovy', 'https://github.com/docker-library/oi-janky-groovy.git', 'master')
+def vars = fileLoader.fromGit(
+	'update.sh/vars.groovy', // script
+	'https://github.com/docker-library/oi-janky-groovy.git', // repo
+	'master', // branch
+	null, // credentialsId
+	'master', // node/label
+)
 
 node {
 	def workspace = sh(returnStdout: true, script: 'pwd').trim()
