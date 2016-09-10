@@ -38,8 +38,8 @@ node {
 	def testRun = workspace + '/oi/test/run.sh'
 	def testBuildNamespace = 'update.sh'
 
-	for (repo in vars.repos) {
-		def repoMeta = vars.repoMeta[repo]
+	for (repo in vars.repos()) {
+		def repoMeta = vars.repoMeta(repo)
 
 		dir(repo) { stage(repo) {
 			stage('Checkout') {
