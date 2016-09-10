@@ -1,9 +1,6 @@
-def vars
-node('master') {
-	vars = load('oi-janky-groovy/update.sh/vars.groovy')
-}
-
 node {
+	def vars = fileLoader.fromGit('update.sh/vars.groovy', 'https://github.com/docker-library/oi-janky-groovy.git', 'master')
+
 	def workspace = sh(returnStdout: true, script: 'pwd').trim()
 
 	env.BASHBREW_CACHE = workspace + '/bashbrew-cache'
