@@ -83,7 +83,7 @@ for (int i = 0; i < rawReposData.size(); ++i) {
 		}
 	}
 
-	repoMeta['url'].replaceAll('%%REPO%%', repo)
+	repoMeta['url'] = repoMeta['url'].replaceAll('%%REPO%%', repo)
 
 	this.repos << repo
 	this.reposMeta[repo] = repoMeta
