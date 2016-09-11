@@ -133,8 +133,6 @@ node {
 						git commit -m "Update to $version" || true
 					done
 
-					git log -p origin/master...HEAD
-
 					# get our new commits into bashbrew
 					(
 						./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo"
@@ -144,6 +142,10 @@ node {
 						git fetch "$pwd" HEAD:
 					)
 				'''
+			}
+
+			stage('Log') {
+				sh 'git log -p origin/master...HEAD'
 			}
 
 			stage('Test') {
