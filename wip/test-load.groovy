@@ -1,9 +1,13 @@
+def test() { } // to be re-defined later
+
 def a = 'foo'
 
-def test = { str ->
+this.test = { str ->
 	{ ->
 		str
 	}
 }(a)
+
+this.b = 'bar'
 
 this
