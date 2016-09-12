@@ -60,11 +60,15 @@ def rawReposData = [
 			['debian', 'JAVA_DEBIAN_VERSION'],
 		],
 	]],
-	// TODO percona (PERCONA_VERSION)
+	['percona', [
+		'env': 'PERCONA_VERSION',
+	]],
 	['php', [
 		'env': 'PHP_VERSION',
 	]],
-	// TODO postgres (PG_VERSION)
+	['postgres', [
+		'env': 'PG_VERSION',
+	]],
 	['pypy', [
 		'env': 'PYPY_VERSION',
 		'otherEnvs': [
@@ -77,19 +81,34 @@ def rawReposData = [
 			['pip', 'PYTHON_PIP_VERSION'],
 		],
 	]],
-	// TODO rabbitmq (RABBITMQ_VERSION, RABBITMQ_DEBIAN_VERSION)
-	// TODO rails (RAILS_VERSION)
-	// TODO redis (REDIS_VERSION)
-	// TODO redmine (REDMINE_VERSION, PASSENGER_VERSION)
+	['rabbitmq', [
+		'env': 'RABBITMQ_VERSION',
+		'otherEnvs': [
+			['debian', 'RABBITMQ_DEBIAN_VERSION'],
+		],
+	]],
+	['rails', [
+		'env': 'RAILS_VERSION',
+	]],
+	['redis', [
+		'env': 'REDIS_VERSION',
+	]],
+	['redmine', [
+		'env': 'REDMINE_VERSION',
+		'otherEnvs': [
+			['passenger', 'PASSENGER_VERSION'],
+		],
+	]],
 	['ruby', [
 		'env': 'RUBY_VERSION',
 		'otherEnvs': [
 			['rubygems', 'RUBYGEMS_VERSION'],
 			['bundler', 'BUNDLER_VERSION'],
 		],
-		
 	]],
-	// TODO tomcat (TOMCAT_VERSION)
+	['tomcat', [
+		'env': 'TOMCAT_VERSION',
+	]],
 	['wordpress', [
 		'env': 'WORDPRESS_VERSION',
 	]],
