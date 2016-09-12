@@ -4,7 +4,7 @@ for (repo in vars.repos) {
 	pipelineJob(repo) {
 		logRotator { daysToKeep(4) }
 		triggers {
-			//cron('H H/6 * * *')
+			cron('H H/6 * * *')
 		}
 		definition {
 			cpsScm {
