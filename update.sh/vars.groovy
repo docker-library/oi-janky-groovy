@@ -6,6 +6,7 @@ def defaultRepoMeta = [
 	['otherEnvs', []],
 ]
 def rawReposData = [
+	// TODO busybox? (BUSYBOX_VERSION)
 	['cassandra', [
 		'env': 'CASSANDRA_VERSION',
 	]],
@@ -21,19 +22,21 @@ def rawReposData = [
 	['drupal', [
 		'env': 'DRUPAL_VERSION',
 	]],
-	// TODO elasticsearch
-	// TODO gcc
-	// TODO ghost
+	// TODO elasticsearch (ELASTICSEARCH_VERSION)
+	// TODO gcc (GCC_VERSION)
+	['ghost', [
+		'env': 'GHOST_VERSION',
+	]],
 	['golang', [
 		'env': 'GOLANG_VERSION',
 	]],
-	// TODO haproxy
-	// TODO httpd
-	// TODO julia
-	// TODO kibana
-	// TODO logstash
-	// TODO mariadb
-	// TODO memcached
+	// TODO haproxy (HAPROXY_VERSION)
+	// TODO httpd (HTTPD_VERSION)
+	// TODO julia (JULIA_VERSION)
+	// TODO kibana (KIBANA_VERSION)
+	// TODO logstash (LOGSTASH_VERSION)
+	// TODO mariadb (MARIADB_VERSION)
+	// TODO memcached (MEMCACHED_VERSION)
 	['mongo', [
 		'env': 'MONGO_VERSION',
 	]],
@@ -47,11 +50,11 @@ def rawReposData = [
 			['debian', 'JAVA_DEBIAN_VERSION'],
 		],
 	]],
-	// TODO percona
+	// TODO percona (PERCONA_VERSION)
 	['php', [
 		'env': 'PHP_VERSION',
 	]],
-	// TODO postgres
+	// TODO postgres (PG_VERSION)
 	['pypy', [
 		'env': 'PYPY_VERSION',
 		'otherEnvs': [
@@ -64,9 +67,10 @@ def rawReposData = [
 			['pip', 'PYTHON_PIP_VERSION'],
 		],
 	]],
-	// TODO rabbitmq
-	// TODO rails
-	// TODO redmine
+	// TODO rabbitmq (RABBITMQ_VERSION, RABBITMQ_DEBIAN_VERSION)
+	// TODO rails (RAILS_VERSION)
+	// TODO redis (REDIS_VERSION)
+	// TODO redmine (REDMINE_VERSION, PASSENGER_VERSION)
 	['ruby', [
 		'env': 'RUBY_VERSION',
 		'otherEnvs': [
@@ -75,14 +79,14 @@ def rawReposData = [
 		],
 		
 	]],
-	// TODO tomcat
+	// TODO tomcat (TOMCAT_VERSION)
 	['wordpress', [
 		'env': 'WORDPRESS_VERSION',
 	]],
 
-	// TODO irssi
-	// TODO piwik
-	// TODO rocket.chat
+	// TODO irssi (IRSSI_VERSION)
+	// TODO piwik (PIWIK_VERSION)
+	// TODO rocket.chat (RC_VERSION)
 ]
 
 // list of repos: ["celery", "wordpress", ...]
