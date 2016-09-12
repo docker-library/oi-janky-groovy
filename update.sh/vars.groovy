@@ -30,13 +30,23 @@ def rawReposData = [
 	['golang', [
 		'env': 'GOLANG_VERSION',
 	]],
-	// TODO haproxy (HAPROXY_VERSION)
-	// TODO httpd (HTTPD_VERSION)
-	// TODO julia (JULIA_VERSION)
+	['haproxy', [
+		'env': 'HAPROXY_VERSION',
+	]],
+	['httpd', [
+		'env': 'HTTPD_VERSION',
+	]],
+	['julia', [
+		'env': 'JULIA_VERSION',
+	]],
 	// TODO kibana (KIBANA_VERSION)
 	// TODO logstash (LOGSTASH_VERSION)
-	// TODO mariadb (MARIADB_VERSION)
-	// TODO memcached (MEMCACHED_VERSION)
+	['mariadb', [
+		'env': 'MARIADB_VERSION',
+	]],
+	['memcached', [
+		'env': 'MEMCACHED_VERSION',
+	]],
 	['mongo', [
 		'env': 'MONGO_VERSION',
 	]],
