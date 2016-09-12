@@ -13,6 +13,7 @@ for (repo in vars.repos) {
 						remote {
 							url('https://github.com/docker-library/oi-janky-groovy.git')
 						}
+						branch('*/master')
 						extensions {
 							cleanAfterCheckout()
 							relativeTargetDirectory('oi-janky-groovy')
