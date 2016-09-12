@@ -6,7 +6,7 @@ def defaultRepoMeta = [
 	['otherEnvs', []],
 ]
 def rawReposData = [
-	// TODO busybox? (BUSYBOX_VERSION)
+	// TODO busybox (BUSYBOX_VERSION) -- looong builds
 	['cassandra', [
 		'env': 'CASSANDRA_VERSION',
 	]],
@@ -22,8 +22,8 @@ def rawReposData = [
 	['drupal', [
 		'env': 'DRUPAL_VERSION',
 	]],
-	// TODO elasticsearch (ELASTICSEARCH_VERSION)
-	// TODO gcc (GCC_VERSION)
+	// TODO elasticsearch (ELASTICSEARCH_VERSION) -- failing tests
+	// TODO gcc (GCC_VERSION) -- looong builds
 	['ghost', [
 		'env': 'GHOST_VERSION',
 	]],
@@ -39,8 +39,12 @@ def rawReposData = [
 	['julia', [
 		'env': 'JULIA_VERSION',
 	]],
-	// TODO kibana (KIBANA_VERSION)
-	// TODO logstash (LOGSTASH_VERSION)
+	['kibana', [
+		'env': 'KIBANA_VERSION',
+	]],
+	['logstash', [
+		'env': 'LOGSTASH_VERSION',
+	]],
 	['mariadb', [
 		'env': 'MARIADB_VERSION',
 	]],
@@ -120,8 +124,8 @@ def rawReposData = [
 	]],
 
 	// pierreozoux
-	// TODO piwik (PIWIK_VERSION)
-	// TODO rocket.chat (RC_VERSION)
+	// TODO piwik (PIWIK_VERSION) -- need "docker-library-bot" commit access
+	// TODO rocket.chat (RC_VERSION) -- need "docker-library-bot" commit access
 ]
 
 // list of repos: ["celery", "wordpress", ...]
