@@ -12,12 +12,28 @@ def rawReposData = [
 	['celery', [
 		'env': 'CELERY_VERSION',
 	]],
+	['django', [
+		'env': 'DJANGO_VERSION',
+	]],
 	['docker', [
 		'env': 'DOCKER_VERSION',
 	]],
+	['drupal', [
+		'env': 'DRUPAL_VERSION',
+	]],
+	// TODO elasticsearch
+	// TODO gcc
+	// TODO ghost
 	['golang', [
 		'env': 'GOLANG_VERSION',
 	]],
+	// TODO haproxy
+	// TODO httpd
+	// TODO julia
+	// TODO kibana
+	// TODO logstash
+	// TODO mariadb
+	// TODO memcached
 	['mongo', [
 		'env': 'MONGO_VERSION',
 	]],
@@ -31,9 +47,11 @@ def rawReposData = [
 			['debian', 'JAVA_DEBIAN_VERSION'],
 		],
 	]],
+	// TODO percona
 	['php', [
 		'env': 'PHP_VERSION',
 	]],
+	// TODO postgres
 	['pypy', [
 		'env': 'PYPY_VERSION',
 		'otherEnvs': [
@@ -46,6 +64,9 @@ def rawReposData = [
 			['pip', 'PYTHON_PIP_VERSION'],
 		],
 	]],
+	// TODO rabbitmq
+	// TODO rails
+	// TODO redmine
 	['ruby', [
 		'env': 'RUBY_VERSION',
 		'otherEnvs': [
@@ -54,9 +75,14 @@ def rawReposData = [
 		],
 		
 	]],
+	// TODO tomcat
 	['wordpress', [
 		'env': 'WORDPRESS_VERSION',
 	]],
+
+	// TODO irssi
+	// TODO piwik
+	// TODO rocket.chat
 ]
 
 // list of repos: ["celery", "wordpress", ...]
