@@ -1,4 +1,4 @@
-def vars = (new GroovyShell()).evaluate(streamFileFromWorkspace('oi-janky-groovy/update.sh/vars.groovy'))
+def vars = (new GroovyShell()).evaluate(readFileFromWorkspace('oi-janky-groovy/update.sh/vars.groovy'))
 
 for (repo in vars.repos) {
 	pipelineJob(repo) {
