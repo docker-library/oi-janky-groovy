@@ -1,6 +1,5 @@
-import vars
+def vars = (new GroovyShell()).evaluate(streamFileFromWorkspace('oi-janky-groovy/update.sh/vars.groovy'))
 
-// TODO make lots of these
 for (repo in vars.repos) {
 	pipelineJob(repo) {
 		logRotator { daysToKeep(4) }
