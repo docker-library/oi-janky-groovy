@@ -60,10 +60,10 @@ def rawReposData = [
 ]
 
 // list of repos: ["celery", "wordpress", ...]
-@Field def repos = []
+repos = []
 
 // map of repo metadata: ["celery": ["url": "...", ...], ...]
-@Field def reposMeta = [:]
+reposMeta = [:]
 def repoMeta(repo) {
 	return reposMeta[repo]
 }
