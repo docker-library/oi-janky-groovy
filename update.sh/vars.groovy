@@ -113,7 +113,13 @@ def rawReposData = [
 		'env': 'WORDPRESS_VERSION',
 	]],
 
-	// TODO irssi (IRSSI_VERSION)
+	// tianon
+	['irssi', [
+		'url': 'git@github.com:jfrazelle/irssi.git',
+		'env': 'IRSSI_VERSION',
+	]],
+
+	// pierreozoux
 	// TODO piwik (PIWIK_VERSION)
 	// TODO rocket.chat (RC_VERSION)
 ]
