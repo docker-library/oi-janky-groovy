@@ -60,12 +60,12 @@ def rawReposData = [
 ]
 
 // list of repos: ["celery", "wordpress", ...]
-this.repos = []
+repos = []
 
 // map of repo metadata: ["celery": ["url": "...", ...], ...]
-this.reposMeta = [:]
+reposMeta = [:]
 def repoMeta(repo) {
-	return this.reposMeta[repo]
+	return reposMeta[repo]
 }
 
 for (int i = 0; i < rawReposData.size(); ++i) {
@@ -85,8 +85,8 @@ for (int i = 0; i < rawReposData.size(); ++i) {
 
 	repoMeta['url'] = repoMeta['url'].replaceAll('%%REPO%%', repo)
 
-	this.repos << repo
-	this.reposMeta[repo] = repoMeta
+	repos << repo
+	reposMeta[repo] = repoMeta
 }
 
 // return "this" (for use via "load" in Jenkins pipeline, for example)
