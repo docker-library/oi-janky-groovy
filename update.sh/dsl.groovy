@@ -1,4 +1,6 @@
-// TODO load "vars.groovy" and make lots of these
+import vars
+
+// TODO make lots of these
 pipelineJob('wordpress') {
 	logRotator { daysToKeep(4) }
 	triggers {
