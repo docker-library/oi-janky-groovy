@@ -64,6 +64,9 @@ def rawReposData = [
 			['debian', 'JAVA_DEBIAN_VERSION'],
 		],
 	]],
+	['owncloud', [
+		'env': 'OWNCLOUD_VERSION',
+	]],
 	['percona', [
 		'env': 'PERCONA_VERSION',
 	]],
@@ -116,6 +119,10 @@ def rawReposData = [
 	['wordpress', [
 		'env': 'WORDPRESS_VERSION',
 	]],
+
+	// versionless
+	// TODO buildpack-deps
+	// TODO hello-world
 
 	// tianon
 	['irssi', [
