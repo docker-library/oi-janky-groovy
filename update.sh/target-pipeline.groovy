@@ -152,7 +152,10 @@ node {
 			sh 'git log -p origin/master...HEAD'
 		}
 
-		def numCommits = sh(returnStdout: true, script: 'git rev-list --count origin/master...HEAD').trim()
+		def numCommits = sh(
+			returnStdout: true,
+			script: 'git rev-list --count origin/master...HEAD',
+		).trim().toInteger()
 		def hasChanges = (numCommits > 0)
 
 		stage('Test') {
