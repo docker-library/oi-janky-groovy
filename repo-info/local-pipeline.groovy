@@ -102,7 +102,7 @@ node {
 								docker pull '${firstTag}'
 								./scan-local.sh '${firstTag}' > '${firstTarget}'
 							"""
-							for (i = 1; i < repoTag.size(); ++i) {
+							for (int i = 1; i < repoTag.size(); ++i) {
 								def nextTag = repoTag[i]
 								def nextTagName = nextTag.tokenize(':')[1]
 								def nextTarget = "repos/${repo}/local/${nextTagName}.md"
