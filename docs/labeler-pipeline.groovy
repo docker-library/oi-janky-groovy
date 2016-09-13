@@ -24,10 +24,13 @@ node {
 	}
 
 	dir('labeler') {
+		stage('Build') {
+			sh 'docker build -t docker-library-issue-labeler .'
+		}
+
 		withCredentials([[$class: 'StringBinding', credentialsId: 'github-token-docker-library-bot', variable: 'GITHUB_TOKEN']]) {
 			stage('Label') {
 				sh '''
-					docker build -t docker-library-issue-labeler .
 					set +x
 					docker run --rm \\
 						docker-library-issue-labeler \\
