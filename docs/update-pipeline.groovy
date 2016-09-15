@@ -12,16 +12,11 @@ node {
 				branches: [[name: '*/master']],
 				extensions: [
 					[
-						$class: 'RelativeTargetDirectory',
-						relativeTargetDir: 'd',
-					],
-					[
 						$class: 'CleanCheckout',
 					],
 					[
-						$class: 'UserIdentity',
-						name: 'Docker Library Bot',
-						email: 'github+dockerlibrarybot@infosiftr.com',
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'd',
 					],
 				],
 				doGenerateSubmoduleConfigurations: false,
@@ -63,6 +58,10 @@ node {
 	stage('Commit') {
 		sh('''
 			cd d
+
+			git config user.name 'Docker Library Bot'
+			git config user.email 'github+dockerlibrarybot@infosiftr.com'
+
 			git add . || :
 			git commit -m 'Run update.sh' || :
 		''')
