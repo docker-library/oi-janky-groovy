@@ -23,7 +23,9 @@ def rawReposData = [
 		'env': 'DRUPAL_VERSION',
 	]],
 	// TODO elasticsearch (ELASTICSEARCH_VERSION) -- failing tests
-	// TODO gcc (GCC_VERSION) -- looong builds
+	['gcc', [
+		'env': 'GCC_VERSION',
+	]],
 	['ghost', [
 		'env': 'GHOST_VERSION',
 	]],
