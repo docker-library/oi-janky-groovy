@@ -67,8 +67,8 @@ node {
 		''')
 	}
 
-	stage('Push') {
-		sshagent(['docker-library-bot']) {
+	sshagent(['docker-library-bot']) {
+		stage('Push') {
 			sh('''
 				cd d
 				git push origin HEAD:master
@@ -76,13 +76,13 @@ node {
 		}
 	}
 
-	stage('Deploy') {
-		withCredentials([[
-			$class: 'UsernamePasswordMultiBinding',
-			credentialsId: 'docker-hub-stackbrew',
-			usernameVariable: 'USERNAME',
-			passwordVariable: 'PASSWORD',
-		]]) {
+	withCredentials([[
+		$class: 'UsernamePasswordMultiBinding',
+		credentialsId: 'docker-hub-stackbrew',
+		usernameVariable: 'USERNAME',
+		passwordVariable: 'PASSWORD',
+	]]) {
+		stage('Deploy') {
 			sh('''
 				cd d
 				docker build --pull -t docker-library-docs -q .
