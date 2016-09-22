@@ -39,7 +39,17 @@ node {
 	ansiColor('xterm') {
 		stage('Build') {
 			sh '''
-				docker build -t bashbrew --pull -f oi/bashbrew/Dockerfile.release oi/bashbrew
+				docker build -t bashbrew --pull -q oi
+				docker build -t bashbrew:cross - <<-'EODF'
+					FROM bashbrew
+					WORKDIR bashbrew/go
+					RUN set -ex \\
+						&& rm -r bin \\
+						&& GOOS=darwin GOARCH=amd64 gb build \\
+						&& GOOS=linux GOARCH=amd64 gb build \\
+						&& GOOS=windows GOARCH=amd64 gb build \\
+						&& ls -l bin
+				EODF
 				rm -rf bin
 				docker run -i --rm bashbrew tar -c bin \\
 					| tar -xv
