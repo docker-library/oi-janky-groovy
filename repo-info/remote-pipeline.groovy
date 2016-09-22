@@ -36,13 +36,15 @@ node {
 		)
 	}
 
-	stage('Update') {
-		sh('''
-			export BASHBREW_LIBRARY="$PWD/oi/library"
+	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+		stage('Update') {
+			sh('''
+				export BASHBREW_LIBRARY="$PWD/oi/library"
 
-			cd ri
-			./update-remote.sh
-		''')
+				cd ri
+				./update-remote.sh
+			''')
+		}
 	}
 
 	stage('Commit') {

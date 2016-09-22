@@ -24,21 +24,23 @@ node {
 	}
 
 	dir('labeler') {
-		stage('Build') {
-			sh 'docker build -t docker-library-issue-labeler .'
-		}
+		wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+			stage('Build') {
+				sh 'docker build -t docker-library-issue-labeler .'
+			}
 
-		withCredentials([[$class: 'StringBinding', credentialsId: 'github-token-docker-library-bot', variable: 'GITHUB_TOKEN']]) {
-			stage('Label') {
-				sh '''
-					set +x
-					docker run --rm \\
-						docker-library-issue-labeler \\
-						--token "$GITHUB_TOKEN" \\
-						--owner docker-library \\
-						--repo official-images \\
-						--state open
-				'''
+			withCredentials([[$class: 'StringBinding', credentialsId: 'github-token-docker-library-bot', variable: 'GITHUB_TOKEN']]) {
+				stage('Label') {
+					sh '''
+						set +x
+						docker run --rm \\
+							docker-library-issue-labeler \\
+							--token "$GITHUB_TOKEN" \\
+							--owner docker-library \\
+							--repo official-images \\
+							--state open
+					'''
+				}
 			}
 		}
 	}

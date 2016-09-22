@@ -73,7 +73,7 @@ node {
 	def testRun = workspace + '/oi/test/run.sh'
 	def testBuildNamespace = 'update.sh'
 
-	dir('repo') {
+	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) { dir('repo') {
 		stage('update.sh') {
 			sh './update.sh'
 		}
@@ -180,5 +180,5 @@ node {
 				echo("No changes in ${repo}!  Skipping.")
 			}
 		}
-	}
+	} }
 }

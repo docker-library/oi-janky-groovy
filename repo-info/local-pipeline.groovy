@@ -64,57 +64,59 @@ node {
 		}
 	}
 
-	stage('Prepare') {
-		sh('''
-			docker pull $(awk '$1 == "FROM" { print $2; exit }' ri/Dockerfile.local)
-			sed -i 's/ --pull / /g' ri/scan-local.sh
-			! grep -q -- '--pull' ri/scan-local.sh
-		''')
-	}
+	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+		stage('Prepare') {
+			sh('''
+				docker pull $(awk '$1 == "FROM" { print $2; exit }' ri/Dockerfile.local)
+				sed -i 's/ --pull / /g' ri/scan-local.sh
+				! grep -q -- '--pull' ri/scan-local.sh
+			''')
+		}
 
-	stage('Scan') {
-		int concurrency = 4 // TODO tweak this to be reasonable
-		def repoBuckets = []
-		for (int i = 0; i < concurrency; ++i) {
-			repoBuckets << []
-		}
-		for (int i = 0; i < repos.size(); ++i) {
-			repoBuckets[i % concurrency] << repos[i]
-		}
-		def parallelBuilds = [:]
-		for (int i = 0; i < concurrency; ++i) {
-			def bucketRepos = repoBuckets[i]
-			def title = "bucket-${i}"
-			echo("${title}: ${bucketRepos.join(', ')}")
-			parallelBuilds[title] = {
-				for (repo in bucketRepos) {
-					stage(repo) {
-						def shells = [
-							'cd ri',
-							"rm -rf 'repos/${repo}/local'",
-							"mkdir -p 'repos/${repo}/local'",
-						]
-						for (repoTag in images[repo]) {
-							def firstTag = repoTag[0]
-							def firstTagName = firstTag.tokenize(':')[1]
-							def firstTarget = "repos/${repo}/local/${firstTagName}.md"
-							shells << """
-								docker pull '${firstTag}'
-								./scan-local.sh '${firstTag}' > '${firstTarget}'
-							"""
-							for (int j = 1; j < repoTag.size(); ++j) {
-								def nextTag = repoTag[j]
-								def nextTagName = nextTag.tokenize(':')[1]
-								def nextTarget = "repos/${repo}/local/${nextTagName}.md"
-								shells << "cp '${firstTarget}' '${nextTarget}'"
+		stage('Scan') {
+			int concurrency = 4 // TODO tweak this to be reasonable
+			def repoBuckets = []
+			for (int i = 0; i < concurrency; ++i) {
+				repoBuckets << []
+			}
+			for (int i = 0; i < repos.size(); ++i) {
+				repoBuckets[i % concurrency] << repos[i]
+			}
+			def parallelBuilds = [:]
+			for (int i = 0; i < concurrency; ++i) {
+				def bucketRepos = repoBuckets[i]
+				def title = "bucket-${i}"
+				echo("${title}: ${bucketRepos.join(', ')}")
+				parallelBuilds[title] = {
+					for (repo in bucketRepos) {
+						stage(repo) {
+							def shells = [
+								'cd ri',
+								"rm -rf 'repos/${repo}/local'",
+								"mkdir -p 'repos/${repo}/local'",
+							]
+							for (repoTag in images[repo]) {
+								def firstTag = repoTag[0]
+								def firstTagName = firstTag.tokenize(':')[1]
+								def firstTarget = "repos/${repo}/local/${firstTagName}.md"
+								shells << """
+									docker pull '${firstTag}'
+									./scan-local.sh '${firstTag}' > '${firstTarget}'
+								"""
+								for (int j = 1; j < repoTag.size(); ++j) {
+									def nextTag = repoTag[j]
+									def nextTagName = nextTag.tokenize(':')[1]
+									def nextTarget = "repos/${repo}/local/${nextTagName}.md"
+									shells << "cp '${firstTarget}' '${nextTarget}'"
+								}
 							}
+							sh(shells.join('\n'))
 						}
-						sh(shells.join('\n'))
 					}
 				}
 			}
+			parallel parallelBuilds
 		}
-		parallel parallelBuilds
 	}
 
 	stage('Commit') {

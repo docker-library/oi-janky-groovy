@@ -46,13 +46,15 @@ node {
 		)
 	}
 
-	stage('Update') {
-		sh('''
-			export BASHBREW_LIBRARY="$PWD/oi/library"
+	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+		stage('Update') {
+			sh('''
+				export BASHBREW_LIBRARY="$PWD/oi/library"
 
-			cd d
-			./update.sh
-		''')
+				cd d
+				./update.sh
+			''')
+		}
 	}
 
 	stage('Commit') {
@@ -76,25 +78,27 @@ node {
 		}
 	}
 
-	withCredentials([[
-		$class: 'UsernamePasswordMultiBinding',
-		credentialsId: 'docker-hub-stackbrew',
-		usernameVariable: 'USERNAME',
-		passwordVariable: 'PASSWORD',
-	]]) {
-		stage('Deploy') {
-			sh('''
-				cd d
-				docker build --pull -t docker-library-docs -q .
-				test -t 1 && it='-it' || it='-i'
-				set +x
-				docker run "$it" --rm -e TERM \
-					--entrypoint './push.pl' \
-					docker-library-docs \
-					--username "$USERNAME" \
-					--password "$PASSWORD" \
-					--batchmode */
-			''')
+	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+		withCredentials([[
+			$class: 'UsernamePasswordMultiBinding',
+			credentialsId: 'docker-hub-stackbrew',
+			usernameVariable: 'USERNAME',
+			passwordVariable: 'PASSWORD',
+		]]) {
+			stage('Deploy') {
+				sh('''
+					cd d
+					docker build --pull -t docker-library-docs -q .
+					test -t 1 && it='-it' || it='-i'
+					set +x
+					docker run "$it" --rm -e TERM \
+						--entrypoint './push.pl' \
+						docker-library-docs \
+						--username "$USERNAME" \
+						--password "$PASSWORD" \
+						--batchmode */
+				''')
+			}
 		}
 	}
 }
