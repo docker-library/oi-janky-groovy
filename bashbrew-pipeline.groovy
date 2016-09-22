@@ -36,10 +36,23 @@ node {
 					FROM bashbrew
 					WORKDIR bashbrew/go
 					RUN set -ex \\
+						&& export GOPATH="$PWD:$PWD/vendor" \\
+						&& export CGO_ENABLED=0 \\
 						&& rm -r bin \\
-						&& GOOS=darwin GOARCH=amd64 gb build \\
-						&& GOOS=linux GOARCH=amd64 gb build \\
-						&& GOOS=windows GOARCH=amd64 gb build \\
+						&& mkdir bin \\
+						&& export arch='amd64' \
+						&& for os in darwin linux windows; do \\
+							[ "$os" = 'windows' ] && ext='.exe' || ext=''; \\
+							GOOS="$os" GOARCH="$arch" \\
+								go build \\
+									-v \\
+									-ldflags '-s -w' \\
+									-a \\
+									-tags netgo \\
+									-installsuffix netgo \\
+									-o "bin/bashbrew-$os-$arch$ext" \\
+									./src/bashbrew; \\
+						done \\
 						&& ls -l bin
 				EODF
 				rm -rf bin
