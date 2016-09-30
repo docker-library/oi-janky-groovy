@@ -128,7 +128,7 @@ def rawReposData = [
 
 	// tianon
 	['irssi', [
-		'url': 'git@github.com:jfrazelle/irssi.git',
+		'url': 'git@github.com:jessfraz/irssi.git',
 		'env': 'IRSSI_VERSION',
 	]],
 
