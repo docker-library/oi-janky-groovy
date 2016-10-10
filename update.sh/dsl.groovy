@@ -3,6 +3,7 @@ def vars = (new GroovyShell()).evaluate(readFileFromWorkspace('oi-janky-groovy/u
 for (repo in vars.repos) {
 	pipelineJob(repo) {
 		logRotator { daysToKeep(4) }
+		concurrentBuild(false)
 		triggers {
 			cron('H H/6 * * *')
 		}
