@@ -40,7 +40,7 @@ node {
 
 	def tags = []
 	stage('Gather') {
-		tags = sh(
+		def tagGroups = sh(
 			returnStdout: true,
 			script: """
 				repo='${repo}'
@@ -56,6 +56,9 @@ node {
 				' "$repo"
 			''',
 		).trim().tokenize('\n')
+		for (tagGroup in tagGroups) {
+			tags << tagGroup.tokenize(' ')
+		}
 	}
 
 	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) { dir('ri') {
