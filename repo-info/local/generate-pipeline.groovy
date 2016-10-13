@@ -59,7 +59,6 @@ node {
 				}
 			"""
 		}
-		echo(dsl)
 		jobDsl(
 			lookupStrategy: 'SEED_JOB',
 			removedJobAction: 'DELETE',
