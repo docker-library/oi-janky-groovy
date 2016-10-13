@@ -1,4 +1,4 @@
-node('master') {
+node {
 	stage('Checkout') {
 		checkout(
 			poll: true,
