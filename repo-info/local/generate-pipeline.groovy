@@ -37,7 +37,7 @@ node {
 					logRotator { daysToKeep(4) }
 					concurrentBuild(false)
 					triggers {
-						//cron('H H * * *')
+						cron('H H * * *')
 					}
 					definition {
 						cpsScm {
