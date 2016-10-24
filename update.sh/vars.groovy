@@ -22,7 +22,9 @@ def rawReposData = [
 	['drupal', [
 		'env': 'DRUPAL_VERSION',
 	]],
-	// TODO elasticsearch (ELASTICSEARCH_VERSION) -- failing tests
+	['elasticsearch', [
+		'env': 'ELASTICSEARCH_VERSION',
+	]],
 	['gcc', [
 		'env': 'GCC_VERSION',
 	]],
