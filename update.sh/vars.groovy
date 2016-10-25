@@ -143,7 +143,10 @@ def rawReposData = [
 
 	// pierreozoux
 	// TODO piwik (PIWIK_VERSION) -- need "docker-library-bot" commit access
-	// TODO rocket.chat (RC_VERSION) -- need "docker-library-bot" commit access
+	['rocket.chat', [
+		'url': 'git@github.com:RocketChat/Docker.Official.Image.git',
+		'env': 'RC_VERSION',
+	]],
 ]
 
 // list of repos: ["celery", "wordpress", ...]
