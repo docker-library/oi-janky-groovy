@@ -107,10 +107,6 @@ node {
 			"""
 		}
 
-		stage('Log') {
-			sh 'git log -p origin/master...HEAD'
-		}
-
 		def numCommits = sh(
 			returnStdout: true,
 			script: 'git rev-list --count origin/master...HEAD',
