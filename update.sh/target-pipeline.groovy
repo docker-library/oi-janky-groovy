@@ -167,9 +167,8 @@ node {
 						| xargs -rtn1 docker pull
 					bashbrew build --namespace '${testBuildNamespace}' '${repo}'
 					# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
-					bashbrew list --uniq '${repo}' \\
+					bashbrew list --apply-constraints --uniq '${repo}' \\
 						| sed 's!^!${testBuildNamespace}/!' \\
-						| grep -vE '-(nanoserver|windowsservercore)\$' \\
 						| xargs '${testRun}'
 				"""
 			} else {
