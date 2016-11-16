@@ -161,9 +161,15 @@ node {
 		stage('Test') {
 			if (hasChanges) {
 				sh '#!/bin/bash -ex' + """
+					bashbrew cat -f '{{ range .Entries }}{{ $.DockerFrom . }}{{ "\\n" }}{{ end }}' '${repo}' \\
+						| sort -u \\
+						| grep -vE '^(scratch|microsoft/(nanoserver|windowsservercore))\$' \\
+						| xargs -rtn1 docker pull
 					bashbrew build --namespace '${testBuildNamespace}' '${repo}'
+					# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
 					bashbrew list --uniq '${repo}' \\
 						| sed 's!^!${testBuildNamespace}/!' \\
+						| grep -vE '-(nanoserver|windowsservercore)\$' \\
 						| xargs '${testRun}'
 				"""
 			} else {
