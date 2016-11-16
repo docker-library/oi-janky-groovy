@@ -161,7 +161,7 @@ node {
 		stage('Test') {
 			if (hasChanges) {
 				sh '#!/bin/bash -ex' + """
-					bashbrew cat -f '{{ range .Entries }}{{ $.DockerFrom . }}{{ "\\n" }}{{ end }}' '${repo}' \\
+					bashbrew cat -f '{{ range .Entries }}{{ \$.DockerFrom . }}{{ "\\n" }}{{ end }}' '${repo}' \\
 						| sort -u \\
 						| grep -vE '^(scratch|microsoft/(nanoserver|windowsservercore))\$' \\
 						| xargs -rtn1 docker pull
