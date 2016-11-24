@@ -39,6 +39,9 @@ def rawReposData = [
 	]],
 	['httpd', [
 		'env': 'HTTPD_VERSION',
+		'otherEnvs': [
+			['nghttp2', 'NGHTTP2_VERSION'],
+		],
 	]],
 	['julia', [
 		'env': 'JULIA_VERSION',
