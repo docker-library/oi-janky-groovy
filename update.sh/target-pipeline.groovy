@@ -165,7 +165,8 @@ node {
 						| sort -u \\
 						| grep -vE '^(scratch|microsoft/(nanoserver|windowsservercore):.*)\$' \\
 						| xargs -rtn1 docker pull
-					bashbrew build --namespace '${testBuildNamespace}' '${repo}'
+					bashbrew build '${repo}'
+					bashbrew tag --namespace '${testBuildNamespace}' '${repo}'
 					# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
 					bashbrew list --apply-constraints --uniq '${repo}' \\
 						| sed 's!^!${testBuildNamespace}/!' \\
