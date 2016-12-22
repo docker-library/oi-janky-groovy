@@ -145,7 +145,10 @@ def rawReposData = [
 	]],
 
 	// pierreozoux
-	// TODO piwik (PIWIK_VERSION) -- need "docker-library-bot" commit access
+	['piwik', [
+		'url': 'git@github.com:piwik/docker-piwik.git',
+		'env': 'PIWIK_VERSION',
+	]],
 	['rocket.chat', [
 		'url': 'git@github.com:RocketChat/Docker.Official.Image.git',
 		'env': 'RC_VERSION',
