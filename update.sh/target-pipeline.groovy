@@ -123,6 +123,7 @@ node {
 							}
 						' "$dir/Dockerfile"*)"
 					done
+					version="${version#, }"
 					[ "$version" ] || continue
 					versions["$version"]+=" $dir"
 				done
