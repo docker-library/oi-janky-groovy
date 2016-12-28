@@ -164,7 +164,8 @@ node {
 					bashbrew cat -f '{{ range .Entries }}{{ \$.DockerFrom . }}{{ "\\n" }}{{ end }}' '${repo}' \\
 						| sort -u \\
 						| grep -vE '^(scratch|microsoft/(nanoserver|windowsservercore):.*)\$' \\
-						| xargs -rtn1 docker pull
+						| xargs -rtn1 docker pull \\
+						|| :
 					bashbrew build '${repo}'
 					bashbrew tag --namespace '${testBuildNamespace}' '${repo}'
 					# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
