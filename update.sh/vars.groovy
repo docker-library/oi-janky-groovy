@@ -13,9 +13,6 @@ def rawReposData = [
 	['celery', [
 		'env': 'CELERY_VERSION',
 	]],
-	['django', [
-		'env': 'DJANGO_VERSION',
-	]],
 	['docker', [
 		'env': 'DOCKER_VERSION',
 	]],
@@ -100,9 +97,6 @@ def rawReposData = [
 		'otherEnvs': [
 			['debian', 'RABBITMQ_DEBIAN_VERSION'],
 		],
-	]],
-	['rails', [
-		'env': 'RAILS_VERSION',
 	]],
 	['redis', [
 		'env': 'REDIS_VERSION',
