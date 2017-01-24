@@ -1,6 +1,6 @@
 def repo = env.JOB_BASE_NAME
 
-node {
+lock('repo-info-local') { node {
 	stage('Checkout') {
 		checkout(
 			poll: false,
@@ -131,4 +131,4 @@ node {
 			}
 		}
 	} }
-}
+} }
