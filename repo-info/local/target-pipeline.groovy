@@ -71,30 +71,28 @@ node {
 		}
 
 		stage('Scan') {
-			lock("repo-info-local-scan--${env.NODE_NAME}") {
-				sh """
-					rm -rf 'repos/${repo}/local'
-					mkdir -p 'repos/${repo}/local'
-				"""
+			sh """
+				rm -rf 'repos/${repo}/local'
+				mkdir -p 'repos/${repo}/local'
+			"""
 
-				for (tagGroup in tags) {
-					def firstTagName = tagGroup[0]
-					def firstTag = repo + ':' + firstTagName
-					def firstTarget = "repos/${repo}/local/${firstTagName}.md"
-					stage(firstTag) {
-						def shells = [
-							"""
-								docker pull '${firstTag}'
-								./scan-local.sh '${firstTag}' > '${firstTarget}'
-							""",
-						]
-						for (int i = 1; i < tagGroup.size(); ++i) {
-							def nextTagName = tagGroup[i]
-							def nextTarget = "repos/${repo}/local/${nextTagName}.md"
-							shells << "cp '${firstTarget}' '${nextTarget}'"
-						}
-						sh(shells.join('\n'))
+			for (tagGroup in tags) {
+				def firstTagName = tagGroup[0]
+				def firstTag = repo + ':' + firstTagName
+				def firstTarget = "repos/${repo}/local/${firstTagName}.md"
+				stage(firstTag) {
+					def shells = [
+						"""
+							docker pull '${firstTag}'
+							./scan-local.sh '${firstTag}' > '${firstTarget}'
+						""",
+					]
+					for (int i = 1; i < tagGroup.size(); ++i) {
+						def nextTagName = tagGroup[i]
+						def nextTarget = "repos/${repo}/local/${nextTagName}.md"
+						shells << "cp '${firstTarget}' '${nextTarget}'"
 					}
+					sh(shells.join('\n'))
 				}
 			}
 		}
