@@ -67,6 +67,7 @@ def rawReposData = [
 		'otherEnvs': [
 			['alpine', 'JAVA_ALPINE_VERSION'],
 			['debian', 'JAVA_DEBIAN_VERSION'],
+			['ca-certificates-java', 'CA_CERTIFICATES_JAVA_VERSION'],
 		],
 	]],
 	['owncloud', [
