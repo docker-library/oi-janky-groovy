@@ -99,7 +99,7 @@ node {
 				declare -A repoMetaOtherEnvs=( ${otherEnvsBash} )
 			""" + '''
 				declare -A versions=()
-				for dir in $(
+				for dir in . $(
 					./generate-stackbrew-library.sh \\
 						| bashbrew cat -f '
 							{{- range .Entries -}}
