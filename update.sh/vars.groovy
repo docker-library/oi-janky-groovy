@@ -119,6 +119,9 @@ def rawReposData = [
 	]],
 	['tomcat', [
 		'env': 'TOMCAT_VERSION',
+		'otherEnvs': [
+			['openssl', 'OPENSSL_VERSION'],
+		],
 	]],
 	['wordpress', [
 		'env': 'WORDPRESS_VERSION',
