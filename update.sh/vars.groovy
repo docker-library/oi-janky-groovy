@@ -153,6 +153,10 @@ def rawReposData = [
 		'url': 'git@github.com:RocketChat/Docker.Official.Image.git',
 		'env': 'RC_VERSION',
 	]],
+	['nextcloud', [
+		'url': 'git@github.com:nextcloud/docker.git',
+		'env': 'NEXTCLOUD_VERSION',
+	]],
 ]
 
 // list of repos: ["celery", "wordpress", ...]
