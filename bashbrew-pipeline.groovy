@@ -43,6 +43,7 @@ node {
 						&& export arch='amd64' \
 						&& for os in darwin linux windows; do \\
 							[ "$os" = 'windows' ] && ext='.exe' || ext=''; \\
+							\\
 							GOOS="$os" GOARCH="$arch" \\
 								go build \\
 									-v \\
@@ -52,6 +53,10 @@ node {
 									-installsuffix netgo \\
 									-o "bin/bashbrew-$os-$arch$ext" \\
 									./src/bashbrew; \\
+							\\
+					# TODO embed the manifest-tool version somewhere in the bashbrew repo/source itself?
+							wget -O "bin/manifest-tool-$os-$arch$ext" "https://github.com/estesp/manifest-tool/releases/download/v0.4.0/manifest-tool-$os-$arch$ext"; \\
+							\\
 						done \\
 						&& ls -l bin
 				EODF
