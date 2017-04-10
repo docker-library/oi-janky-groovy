@@ -40,6 +40,9 @@ node {
 						[ -f "$dockerfile" ] || continue
 
 						subImage="${dockerfile#$image/Dockerfile.}"
+						if [ "$subImage" = 'alpine' ]; then
+							subImage="$image:$subImage"
+						fi
 
 						if ! grep -q "^FROM $subImage\$" "$dockerfile"; then
 							echo >&2 "error: '$dockerfile' is not 'FROM $subImage'"
