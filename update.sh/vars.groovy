@@ -93,6 +93,8 @@ def rawReposData = [
 		'env': 'PYTHON_VERSION',
 		'otherEnvs': [
 			['pip', 'PYTHON_PIP_VERSION'],
+			['setuptools', 'PYTHON_SETUPTOOLS_VERSION'],
+			['wheel', 'PYTHON_WHEEL_VERSION'],
 		],
 	]],
 	['rabbitmq', [
