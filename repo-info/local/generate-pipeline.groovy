@@ -64,7 +64,6 @@ node {
 			removedJobAction: 'DELETE',
 			removedViewAction: 'DELETE',
 			scriptText: dsl,
-			sandbox: true,
 		)
 	}
 }
