@@ -28,6 +28,7 @@ node('master') {
 			removedJobAction: 'DELETE',
 			removedViewAction: 'DELETE',
 			targets: 'oi-janky-groovy/update.sh/dsl.groovy',
+			sandbox: true,
 		)
 	}
 }
