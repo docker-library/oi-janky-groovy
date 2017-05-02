@@ -48,7 +48,7 @@ node('multiarch-' + env.ACT_ON_NAMESPACE) {
 '''
 
 	env.BASHBREW_BUILD_TEMPLATE = '''
-{{- range $.SortedEntries -}}
+{{- range $.SortedEntries true -}}
 	{{- $firstTag := .Tags | first -}}
 	{{- $dir := join "/" $.RepoName $firstTag -}}
 	from="$(awk '$1 == "FROM" { print $2; exit }' '{{- $dir -}}/Dockerfile')"
@@ -73,7 +73,7 @@ node('multiarch-' + env.ACT_ON_NAMESPACE) {
 '''
 
 	env.BASHBREW_PUSH_TEMPLATE = '''
-{{- range $.SortedEntries -}}
+{{- range $.SortedEntries true -}}
 	{{- range .Tags -}}
 		img="$TARGET_REPO":'{{- . -}}'
 		{{- "\\n" -}}
