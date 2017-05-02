@@ -31,46 +31,9 @@ node {
 	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
 		stage('Build') {
 			sh '''
-				docker build -t bashbrew --pull -q oi
-				docker build -t bashbrew:cross - <<-'EODF'
-					FROM bashbrew
-					WORKDIR bashbrew/go
-					RUN set -ex \\
-						&& export GOPATH="$PWD:$PWD/vendor" \\
-						&& export CGO_ENABLED=0 \\
-						&& rm -r bin \\
-						&& mkdir bin \\
-						&& for osArch in \\
-							darwin/amd64 \\
-							linux/amd64 \\
-							linux/arm64 \\
-							linux/ppc64le \\
-							linux/s390x \\
-							windows/amd64 \\
-						; do \\
-							os="${osArch%%/*}"; \\
-							arch="${osArch#$os/}"; \\
-							\\
-							[ "$os" = 'windows' ] && ext='.exe' || ext=''; \\
-							\\
-							GOOS="$os" GOARCH="$arch" \\
-								go build \\
-									-v \\
-									-ldflags '-s -w' \\
-									-a \\
-									-tags netgo \\
-									-installsuffix netgo \\
-									-o "bin/bashbrew-$os-$arch$ext" \\
-									./src/bashbrew; \\
-							\\
-					# TODO embed the manifest-tool version somewhere in the bashbrew repo/source itself?
-							wget -O "bin/manifest-tool-$os-$arch$ext" "https://github.com/estesp/manifest-tool/releases/download/v0.4.0/manifest-tool-$os-$arch$ext"; \\
-							\\
-						done \\
-						&& ls -l bin
-				EODF
+				docker build -t bashbrew --pull -q -f oi/bashbrew/Dockerfile.release oi/bashbrew
 				rm -rf bin
-				docker run -i --rm bashbrew:cross tar -c bin \\
+				docker run -i --rm bashbrew tar -c bin \\
 					| tar -xv
 			'''
 		}
