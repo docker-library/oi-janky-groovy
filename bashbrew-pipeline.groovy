@@ -40,8 +40,17 @@ node {
 						&& export CGO_ENABLED=0 \\
 						&& rm -r bin \\
 						&& mkdir bin \\
-						&& export arch='amd64' \
-						&& for os in darwin linux windows; do \\
+						&& for osArch in \\
+							darwin/amd64 \\
+							linux/amd64 \\
+							linux/arm64 \\
+							linux/ppc64le \\
+							linux/s390x \\
+							windows/amd64 \\
+						; do \\
+							os="${osArch%%/*}"; \\
+							arch="${osArch#$os/}"; \\
+							\\
 							[ "$os" = 'windows' ] && ext='.exe' || ext=''; \\
 							\\
 							GOOS="$os" GOARCH="$arch" \\
