@@ -1,3 +1,11 @@
+properties([
+	buildDiscarder(logRotator(daysToKeepStr: '14')),
+	disableConcurrentBuilds(),
+	pipelineTriggers([
+		cron('H H * * H')
+	]),
+])
+
 node {
 	stage('Checkout') {
 		checkout(

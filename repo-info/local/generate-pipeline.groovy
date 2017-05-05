@@ -1,3 +1,11 @@
+properties([
+	buildDiscarder(logRotator(numToKeepStr: '10')),
+	disableConcurrentBuilds(),
+	pipelineTriggers([
+		cron('H H * * *')
+	]),
+])
+
 node {
 	stage('Checkout') {
 		checkout(
@@ -49,10 +57,9 @@ node {
 									branch('*/master')
 									extensions {
 										cleanAfterCheckout()
-										relativeTargetDirectory('oi-janky-groovy')
 									}
 								}
-								scriptPath('oi-janky-groovy/repo-info/local/target-pipeline.groovy')
+								scriptPath('repo-info/local/target-pipeline.groovy')
 							}
 						}
 					}

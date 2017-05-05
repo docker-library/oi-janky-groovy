@@ -17,10 +17,9 @@ for (repo in vars.repos) {
 						branch('*/master')
 						extensions {
 							cleanAfterCheckout()
-							relativeTargetDirectory('oi-janky-groovy')
 						}
 					}
-					scriptPath('oi-janky-groovy/update.sh/target-pipeline.groovy')
+					scriptPath('update.sh/target-pipeline.groovy')
 				}
 			}
 		}

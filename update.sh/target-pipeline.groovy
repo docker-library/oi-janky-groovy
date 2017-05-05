@@ -1,3 +1,5 @@
+// properties are set via "generate-pipeline.groovy" (jobDsl)
+
 // we can't use "load()" here because we don't have a file context (or a real checkout of "oi-janky-groovy" -- the pipeline plugin hides that checkout from the actual pipeline execution)
 def vars = fileLoader.fromGit(
 	'update.sh/vars.groovy', // script

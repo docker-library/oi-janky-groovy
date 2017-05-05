@@ -1,6 +1,8 @@
+// properties are set via "generate-pipeline.groovy" (jobDsl)
+
 def repo = env.JOB_BASE_NAME
 
-lock('repo-info-local') { node {
+lock(label: 'repo-info-local', quantity: 1) { node {
 	stage('Checkout') {
 		checkout(
 			poll: false,
