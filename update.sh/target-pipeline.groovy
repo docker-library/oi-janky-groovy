@@ -1,4 +1,4 @@
-def vars = load('oi-janky-groovy/update.sh/vars.groovy')
+def vars = load(path: 'oi-janky-groovy/update.sh/vars.groovy')
 def repo = env.JOB_BASE_NAME
 def repoMeta = vars.repoMeta(repo)
 
