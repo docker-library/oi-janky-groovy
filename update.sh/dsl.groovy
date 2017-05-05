@@ -23,5 +23,8 @@ for (repo in vars.repos) {
 				}
 			}
 		}
+		configure {
+			it / definition / lightweight(true)
+		}
 	}
 }

@@ -63,6 +63,9 @@ node {
 							}
 						}
 					}
+					configure {
+						it / definition / lightweight(true)
+					}
 				}
 			"""
 		}
