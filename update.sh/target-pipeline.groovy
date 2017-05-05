@@ -1,4 +1,11 @@
-def vars = load(path: 'oi-janky-groovy/update.sh/vars.groovy')
+// we can't use "load()" here because we don't have a file context (or a real checkout of "oi-janky-groovy" -- the pipeline plugin hides that checkout from the actual pipeline execution)
+def vars = fileLoader.fromGit(
+	'update.sh/vars.groovy', // script
+	'https://github.com/docker-library/oi-janky-groovy.git', // repo
+	'master', // branch
+	null, // credentialsId
+	'', // node/label
+)
 def repo = env.JOB_BASE_NAME
 def repoMeta = vars.repoMeta(repo)
 
