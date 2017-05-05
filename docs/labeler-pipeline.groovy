@@ -24,7 +24,7 @@ node {
 	}
 
 	dir('labeler') {
-		wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+		ansiColor('xterm') {
 			stage('Build') {
 				sh 'docker build -t docker-library-issue-labeler .'
 			}

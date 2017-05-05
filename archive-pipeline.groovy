@@ -37,7 +37,7 @@ node {
 		)
 	}
 
-	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+	ansiColor('xterm') {
 		sshagent(['docker-library-bot']) {
 			stage('Archive') {
 				sh('''

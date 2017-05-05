@@ -74,7 +74,7 @@ node {
 	def testRun = workspace + '/oi/test/run.sh'
 	def testBuildNamespace = 'update.sh'
 
-	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) { dir('repo') {
+	ansiColor('xterm') { dir('repo') {
 		stage('update.sh') {
 			sh './update.sh'
 		}

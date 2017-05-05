@@ -36,7 +36,7 @@ node {
 		)
 	}
 
-	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+	ansiColor('xterm') {
 		stage('Update') {
 			sh('''
 				export BASHBREW_LIBRARY="$PWD/oi/library"

@@ -46,7 +46,7 @@ node {
 		)
 	}
 
-	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+	ansiColor('xterm') {
 		stage('Update') {
 			sh('''
 				export BASHBREW_LIBRARY="$PWD/oi/library"
@@ -78,7 +78,7 @@ node {
 		}
 	}
 
-	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+	ansiColor('xterm') {
 		withCredentials([[
 			$class: 'UsernamePasswordMultiBinding',
 			credentialsId: 'docker-hub-stackbrew',

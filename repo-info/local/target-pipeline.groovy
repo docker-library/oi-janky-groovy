@@ -61,7 +61,7 @@ lock('repo-info-local') { node {
 		}
 	}
 
-	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) { dir('ri') {
+	ansiColor('xterm') { dir('ri') {
 		stage('Prepare') {
 			sh '''
 				docker pull $(awk '$1 == "FROM" { print $2; exit }' Dockerfile.local)

@@ -28,7 +28,7 @@ node {
 		)
 	}
 
-	wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'xterm']) {
+	ansiColor('xterm') {
 		stage('Build') {
 			sh '''
 				docker build -t bashbrew --pull -q -f oi/bashbrew/Dockerfile.release oi/bashbrew
