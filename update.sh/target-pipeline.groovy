@@ -1,10 +1,4 @@
-def vars = fileLoader.fromGit(
-	'update.sh/vars.groovy', // script
-	'https://github.com/docker-library/oi-janky-groovy.git', // repo
-	'master', // branch
-	null, // credentialsId
-	'', // node/label
-)
+def vars = load('oi-janky-groovy/update.sh/vars.groovy')
 def repo = env.JOB_BASE_NAME
 def repoMeta = vars.repoMeta(repo)
 
