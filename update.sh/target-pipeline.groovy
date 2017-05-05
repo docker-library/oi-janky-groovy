@@ -76,7 +76,9 @@ node {
 
 	ansiColor('xterm') { dir('repo') {
 		stage('update.sh') {
-			sh './update.sh'
+			retry(3) {
+				sh './update.sh'
+			}
 		}
 
 		stage('Diff') {
@@ -162,19 +164,21 @@ node {
 
 		stage('Test') {
 			if (hasChanges) {
-				sh '#!/bin/bash -ex' + """
-					bashbrew cat -f '{{ range .Entries }}{{ \$.DockerFrom . }}{{ "\\n" }}{{ end }}' '${repo}' \\
-						| sort -u \\
-						| grep -vE '^(scratch|microsoft/(nanoserver|windowsservercore):.*)\$' \\
-						| xargs -rtn1 docker pull \\
-						|| :
-					bashbrew build '${repo}'
-					bashbrew tag --namespace '${testBuildNamespace}' '${repo}'
-					# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
-					bashbrew list --apply-constraints --uniq '${repo}' \\
-						| sed 's!^!${testBuildNamespace}/!' \\
-						| xargs '${testRun}'
-				"""
+				retry(3) {
+					sh '#!/bin/bash -ex' + """
+						bashbrew cat -f '{{ range .Entries }}{{ \$.DockerFrom . }}{{ "\\n" }}{{ end }}' '${repo}' \\
+							| sort -u \\
+							| grep -vE '^(scratch|microsoft/(nanoserver|windowsservercore):.*)\$' \\
+							| xargs -rtn1 docker pull \\
+							|| :
+						bashbrew build '${repo}'
+						bashbrew tag --namespace '${testBuildNamespace}' '${repo}'
+						# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
+						bashbrew list --apply-constraints --uniq '${repo}' \\
+							| sed 's!^!${testBuildNamespace}/!' \\
+							| xargs '${testRun}'
+					"""
+				}
 			} else {
 				echo("No changes in ${repo}!  Skipping.")
 			}
