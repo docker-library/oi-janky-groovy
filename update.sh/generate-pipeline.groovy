@@ -2,7 +2,7 @@ properties([
 	buildDiscarder(logRotator(numToKeepStr: '10')),
 	disableConcurrentBuilds(),
 	pipelineTriggers([
-		cron('H H * * H')
+		cron('H H * * H'),
 	]),
 ])
 
