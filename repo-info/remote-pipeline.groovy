@@ -7,6 +7,8 @@ properties([
 ])
 
 node {
+	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+
 	stage('Checkout') {
 		checkout(
 			poll: false,
@@ -19,8 +21,13 @@ node {
 				]],
 				branches: [[name: '*/master']],
 				extensions: [
-					[$class: 'RelativeTargetDirectory', relativeTargetDir: 'ri'],
-					[$class: 'CleanCheckout'],
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'ri',
+					],
 				],
 				doGenerateSubmoduleConfigurations: false,
 				submoduleCfg: [],
@@ -35,8 +42,13 @@ node {
 				]],
 				branches: [[name: '*/master']],
 				extensions: [
-					[$class: 'RelativeTargetDirectory', relativeTargetDir: 'oi'],
-					[$class: 'CleanCheckout'],
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'oi',
+					],
 				],
 				doGenerateSubmoduleConfigurations: false,
 				submoduleCfg: [],
@@ -44,42 +56,35 @@ node {
 		)
 	}
 
-	ansiColor('xterm') {
+	ansiColor('xterm') { dir('ri') {
 		stage('Update') {
 			sh('''
-				export BASHBREW_LIBRARY="$PWD/oi/library"
-
-				cd ri
 				./update-remote.sh
 			''')
 		}
-	}
 
-	stage('Commit') {
-		sh('''
-			cd ri
-
-			git config user.name 'Docker Library Bot'
-			git config user.email 'github+dockerlibrarybot@infosiftr.com'
-
-			git add repos || :
-			git commit -m 'Run update-remote.sh' || :
-		''')
-	}
-
-	stage('Push') {
-		sshagent(['docker-library-bot']) {
+		stage('Commit') {
 			sh('''
-				cd ri
+				git config user.name 'Docker Library Bot'
+				git config user.email 'github+dockerlibrarybot@infosiftr.com'
 
-				# try catching up since this job takes so long to run
-				git checkout -- .
-				git clean -dfx .
-				git pull --rebase origin master || :
-
-				# fire away!
-				git push origin HEAD:master
+				git add repos || :
+				git commit -m 'Run update-remote.sh' || :
 			''')
+		}
+
+		sshagent(['docker-library-bot']) {
+			stage('Push') {
+				sh('''
+					# try catching up since this job takes so long to run
+					git checkout -- .
+					git clean -dfx .
+					git pull --rebase origin master || :
+
+					# fire away!
+					git push origin HEAD:master
+				''')
+			}
 		}
 	}
 }

@@ -18,10 +18,12 @@ node {
 				branches: [[name: '*/master']],
 				extensions: [
 					[
+						$class: 'CleanCheckout',
+					],
+					[
 						$class: 'RelativeTargetDirectory',
 						relativeTargetDir: 'hc',
 					],
-					[$class: 'CleanCheckout'],
 				],
 				doGenerateSubmoduleConfigurations: false,
 				submoduleCfg: [],

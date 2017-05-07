@@ -12,10 +12,8 @@ def repo = env.JOB_BASE_NAME
 def repoMeta = vars.repoMeta(repo)
 
 node {
-	def workspace = sh(returnStdout: true, script: 'pwd').trim()
-
-	env.BASHBREW_CACHE = workspace + '/bashbrew-cache'
-	env.BASHBREW_LIBRARY = workspace + '/oi/library'
+	env.BASHBREW_CACHE = env.WORKSPACE + '/bashbrew-cache'
+	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {
 		sh 'mkdir -p "$BASHBREW_CACHE"'
@@ -147,9 +145,7 @@ node {
 				(
 					./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo"
 
-					pwd="$PWD"
-					cd "$BASHBREW_CACHE/git"
-					git fetch "$pwd" HEAD:
+					git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
 				)
 			'''
 		}

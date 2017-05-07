@@ -7,6 +7,8 @@ properties([
 ])
 
 node {
+	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+
 	stage('Checkout') {
 		checkout(
 			poll: true,
@@ -54,39 +56,31 @@ node {
 		)
 	}
 
-	ansiColor('xterm') {
+	ansiColor('xterm') { dir('d') {
 		stage('Update') {
 			sh('''
-				export BASHBREW_LIBRARY="$PWD/oi/library"
-
-				cd d
 				./update.sh
 			''')
 		}
-	}
 
-	stage('Commit') {
-		sh('''
-			cd d
-
-			git config user.name 'Docker Library Bot'
-			git config user.email 'github+dockerlibrarybot@infosiftr.com'
-
-			git add . || :
-			git commit -m 'Run update.sh' || :
-		''')
-	}
-
-	sshagent(['docker-library-bot']) {
-		stage('Push') {
+		stage('Commit') {
 			sh('''
-				cd d
-				git push origin HEAD:master
+				git config user.name 'Docker Library Bot'
+				git config user.email 'github+dockerlibrarybot@infosiftr.com'
+
+				git add . || :
+				git commit -m 'Run update.sh' || :
 			''')
 		}
-	}
 
-	ansiColor('xterm') {
+		sshagent(['docker-library-bot']) {
+			stage('Push') {
+				sh('''
+					git push origin HEAD:master
+				''')
+			}
+		}
+
 		withCredentials([[
 			$class: 'UsernamePasswordMultiBinding',
 			credentialsId: 'docker-hub-stackbrew',
@@ -95,7 +89,6 @@ node {
 		]]) {
 			stage('Deploy') {
 				sh('''
-					cd d
 					docker build --pull -t docker-library-docs -q .
 					test -t 1 && it='-it' || it='-i'
 					set +x
@@ -108,5 +101,5 @@ node {
 				''')
 			}
 		}
-	}
+	} }
 }

@@ -3,6 +3,8 @@
 def repo = env.JOB_BASE_NAME
 
 lock(label: 'repo-info-local', quantity: 1) { node {
+	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+
 	stage('Checkout') {
 		checkout(
 			poll: false,
@@ -15,8 +17,13 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 				]],
 				branches: [[name: '*/master']],
 				extensions: [
-					[$class: 'RelativeTargetDirectory', relativeTargetDir: 'ri'],
-					[$class: 'CleanCheckout'],
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'ri',
+					],
 				],
 				doGenerateSubmoduleConfigurations: false,
 				submoduleCfg: [],
@@ -31,8 +38,13 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 				]],
 				branches: [[name: '*/master']],
 				extensions: [
-					[$class: 'RelativeTargetDirectory', relativeTargetDir: 'oi'],
-					[$class: 'CleanCheckout'],
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'oi',
+					],
 				],
 				doGenerateSubmoduleConfigurations: false,
 				submoduleCfg: [],
@@ -47,7 +59,6 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 			script: """
 				repo='${repo}'
 			""" + '''
-				export BASHBREW_LIBRARY="$PWD/oi/library"
 				bashbrew cat -f '
 					{{- range $.Entries -}}
 						{{- if not ($.SkipConstraints .) -}}

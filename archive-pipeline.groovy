@@ -7,6 +7,8 @@ properties([
 ])
 
 node {
+	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+
 	stage('Checkout') {
 		checkout(
 			poll: false,
@@ -19,9 +21,18 @@ node {
 				]],
 				branches: [[name: '*/master']],
 				extensions: [
-					[$class: 'CloneOption', honorRefspec: true, noTags: true],
-					[$class: 'RelativeTargetDirectory', relativeTargetDir: 'archive'],
-					[$class: 'CleanCheckout'],
+					[
+						$class: 'CloneOption',
+						honorRefspec: true,
+						noTags: true,
+					],
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'archive',
+					],
 				],
 				doGenerateSubmoduleConfigurations: false,
 				submoduleCfg: [],
@@ -36,8 +47,13 @@ node {
 				]],
 				branches: [[name: '*/master']],
 				extensions: [
-					[$class: 'RelativeTargetDirectory', relativeTargetDir: 'oi'],
-					[$class: 'CleanCheckout'],
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'oi',
+					],
 				],
 				doGenerateSubmoduleConfigurations: false,
 				submoduleCfg: [],
@@ -45,16 +61,13 @@ node {
 		)
 	}
 
-	ansiColor('xterm') {
+	ansiColor('xterm') { dir('archive') {
 		sshagent(['docker-library-bot']) {
 			stage('Archive') {
 				sh('''
-					export BASHBREW_LIBRARY="$PWD/oi/library"
-
-					cd archive
 					./all-bad.sh
 				''')
 			}
 		}
-	}
+	} }
 }

@@ -7,6 +7,8 @@ properties([
 ])
 
 node {
+	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+
 	stage('Checkout') {
 		checkout(
 			poll: true,
@@ -17,8 +19,13 @@ node {
 				]],
 				branches: [[name: '*/master']],
 				extensions: [
-					[$class: 'RelativeTargetDirectory', relativeTargetDir: 'oi'],
-					[$class: 'CleanCheckout'],
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'oi',
+					],
 				],
 				doGenerateSubmoduleConfigurations: false,
 				submoduleCfg: [],
@@ -31,7 +38,6 @@ node {
 		repos = sh(
 			returnStdout: true,
 			script: '''
-				export BASHBREW_LIBRARY="$PWD/oi/library"
 				bashbrew list --all --repos
 			''',
 		).trim().tokenize('\n')
