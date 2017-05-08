@@ -15,7 +15,7 @@ def vars = fileLoader.fromGit(
 	'', // node/label
 )
 
-node {
+node('master') {
 	stage('Generate') {
 		for (arch in vars.arches) {
 			for (img in vars.archImages(arch)) {
