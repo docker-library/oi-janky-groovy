@@ -40,7 +40,8 @@ node('master') {
 
 	stage('Generate') {
 		for (arch in vars.arches) {
-			for (img in vars.archImages(arch)) {
+			def archImages = vars.archImages(arch)
+			for (img in archImages) {
 				def imageMeta = vars.imagesMeta[img]
 				if (fileExists("oi-janky-groovy/${imageMeta['pipeline']}")) {
 					echo("${arch}/${img} => ${imageMeta['pipeline']}")
