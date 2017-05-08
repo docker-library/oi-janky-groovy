@@ -57,30 +57,18 @@ node('master') {
 							//cron('H H * * *')
 						}
 						definition {
-							// "fileExists" throws annoying exceptions ("java.io.NotSerializableException: java.util.LinkedHashMap\$LinkedKeyIterator")
-							// so we'll do it from Job DSL instead
-							if (readFileFromWorkspace('oi-janky-groovy/${imageMeta['pipeline']}') != null) {
-								cpsScm {
-									scm {
-										git {
-											remote {
-												url('https://github.com/docker-library/oi-janky-groovy.git')
-											}
-											branch('*/master')
-											extensions {
-												cleanAfterCheckout()
-											}
+							cpsScm {
+								scm {
+									git {
+										remote {
+											url('https://github.com/docker-library/oi-janky-groovy.git')
 										}
-										scriptPath('${imageMeta['pipeline']}')
+										branch('*/master')
+										extensions {
+											cleanAfterCheckout()
+										}
 									}
-								}
-							}
-							else {
-								cps {
-									script('''
-										error('The configured script ("${imageMeta['pipeline']}") does not exist yet!')
-									''')
-									sandbox()
+									scriptPath('${imageMeta['pipeline']}')
 								}
 							}
 						}
