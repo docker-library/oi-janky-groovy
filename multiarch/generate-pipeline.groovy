@@ -18,6 +18,7 @@ def vars = fileLoader.fromGit(
 node('master') {
 	stage('Generate') {
 		def dsl = ''
+
 		for (arch in vars.arches) {
 			def archImages = vars.archImages(arch)
 			dsl += """
@@ -56,6 +57,42 @@ node('master') {
 				// "fileExists" throws annoying exceptions ("java.io.NotSerializableException: java.util.LinkedHashMap$LinkedKeyIterator")
 			}
 		}
+
+		dsl += '''
+			nestedView('arches') {
+				columns {
+					status()
+					weather()
+				}
+				views {
+		'''
+		for (arch in vars.arches) {
+			dsl += """
+					listView('${arch}') {
+						jobs {
+							regex('${arch}/.*')
+						}
+						filterBuildQueue()
+						filterExecutors()
+						recurse()
+						columns {
+							status()
+							weather()
+							name()
+							lastSuccess()
+							lastFailure()
+							lastDuration()
+							nextLaunch()
+							buildButton()
+						}
+					}
+			"""
+		}
+		dsl += '''
+				}
+			}
+		'''
+
 		dsl += '''
 			nestedView('images') {
 				columns {
@@ -90,6 +127,7 @@ node('master') {
 				}
 			}
 		'''
+
 		jobDsl(
 			lookupStrategy: 'SEED_JOB',
 			removedJobAction: 'DELETE',
