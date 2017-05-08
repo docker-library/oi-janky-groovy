@@ -42,7 +42,7 @@ node('master') {
 		for (arch in vars.arches) {
 			for (img in vars.archImages(arch)) {
 				def imageMeta = vars.imagesMeta[img]
-				if (!fileExists("oi-janky-groovy/${imageMeta['pipeline'}")) {
+				if (!fileExists("oi-janky-groovy/${imageMeta['pipeline']}")) {
 					echo("\n\nWARNING: '${imageMeta['pipeline']}' does not exist! (needed for '${img}')\n\n")
 					continue
 				}
