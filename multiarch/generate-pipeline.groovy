@@ -20,11 +20,9 @@ node('master') {
 		def dsl = ''
 		for (arch in vars.arches) {
 			def archImages = vars.archImages(arch)
-			if (archImages.size() > 0) {
-				dsl += """
-					folder('${arch}')
-				"""
-			}
+			dsl += """
+				folder('${arch}')
+			"""
 			for (img in archImages) {
 				def imageMeta = vars.imagesMeta[img]
 				dsl += """
