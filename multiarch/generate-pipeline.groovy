@@ -6,20 +6,43 @@ properties([
 	]),
 ])
 
-// we can't use "load()" here because we don't have a file context (or a real checkout of "oi-janky-groovy" -- the pipeline plugin hides that checkout from the actual pipeline execution)
-def vars = fileLoader.fromGit(
-	'multiarch/vars.groovy', // script
-	'https://github.com/docker-library/oi-janky-groovy.git', // repo
-	'master', // branch
-	null, // credentialsId
-	'', // node/label
-)
-
 node('master') {
+	stage('Checkout') {
+		checkout(
+			poll: true,
+			scm: [
+				$class: 'GitSCM',
+				userRemoteConfigs: [[
+					url: 'https://github.com/docker-library/oi-janky-groovy.git',
+				]],
+				branches: [[name: '*/master']],
+				extensions: [
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'oi-janky-groovy',
+					],
+					[
+						$class: 'PathRestriction',
+						excludedRegions: '',
+						includedRegions: 'multiarch',
+					],
+				],
+				doGenerateSubmoduleConfigurations: false,
+				submoduleCfg: [],
+			],
+		)
+	}
+
+	def vars = load('oi-janky-groovy/multiarch/vars.groovy')
+
 	stage('Generate') {
 		for (arch in vars.arches) {
 			for (img in vars.archImages(arch)) {
-				echo("${arch}/${img}")
+				def imageMeta = vars.imagesMeta[img]
+				echo("${arch}/${img} => ${imageMeta['pipeline']}}")
 			}
 		}
 		error('TODO WIP')
