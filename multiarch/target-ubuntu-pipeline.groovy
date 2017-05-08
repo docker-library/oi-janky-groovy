@@ -31,6 +31,7 @@ node(targetNode) {
 				$class: 'GitSCM',
 				userRemoteConfigs: [[
 					url: 'https://github.com/tianon/docker-brew-ubuntu-core.git',
+					refspec: '+refs/heads/master:refs/remotes/origin/master',
 				]],
 				branches: [[name: '*/master']],
 				extensions: [
