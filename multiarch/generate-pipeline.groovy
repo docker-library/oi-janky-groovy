@@ -21,6 +21,7 @@ node('master') {
 
 		for (arch in vars.arches) {
 			def archImages = vars.archImages(arch)
+			def ns = vars.archNamespace(arch)
 			dsl += """
 				folder('${arch}')
 			"""
@@ -28,6 +29,14 @@ node('master') {
 				def imageMeta = vars.imagesMeta[img]
 				dsl += """
 					pipelineJob('${arch}/${img}') {
+						description('''
+							Useful links:
+							<ul>
+								<li><a href="https://hub.docker.com/r/${ns}/${img}/"><code>docker.io/${ns}/${img}</code></a></li>
+								<li><a href="https://hub.docker.com/_/${img}/"><code>docker.io/library/${img}</code></a></li>
+								<li><a href="https://github.com/docker-library/official-images/blob/master/library/${img}"><code>oi/library/${img}</code></a></li>
+							</ul>
+						''')
 						logRotator { daysToKeep(14) }
 						concurrentBuild(false)
 						triggers {
