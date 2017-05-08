@@ -40,6 +40,9 @@ node(targetNode) {
 						noTags: true,
 					],
 					[
+						$class: 'CleanCheckout',
+					],
+					[
 						$class: 'RelativeTargetDirectory',
 						relativeTargetDir: 'brew',
 					],
@@ -56,24 +59,18 @@ node(targetNode) {
 		dir('brew') {
 			stage('Prep') {
 				sh '''
-					# delete deprecated suites
-					# (piping to "cut" because "git clean" will not delete the directory itself if there's a trailing slash)
-					git ls-files --others --directory '*/' \\
-						| cut -d/ -f1 \\
-						| xargs --no-run-if-empty git clean -dfx
-
 					echo "$DPKG_ARCH" > arch
 					echo "$TARGET_NAMESPACE/$ACT_ON_IMAGE" > repo
 				'''
 			}
 			stage('Update') { sh './update.sh' }
-			stage('Generate') { sh './generate-stackbrew-library > "../$ACT_ON_IMAGE"' }
 			stage('Commit') {
 				sh '''
 					git add -A .
 					git commit -m "Update for $ACT_ON_ARCH"
 				'''
 			}
+			stage('Generate') { sh './generate-stackbrew-library.sh > "../$ACT_ON_IMAGE"' }
 			stage('Seed Cache') {
 				sh '''
 					# ensure the bashbrew cache directory exists, and has an initialized Git repo
