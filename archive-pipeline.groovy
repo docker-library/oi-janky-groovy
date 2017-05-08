@@ -11,7 +11,7 @@ node {
 
 	stage('Checkout') {
 		checkout(
-			poll: false,
+			poll: true,
 			scm: [
 				$class: 'GitSCM',
 				userRemoteConfigs: [[
@@ -53,6 +53,11 @@ node {
 					[
 						$class: 'RelativeTargetDirectory',
 						relativeTargetDir: 'oi',
+					],
+					[
+						$class: 'PathRestriction',
+						excludedRegions: '',
+						includedRegions: 'library',
 					],
 				],
 				doGenerateSubmoduleConfigurations: false,

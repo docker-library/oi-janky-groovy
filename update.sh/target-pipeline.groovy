@@ -19,6 +19,7 @@ node {
 		sh 'mkdir -p "$BASHBREW_CACHE"'
 		checkout(
 			poll: false,
+			changelog: false,
 			scm: [
 				$class: 'GitSCM',
 				userRemoteConfigs: [[

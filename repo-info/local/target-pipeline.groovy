@@ -8,6 +8,7 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 	stage('Checkout') {
 		checkout(
 			poll: false,
+			changelog: false,
 			scm: [
 				$class: 'GitSCM',
 				userRemoteConfigs: [[

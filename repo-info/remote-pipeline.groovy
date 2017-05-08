@@ -12,6 +12,7 @@ node {
 	stage('Checkout') {
 		checkout(
 			poll: false,
+			changelog: false,
 			scm: [
 				$class: 'GitSCM',
 				userRemoteConfigs: [[
