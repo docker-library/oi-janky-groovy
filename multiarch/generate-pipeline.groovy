@@ -92,38 +92,6 @@ node('master') {
 				// "fileExists" throws annoying exceptions ("java.io.NotSerializableException: java.util.LinkedHashMap$LinkedKeyIterator")
 			}
 		}
-		echo(dsl)
-		error('TODO WIP')
-		for (repo in repos) {
-			dsl += """
-				pipelineJob('${repo}') {
-					logRotator { daysToKeep(4) }
-					concurrentBuild(false)
-					triggers {
-						cron('H H * * H/3')
-					}
-					definition {
-						cpsScm {
-							scm {
-								git {
-									remote {
-										url('https://github.com/docker-library/oi-janky-groovy.git')
-									}
-									branch('*/master')
-									extensions {
-										cleanAfterCheckout()
-									}
-								}
-								scriptPath('repo-info/local/target-pipeline.groovy')
-							}
-						}
-					}
-					configure {
-						it / definition / lightweight(true)
-					}
-				}
-			"""
-		}
 		jobDsl(
 			lookupStrategy: 'SEED_JOB',
 			removedJobAction: 'DELETE',
