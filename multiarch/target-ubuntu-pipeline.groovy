@@ -66,6 +66,9 @@ node(targetNode) {
 			stage('Update') { sh './update.sh' }
 			stage('Commit') {
 				sh '''
+					git config user.name 'Docker Library Bot'
+					git config user.email 'github+dockerlibrarybot@infosiftr.com'
+
 					git add -A .
 					git commit -m "Update for $ACT_ON_ARCH"
 				'''
