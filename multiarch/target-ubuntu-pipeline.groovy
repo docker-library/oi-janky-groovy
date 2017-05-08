@@ -19,7 +19,7 @@ if (!env.DPKG_ARCH) {
 
 env.TARGET_NAMESPACE = vars.archNamespace(env.ACT_ON_ARCH)
 
-node(vars.node(env.ACT_ON_IMAGE, env.ACT_ON_ARCH)) {
+node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 	env.BASHBREW_CACHE = env.WORKSPACE + '/bashbrew-cache'
 	env.BASHBREW_LIBRARY = env.WORKSPACE
 

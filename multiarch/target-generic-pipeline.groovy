@@ -14,7 +14,7 @@ env.ACT_ON_ARCH = env.JOB_NAME.split('/')[-2] // "i386", etc
 
 env.TARGET_NAMESPACE = vars.archNamespace(env.ACT_ON_ARCH)
 
-node(vars.node(env.ACT_ON_IMAGE, env.ACT_ON_ARCH)) {
+node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {
