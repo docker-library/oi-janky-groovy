@@ -116,7 +116,7 @@ images = []
 def archImages(arch) {
 	ret = []
 	for (image in images) {
-		if (arch in imageMeta[image]['arches']) {
+		if (arch in imagesMeta[image]['arches']) {
 			ret << image
 		}
 	}
