@@ -59,7 +59,7 @@ node('master') {
 						definition {
 							// "fileExists" throws annoying exceptions ("java.io.NotSerializableException: java.util.LinkedHashMap\$LinkedKeyIterator")
 							// so we'll do it from Job DSL instead
-							if (readFileFromWorkspace('oi-janky-groovy/${imageMeta['pipeline']}') != null {
+							if (readFileFromWorkspace('oi-janky-groovy/${imageMeta['pipeline']}') != null) {
 								cpsScm {
 									scm {
 										git {
