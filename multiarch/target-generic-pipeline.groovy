@@ -1,3 +1,5 @@
+// properties are set via "generate-pipeline.groovy" (jobDsl)
+
 env.ACT_ON_IMAGE = env.JOB_BASE_NAME // "memcached", etc
 env.ACT_ON_ARCH = env.JOB_NAME.split('/')[-2] // "i386", etc
 
