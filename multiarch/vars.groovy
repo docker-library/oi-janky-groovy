@@ -1,12 +1,14 @@
+// https://github.com/jenkinsci/pipeline-examples/blob/666e5e3f8104efd090e698aa9b5bc09dd6bf5997/docs/BEST_PRACTICES.md#groovy-gotchas
+// tl;dr, iterating over Maps in pipeline groovy is pretty broken in real-world use
 archesMeta = [
-	//'amd64': [:],
-	//'arm32v5': [:],
-	//'arm32v6': [:],
-	//'arm32v7': [:],
-	//'arm64v8': [:],
-	'i386': [:],
-	//'ppc64le': [:],
-	's390x': [:],
+	//['amd64', [:]],
+	//['arm32v5', [:]],
+	//['arm32v6', [:]],
+	//['arm32v7', [:]],
+	//['arm64v8', [:]],
+	['i386', [:]],
+	//['ppc64le', [:]],
+	['s390x', [:]],
 ]
 dpkgArches = [
 	'amd64': 'amd64',
@@ -29,8 +31,8 @@ apkArches = [
 ]
 
 def defaultImageMeta = [
-	'arches': ['amd64'] as Set,
-	'pipeline': 'multiarch/target-generic-pipeline.groovy',
+	['arches', ['amd64'] as Set],
+	['pipeline', 'multiarch/target-generic-pipeline.groovy'],
 ]
 
 imagesMeta = [:]
@@ -126,9 +128,8 @@ for (int i = 0; i < archesMeta.size(); ++i) {
 
 	arches << arch
 }
-for (int i = 0; i < imagesMeta.size(); ++i) {
-	def image = imagesMeta[i][0]
-	def imageMeta = imagesMeta[i][1]
+for (image in imagesMeta.keySet()) {
+	def imageMeta = imagesMeta[image]
 
 	// apply "defaultImageMeta" for missing bits
 	//   wouldn't it be grand if we could just use "map1 + map2" here??
