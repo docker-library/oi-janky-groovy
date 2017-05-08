@@ -6,7 +6,7 @@ def vars = fileLoader.fromGit(
 	'https://github.com/docker-library/oi-janky-groovy.git', // repo
 	'master', // branch
 	null, // credentialsId
-	'', // node/label
+	'master', // node/label
 )
 
 env.ACT_ON_IMAGE = env.JOB_BASE_NAME // "memcached", etc
