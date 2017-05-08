@@ -108,19 +108,19 @@ for (img in [
 }
 
 // list of arches
-arches = [] as Set
+arches = []
 // list of images
-images = [] as Set
+images = []
 
 // given an arch, returns a list of images
 def archImages(arch) {
-	ret = [] as Set
+	ret = []
 	for (image in images) {
 		if (arch in imageMeta[image]['arches']) {
 			ret << image
 		}
 	}
-	return ret
+	return ret as Set
 }
 
 for (int i = 0; i < archesMeta.size(); ++i) {
@@ -128,6 +128,7 @@ for (int i = 0; i < archesMeta.size(); ++i) {
 
 	arches << arch
 }
+arches = arches as Set
 for (image in imagesMeta.keySet()) {
 	def imageMeta = imagesMeta[image]
 
@@ -145,6 +146,7 @@ for (image in imagesMeta.keySet()) {
 	images << image
 	imagesMeta[image] = imageMeta
 }
+images = images as Set
 
 // return "this" (for use via "load" in Jenkins pipeline, for example)
 this
