@@ -59,41 +59,6 @@ node('master') {
 		}
 
 		dsl += '''
-			nestedView('arches') {
-				columns {
-					status()
-					weather()
-				}
-				views {
-		'''
-		for (arch in vars.arches) {
-			dsl += """
-					listView('${arch}') {
-						jobs {
-							regex('${arch}/.*')
-						}
-						filterBuildQueue()
-						filterExecutors()
-						recurse()
-						columns {
-							status()
-							weather()
-							name()
-							lastSuccess()
-							lastFailure()
-							lastDuration()
-							nextLaunch()
-							buildButton()
-						}
-					}
-			"""
-		}
-		dsl += '''
-				}
-			}
-		'''
-
-		dsl += '''
 			nestedView('images') {
 				columns {
 					status()
@@ -107,8 +72,6 @@ node('master') {
 						jobs {
 							regex('.*/${image}')
 						}
-						filterBuildQueue()
-						filterExecutors()
 						recurse()
 						columns {
 							status()
