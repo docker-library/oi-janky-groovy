@@ -100,6 +100,25 @@ node('master') {
 			}
 		'''
 
+		dsl += '''
+			listView('flat') {
+				jobs {
+					regex('.*')
+				}
+				recurse()
+				columns {
+					status()
+					weather()
+					name()
+					lastSuccess()
+					lastFailure()
+					lastDuration()
+					nextLaunch()
+					buildButton()
+				}
+			}
+		'''
+
 		jobDsl(
 			lookupStrategy: 'SEED_JOB',
 			removedJobAction: 'DELETE',
