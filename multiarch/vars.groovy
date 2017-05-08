@@ -123,6 +123,16 @@ def archImages(arch) {
 	return ret as Set
 }
 
+// given an arch, returns a target namespace
+def archNamespace(arch) {
+	return arch
+}
+
+// given an arch/image combo, returns a target node expression
+def node(arch, image) {
+	return 'multiarch-' + arch
+}
+
 for (int i = 0; i < archesMeta.size(); ++i) {
 	def arch = archesMeta[i][0]
 

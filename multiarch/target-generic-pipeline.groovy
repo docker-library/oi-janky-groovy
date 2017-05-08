@@ -1,13 +1,20 @@
 // properties are set via "generate-pipeline.groovy" (jobDsl)
 
+// we can't use "load()" here because we don't have a file context (or a real checkout of "oi-janky-groovy" -- the pipeline plugin hides that checkout from the actual pipeline execution)
+def vars = fileLoader.fromGit(
+	'multiarch/vars.groovy', // script
+	'https://github.com/docker-library/oi-janky-groovy.git', // repo
+	'master', // branch
+	null, // credentialsId
+	'master', // node/label
+)
+
 env.ACT_ON_IMAGE = env.JOB_BASE_NAME // "memcached", etc
 env.ACT_ON_ARCH = env.JOB_NAME.split('/')[-2] // "i386", etc
 
-env.TARGET_NAMESPACE = env.ACT_ON_ARCH // TODO possibly parameterized based on vars.archesMeta
+env.TARGET_NAMESPACE = vars.archNamespace(env.ACT_ON_ARCH)
 
-targetNode = 'multiarch-' + env.ACT_ON_ARCH // TODO possibly parameterized
-
-node(targetNode) {
+node(vars.node(env.ACT_ON_IMAGE, env.ACT_ON_ARCH)) {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {

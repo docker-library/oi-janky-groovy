@@ -17,10 +17,9 @@ if (!env.DPKG_ARCH) {
 	error("Unknown 'dpkg' architecture for '${env.ACT_ON_ARCH}'.")
 }
 
-env.TARGET_NAMESPACE = env.ACT_ON_ARCH // TODO possibly parameterized based on vars.archesMeta
+env.TARGET_NAMESPACE = vars.archNamespace(env.ACT_ON_ARCH)
 
-targetNode = 'multiarch-' + env.ACT_ON_ARCH // TODO possibly parameterized
-node(targetNode) {
+node(vars.node(env.ACT_ON_IMAGE, env.ACT_ON_ARCH)) {
 	env.BASHBREW_CACHE = env.WORKSPACE + '/bashbrew-cache'
 	env.BASHBREW_LIBRARY = env.WORKSPACE
 
