@@ -56,6 +56,40 @@ node('master') {
 				// "fileExists" throws annoying exceptions ("java.io.NotSerializableException: java.util.LinkedHashMap$LinkedKeyIterator")
 			}
 		}
+		dsl += '''
+			nestedView('images') {
+				columns {
+					status()
+					weather()
+				}
+				views {
+		'''
+		for (image in vars.images) {
+			dsl += """
+					listView('${image}') {
+						jobs {
+							regex('.*/${image}')
+						}
+						filterBuildQueue()
+						filterExecutors()
+						recurse()
+						columns {
+							status()
+							weather()
+							name()
+							lastSuccess()
+							lastFailure()
+							lastDuration()
+							nextLaunch()
+							buildButton()
+						}
+					}
+			"""
+		}
+		dsl += '''
+				}
+			}
+		'''
 		jobDsl(
 			lookupStrategy: 'SEED_JOB',
 			removedJobAction: 'DELETE',
