@@ -64,6 +64,17 @@ imagesMeta['debian'] = [
 	] as Set,
 	'pipeline': 'multiarch/target-debian-pipeline.groovy',
 ]
+imagesMeta['opensuse'] = [
+	'arches': [
+		// see http://download.opensuse.org/repositories/Virtualization:/containers:/images:/openSUSE-Tumbleweed/images/
+		'amd64',
+		'arm32v7',
+		'arm64v8',
+		'ppc64le',
+		's390x',
+	] as Set,
+	'pipeline': 'multiarch/target-opensuse-pipeline.groovy',
+]
 imagesMeta['ubuntu'] = [
 	'arches': [
 		// see https://partner-images.canonical.com/core/xenial/current/
@@ -84,8 +95,29 @@ imagesMeta['bash'] = [
 imagesMeta['buildpack-deps'] = [
 	'arches': (imagesMeta['debian']['arches'] + imagesMeta['ubuntu']['arches']),
 ]
+imagesMeta['busybox'] = [
+	'arches': (imagesMeta['alpine']['arches'] + imagesMeta['debian']['arches'] + [
+		// uClibc supported architectures
+		// https://git.uclibc.org/uClibc/tree/extra/Configs
+		'amd64',
+		//'arm32v5', // ?
+		//'arm32v6', // ?
+		//'arm32v7', // ?
+		//'arm64v8',
+		//'i386',
+		//'ppc64le',
+		's390x',
+	] as Set,
+	'pipeline': 'multiarch/target-busybox-pipeline.groovy',
+]
+// TODO "docker" (Alpine-only, needs 17.06); https://download.docker.com/linux/static/edge/
+imagesMeta['gcc'] = [
+	'arches': imagesMeta['debian']['arches'],
+]
 imagesMeta['golang'] = [
 	'arches': (imagesMeta['alpine']['arches'] + [
+		// https://golang.org/dl/
+		// https://github.com/docker-library/golang/blob/master/update.sh ("dpkgArches")
 		'amd64',
 		'arm32v7', // "armv6l" binaries, but inside debian's "armhf"
 		'i386',
@@ -94,20 +126,25 @@ imagesMeta['golang'] = [
 	]),
 ]
 imagesMeta['postgres'] = [
-	'arches': [
+	'arches': (imagesMeta['alpine']['arches'] + [
 		// see http://apt.postgresql.org/pub/repos/apt/dists/jessie-pgdg/main/
 		'amd64',
 		'i386',
 		'ppc64le',
-	] as Set,
+	]),
 ]
 
 // only debian and alpine variants
 for (img in [
 	'haproxy',
+	'httpd',
 	'memcached',
-	'openjdk',
+	'openjdk', 'tomcat',
+	'php', 'wordpress',
+	'python',
 	//'rabbitmq', // TODO figure out erlang-solutions.com repo
+	'redis',
+	'ruby',
 	'tomcat',
 ]) {
 	imagesMeta[img] = [
