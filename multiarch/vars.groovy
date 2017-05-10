@@ -107,7 +107,7 @@ imagesMeta['busybox'] = [
 		//'i386',
 		//'ppc64le',
 		's390x',
-	] as Set,
+	]),
 	'pipeline': 'multiarch/target-busybox-pipeline.groovy',
 ]
 // TODO "docker" (Alpine-only, needs 17.06); https://download.docker.com/linux/static/edge/
