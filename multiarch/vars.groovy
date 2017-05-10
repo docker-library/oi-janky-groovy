@@ -93,6 +93,14 @@ imagesMeta['golang'] = [
 		's390x',
 	]),
 ]
+imagesMeta['postgres'] = [
+	'arches': [
+		// see http://apt.postgresql.org/pub/repos/apt/dists/jessie-pgdg/main/
+		'amd64',
+		'i386',
+		'ppc64le',
+	] as Set,
+]
 
 // only debian and alpine variants
 for (img in [
