@@ -80,44 +80,71 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		}
 
 		// gather a list of tags for which we successfully fetched their FROM
-		// TODO handle images that are "FROM $ACT_ON_IMAGE:xxx"
 		env.TAGS = sh(returnStdout: true, script: '#!/bin/bash -e' + '''
-			for tag in $(bashbrew list --apply-constraints --uniq "$ACT_ON_IMAGE" 2>/dev/null); do
+			# gather a list of tags we've seen (filled in build order) so we can catch "FROM $ACT_ON_IMAGE:xxx"
+			declare -A seen=()
+
+			for tag in $(bashbrew list --apply-constraints --build-order --uniq "$ACT_ON_IMAGE" 2>/dev/null); do
 				for from in $(bashbrew cat -f "$BASHBREW_FROMS_TEMPLATE" "$tag" 2>/dev/null); do
 					if [ "$from" = 'scratch' ]; then
 						# scratch doesn't exist, but is permissible
 						continue
 					fi
+
+					if [ -n "${seen[$from]:-}" ]; then
+						# this image is FROM one we're already planning to build, it's good
+						continue
+					fi
+
 					if ! docker inspect --type image "$from" > /dev/null 2>&1; then
 						# skip anything we couldn't successfully pull/tag above
 						continue 2
 					fi
 				done
+
 				echo "$tag"
+
+				# add all aliases to "seen" so we can accurately collect things "FROM $ACT_ON_IMAGE:xxx"
+				for otherTag in $(bashbrew list "$tag"); do
+					seen[$otherTag]=1
+				done
 			done
 		''').trim()
 
-		if (env.TAGS == '') {
-			error 'None of the parents for the tags of this image could be fetched! (so none of them can be built)'
+		stage('Fake It!') {
+			if (env.TAGS == '') {
+				error 'None of the parents for the tags of this image could be fetched! (so none of them can be built)'
+			}
+
+			sh '''
+				{
+					echo "Maintainers: Docker Library Bot <$ACT_ON_ARCH> (@docker-library-bot)"
+					echo
+					bashbrew cat $TAGS
+				} > "./$ACT_ON_IMAGE"
+				mv -v "./$ACT_ON_IMAGE" "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+				bashbrew cat "$ACT_ON_IMAGE"
+				bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
+			'''
 		}
 
 		stage('Build') {
 			retry(3) {
 				sh '''
-					bashbrew build $TAGS
+					bashbrew build "$ACT_ON_IMAGE"
 				'''
 			}
 		}
 
 		stage('Tag') {
 			sh '''
-				bashbrew tag --namespace "$TARGET_NAMESPACE" $TAGS
+				bashbrew tag --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
 			'''
 		}
 
 		stage('Push') {
 			sh '''
-				bashbrew push --namespace "$TARGET_NAMESPACE" $TAGS
+				bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
 			'''
 		}
 	}
