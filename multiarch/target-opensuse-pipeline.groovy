@@ -78,73 +78,75 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 	''').trim().tokenize()
 
 	ansiColor('xterm') {
-		env.VERSIONS = ''
-		for (version in versions) {
-			dir('opensuse/' + version) {
-				deleteDir() // make sure we start with a clean slate every time
-				withEnv([
-					"ROOTFS_URL=http://download.opensuse.org/repositories/Virtualization:/containers:/images:/openSUSE-${version}/images/openSUSE-${version}-docker-guest-docker.${env.OPENSUSE_ARCH}.tar.xz",
-					// use upstream's exact Dockerfile as-is
-					"DOCKERFILE_URL=https://raw.githubusercontent.com/openSUSE/docker-containers-build/openSUSE-${version}/docker/Dockerfile",
-				]) {
-					stage('Prep ' + version) {
-						sh '''
-							curl -fL -o Dockerfile "$DOCKERFILE_URL"
-						'''
-					}
-					targetTarball = sh(returnStdout: true, script: '''
-						awk 'toupper($1) == "ADD" { print $2 }' Dockerfile
-					''').trim() // "openSUSE-Tumbleweed.tar.xz"
-					assert targetTarball.endsWith('.tar.xz') // minor sanity check
-					stage('Download ' + version) {
-						if (0 != sh(returnStatus: true, script: 'curl -fL -o rootfs.tar.xz "$ROOTFS_URL"')) {
-							echo("Failed to download openSUSE rootfs for ${version} on ${env.OPENSUSE_ARCH}; skipping!")
-							deleteDir()
+		dir('opensuse') {
+			env.VERSIONS = ''
+			for (version in versions) {
+				dir(version) {
+					deleteDir() // make sure we start with a clean slate every time
+					withEnv([
+						"ROOTFS_URL=http://download.opensuse.org/repositories/Virtualization:/containers:/images:/openSUSE-${version}/images/openSUSE-${version}-docker-guest-docker.${env.OPENSUSE_ARCH}.tar.xz",
+						// use upstream's exact Dockerfile as-is
+						"DOCKERFILE_URL=https://raw.githubusercontent.com/openSUSE/docker-containers-build/openSUSE-${version}/docker/Dockerfile",
+					]) {
+						stage('Prep ' + version) {
+							sh '''
+								curl -fL -o Dockerfile "$DOCKERFILE_URL"
+							'''
 						}
-					}
-					if (fileExists('Dockerfile')) {
-						env.VERSIONS += ' ' + version
+						targetTarball = sh(returnStdout: true, script: '''
+							awk 'toupper($1) == "ADD" { print $2 }' Dockerfile
+						''').trim() // "openSUSE-Tumbleweed.tar.xz"
+						assert targetTarball.endsWith('.tar.xz') // minor sanity check
+						stage('Download ' + version) {
+							if (0 != sh(returnStatus: true, script: 'curl -fL -o rootfs.tar.xz "$ROOTFS_URL"')) {
+								echo("Failed to download openSUSE rootfs for ${version} on ${env.OPENSUSE_ARCH}; skipping!")
+								deleteDir()
+							}
+						}
+						if (fileExists('Dockerfile')) {
+							env.VERSIONS += ' ' + version
+						}
 					}
 				}
 			}
-		}
-		env.VERSIONS = env.VERSIONS.trim()
-		stage('Commit') {
-			sh '''
-				git config user.name 'Docker Library Bot'
-				git config user.email 'github+dockerlibrarybot@infosiftr.com'
+			env.VERSIONS = env.VERSIONS.trim()
+			stage('Commit') {
+				sh '''
+					git config user.name 'Docker Library Bot'
+					git config user.email 'github+dockerlibrarybot@infosiftr.com'
 
-				git add -A .
-				git commit -m "Update for $ACT_ON_ARCH"
-			'''
-		}
-		stage('Generate') {
-			sh '''
-				{
-					echo "Maintainers: Docker Library Bot <$ACT_ON_ARCH> (@docker-library-bot),"
-					echo "             $(bashbrew cat -f '{{ (first .Entries).MaintainersString }}' "$ACT_ON_IMAGE")"
-					echo "Constraints: $(bashbrew cat -f '{{ (first .Entries).ConstraintsString }}' "$ACT_ON_IMAGE")"
-					commit="$(git log -1 --format='format:%H')"
-					for version in $VERSIONS; do
-						echo
-						for field in TagsString GitRepo GitFetch; do
-							echo "${field%String}: $(bashbrew cat -f "{{ .TagEntry.$field }}" "$ACT_ON_IMAGE:$version")"
+					git add -A .
+					git commit -m "Update for $ACT_ON_ARCH"
+				'''
+			}
+			stage('Generate') {
+				sh '''
+					{
+						echo "Maintainers: Docker Library Bot <$ACT_ON_ARCH> (@docker-library-bot),"
+						echo "             $(bashbrew cat -f '{{ (first .Entries).MaintainersString }}' "$ACT_ON_IMAGE")"
+						echo "Constraints: $(bashbrew cat -f '{{ (first .Entries).ConstraintsString }}' "$ACT_ON_IMAGE")"
+						commit="$(git log -1 --format='format:%H')"
+						for version in $VERSIONS; do
+							echo
+							for field in TagsString GitRepo GitFetch; do
+								echo "${field%String}: $(bashbrew cat -f "{{ .TagEntry.$field }}" "$ACT_ON_IMAGE:$version")"
+							done
+							echo "GitCommit: $commit"
+							echo "Directory: $version"
 						done
-						echo "GitCommit: $commit"
-						echo "Directory: $version"
-					done
-				} > tmp-bashbrew
-				mv -v tmp-bashbrew "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
-			'''
-		}
-		stage('Seed Cache') {
-			sh '''
-				# ensure the bashbrew cache directory exists, and has an initialized Git repo
-				bashbrew from https://raw.githubusercontent.com/docker-library/official-images/master/library/hello-world > /dev/null
+					} > tmp-bashbrew
+					mv -v tmp-bashbrew "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+				'''
+			}
+			stage('Seed Cache') {
+				sh '''
+					# ensure the bashbrew cache directory exists, and has an initialized Git repo
+					bashbrew from https://raw.githubusercontent.com/docker-library/official-images/master/library/hello-world > /dev/null
 
-				# and fill it with our newly generated commit (so that "bashbrew build" can DTRT)
-				git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
-			'''
+					# and fill it with our newly generated commit (so that "bashbrew build" can DTRT)
+					git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
+				'''
+			}
 		}
 
 		stage('Build') {
