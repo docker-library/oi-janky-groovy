@@ -271,7 +271,7 @@ def unstashBashbrewBits(context) {
 }
 
 def docsBuildAndPush(context) {
-	context.node(vars.docsNode(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
+	context.node(docsNode(context.env.ACT_ON_ARCH, context.env.ACT_ON_IMAGE)) {
 		docsEnvs = [
 			'BASHBREW_LIBRARY=' + env.WORKSPACE + '/oi/library',
 		]
