@@ -123,6 +123,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					git checkout -- .
 				'''
 			}
+			dir(env.BASHBREW_CACHE) { deleteDir() } // clear this directory first (since we "stash" it later, and want it to be as small as it can be for that)
 			stage('Seed Cache') {
 				sh '''
 					# ensure the bashbrew cache directory exists, and has an initialized Git repo
