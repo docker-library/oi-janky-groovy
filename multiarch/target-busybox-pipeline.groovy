@@ -85,7 +85,10 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						continue
 					fi
 
-					./build.sh "$variant"
+					if ! ./build.sh "$variant"; then
+						echo >&2 "error: $variant failed to build -- skipping"
+						rm -rf "$variant"
+					fi
 				done
 			'''
 		}
