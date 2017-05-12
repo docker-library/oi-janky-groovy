@@ -120,7 +120,8 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				'''
 			}
 			stage('Generate') {
-				sh '''
+				sh '''#!/usr/bin/env bash
+					set -Eeuo pipefail
 					{
 						echo "Maintainers: Docker Library Bot <$ACT_ON_ARCH> (@docker-library-bot),"
 						echo "             $(bashbrew cat -f '{{ (first .Entries).MaintainersString }}' "$ACT_ON_IMAGE")"
@@ -129,13 +130,16 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						for version in $VERSIONS; do
 							echo
 							for field in TagsString GitRepo GitFetch; do
-								echo "${field%String}: $(bashbrew cat -f "{{ .TagEntry.$field }}" "$ACT_ON_IMAGE:${version,,}")"
+								val="$(bashbrew cat -f "{{ .TagEntry.$field }}" "$ACT_ON_IMAGE:${version,,}")"
+								echo "${field%String}: $val"
 							done
 							echo "GitCommit: $commit"
 							echo "Directory: $version"
 						done
 					} > tmp-bashbrew
+					set -x
 					mv -v tmp-bashbrew "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+					cat "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
 					bashbrew cat "$ACT_ON_IMAGE"
 					bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
 				'''
