@@ -13,6 +13,7 @@ def vars = fileLoader.fromGit(
 vars.prebuildSetup(this)
 
 node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
+	env.BASHBREW_CACHE = env.WORKSPACE + '/bashbrew-cache'
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {
@@ -103,9 +104,21 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			'''
 		}
 
-		sh '''
-			./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
-		'''
+		stage('Generate') {
+			sh '''
+				mkdir -p "$BASHBREW_LIBRARY"
+				./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+			'''
+		}
+		stage('Seed Cache') {
+			sh '''
+				# ensure the bashbrew cache directory exists, and has an initialized Git repo
+				bashbrew from https://raw.githubusercontent.com/docker-library/official-images/master/library/hello-world > /dev/null
+
+				# and fill it with our newly generated commit (so that "bashbrew build" can DTRT)
+				git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
+			'''
+		}
 
 		// gather a list of tags
 		env.TAGS = sh(returnStdout: true, script: '#!/bin/bash -e' + '''
