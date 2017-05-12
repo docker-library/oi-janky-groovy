@@ -168,7 +168,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 		dir(env.BASHBREW_CACHE) { stash name: 'bashbrew-cache' }
 		dir(env.BASHBREW_LIBRARY) { stash includes: env.ACT_ON_IMAGE, name: 'bashbrew-library' }
-	} }
+	}
 }
 
 node('') {
