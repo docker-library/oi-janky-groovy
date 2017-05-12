@@ -12,7 +12,7 @@ def vars = fileLoader.fromGit(
 // setup environment variables, etc.
 vars.prebuildSetup(this)
 
-ENV.OPENSUSE_ARCH = vars.imagesMeta[env.ACT_ON_IMAGE]['map'][env.ACT_ON_ARCH]
+env.OPENSUSE_ARCH = vars.imagesMeta[env.ACT_ON_IMAGE]['map'][env.ACT_ON_ARCH]
 if (!env.OPENSUSE_ARCH) {
 	error("Unknown openSUSE architecture for '${env.ACT_ON_ARCH}'.")
 }
