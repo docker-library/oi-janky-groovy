@@ -129,13 +129,15 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						for version in $VERSIONS; do
 							echo
 							for field in TagsString GitRepo GitFetch; do
-								echo "${field%String}: $(bashbrew cat -f "{{ .TagEntry.$field }}" "$ACT_ON_IMAGE:$version")"
+								echo "${field%String}: $(bashbrew cat -f "{{ .TagEntry.$field }}" "$ACT_ON_IMAGE:${version,,}")"
 							done
 							echo "GitCommit: $commit"
 							echo "Directory: $version"
 						done
 					} > tmp-bashbrew
 					mv -v tmp-bashbrew "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+					bashbrew cat "$ACT_ON_IMAGE"
+					bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
 				'''
 			}
 			stage('Seed Cache') {
