@@ -186,6 +186,10 @@ def node(arch, image) {
 	return 'multiarch-' + arch
 }
 
+def docsNode(arch, image) {
+	return ''
+}
+
 for (int i = 0; i < archesMeta.size(); ++i) {
 	def arch = archesMeta[i][0]
 
@@ -216,6 +220,54 @@ def prebuildSetup(context) {
 	context.env.ACT_ON_ARCH = context.env.JOB_NAME.split('/')[-2] // "i386", etc
 
 	context.env.TARGET_NAMESPACE = archNamespace(context.env.ACT_ON_ARCH)
+}
+
+def bashbrewBuildAndPush(context) {
+	context.stage('Build') {
+		retry(3) {
+			sh '''
+				bashbrew build "$ACT_ON_IMAGE"
+			'''
+		}
+	}
+
+	context.stage('Tag') {
+		sh '''
+			bashbrew tag --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+		'''
+	}
+
+	context.stage('Push') {
+		sh '''
+			bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+		'''
+	}
+}
+
+def stashBashbrewBits(context) {
+	if (context.env.BASHBREW_CACHE) {
+		context.dir(context.env.BASHBREW_CACHE) {
+			stash name: 'bashbrew-cache'
+		}
+	}
+	if (context.env.BASHBREW_LIBRARY) {
+		context.dir(context.env.BASHBREW_LIBRARY) {
+			stash includes: env.ACT_ON_IMAGE, name: 'bashbrew-library'
+		}
+	}
+}
+
+def unstashBashbrewBits(context) {
+	if (context.env.BASHBREW_CACHE) {
+		context.dir(context.env.BASHBREW_CACHE) {
+			unstash 'bashbrew-cache'
+		}
+	}
+	if (context.env.BASHBREW_LIBRARY) {
+		context.dir(context.env.BASHBREW_LIBRARY) {
+			unstash 'bashbrew-library'
+		}
+	}
 }
 
 // return "this" (for use via "load" in Jenkins pipeline, for example)

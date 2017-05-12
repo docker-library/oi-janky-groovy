@@ -128,37 +128,14 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			'''
 		}
 
-		stage('Build') {
-			retry(3) {
-				sh '''
-					bashbrew build "$ACT_ON_IMAGE"
-				'''
-			}
-		}
+		vars.bashbrewBuildAndPush(this)
 
-		stage('Tag') {
-			sh '''
-				bashbrew tag --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-			'''
-		}
-
-		stage('Push') {
-			sh '''
-				bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-			'''
-		}
-
-		dir(env.BASHBREW_LIBRARY) {
-			stash includes: env.ACT_ON_IMAGE, name: 'library'
-		}
+		vars.stashBashbrewBits(this)
 	}
 }
 
-node('') {
-	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
-	dir(env.BASHBREW_LIBRARY) {
-		unstash 'library'
-	}
+node(vars.docsNode(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
+	vars.unstashBashbrewBits(this)
 
 	stage('Checkout Docs') {
 		checkout(
