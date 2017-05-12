@@ -119,6 +119,15 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					git commit -m "Update for $ACT_ON_ARCH"
 				'''
 			}
+			stage('Seed Cache') {
+				sh '''
+					# ensure the bashbrew cache directory exists, and has an initialized Git repo
+					bashbrew from https://raw.githubusercontent.com/docker-library/official-images/master/library/hello-world > /dev/null
+
+					# and fill it with our newly generated commit (so that "bashbrew build" can DTRT)
+					git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
+				'''
+			}
 			stage('Generate') {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail
@@ -142,15 +151,6 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					cat "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
 					bashbrew cat "$ACT_ON_IMAGE"
 					bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
-				'''
-			}
-			stage('Seed Cache') {
-				sh '''
-					# ensure the bashbrew cache directory exists, and has an initialized Git repo
-					bashbrew from https://raw.githubusercontent.com/docker-library/official-images/master/library/hello-world > /dev/null
-
-					# and fill it with our newly generated commit (so that "bashbrew build" can DTRT)
-					git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
 				'''
 			}
 		}
