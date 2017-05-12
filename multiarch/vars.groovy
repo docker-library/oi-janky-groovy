@@ -203,5 +203,12 @@ for (image in imagesMeta.keySet()) {
 }
 images = images as Set
 
+def prebuildSetup(context) {
+	context.env.ACT_ON_IMAGE = context.env.JOB_BASE_NAME // "memcached", etc
+	context.env.ACT_ON_ARCH = context.env.JOB_NAME.split('/')[-2] // "i386", etc
+
+	context.env.TARGET_NAMESPACE = archNamespace(context.env.ACT_ON_ARCH)
+}
+
 // return "this" (for use via "load" in Jenkins pipeline, for example)
 this
