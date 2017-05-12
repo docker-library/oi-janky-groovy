@@ -191,12 +191,33 @@ node('') {
 			'''
 		}
 
-		// TODO credentials
-		stage('Push Docs') {
+		stage('Diff Docs') {
 			sh '''
-				# TODO ./push.sh "$TARGET_NAMESPACE/$ACT_ON_IMAGE"
-				git diff
+				git diff --color
 			'''
+		}
+
+		withCredentials([[
+			$class: 'UsernamePasswordMultiBinding',
+			credentialsId: 'docker-hub-' + env.ACT_ON_ARCH,
+			usernameVariable: 'USERNAME',
+			passwordVariable: 'PASSWORD',
+		]]) {
+			stage('Push Docs') {
+				sh '''
+					dockerImage="docker-library-docs:$ACT_ON_ARCH-$ACT_ON_IMAGE"
+					docker build --pull -t "$dockerImage" -q .
+					test -t 1 && it='-it' || it='-i'
+					set +x
+					docker run "$it" --rm -e TERM \
+						--entrypoint './push.pl' \
+						"$dockerImage" \
+						--username "$USERNAME" \
+						--password "$PASSWORD" \
+						--batchmode \
+						"$TARGET_NAMESPACE/$ACT_ON_IMAGE"
+				'''
+			}
 		}
 	} }
 }
