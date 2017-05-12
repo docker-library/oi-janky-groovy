@@ -270,5 +270,80 @@ def unstashBashbrewBits(context) {
 	}
 }
 
+def docsBuildAndPush(context) {
+	context.node(vars.docsNode(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
+		docsEnvs = [
+			'BASHBREW_LIBRARY=' + env.WORKSPACE + '/oi/library',
+		]
+		if (env.BASHBREW_CACHE) {
+			docsEnvs << 'BASHBREW_CACHE=' + env.WORKSPACE + '/bashbrew-cache'
+		}
+		withEnv(docsEnvs) {
+			unstashBashbrewBits(this)
+
+			stage('Checkout Docs') {
+				checkout(
+					poll: true,
+					scm: [
+						$class: 'GitSCM',
+						userRemoteConfigs: [[
+							url: 'https://github.com/docker-library/docs.git',
+						]],
+						branches: [[name: '*/master']],
+						extensions: [
+							[
+								$class: 'CleanCheckout',
+							],
+							[
+								$class: 'RelativeTargetDirectory',
+								relativeTargetDir: 'd',
+							],
+						],
+						doGenerateSubmoduleConfigurations: false,
+						submoduleCfg: [],
+					],
+				)
+			}
+
+			ansiColor('xterm') { dir('d') {
+				stage('Update Docs') {
+					sh '''
+						./update.sh "$TARGET_NAMESPACE/$ACT_ON_IMAGE"
+					'''
+				}
+
+				stage('Diff Docs') {
+					sh '''
+						git diff --color
+					'''
+				}
+
+				withCredentials([[
+					$class: 'UsernamePasswordMultiBinding',
+					credentialsId: 'docker-hub-' + env.ACT_ON_ARCH,
+					usernameVariable: 'USERNAME',
+					passwordVariable: 'PASSWORD',
+				]]) {
+					stage('Push Docs') {
+						sh '''
+							dockerImage="docker-library-docs:$ACT_ON_ARCH-$ACT_ON_IMAGE"
+							docker build --pull -t "$dockerImage" -q .
+							test -t 1 && it='-it' || it='-i'
+							set +x
+							docker run "$it" --rm -e TERM \
+								--entrypoint './push.pl' \
+								"$dockerImage" \
+								--username "$USERNAME" \
+								--password "$PASSWORD" \
+								--batchmode \
+								"$TARGET_NAMESPACE/$ACT_ON_IMAGE"
+						'''
+					}
+				}
+			} }
+		}
+	}
+}
+
 // return "this" (for use via "load" in Jenkins pipeline, for example)
 this
