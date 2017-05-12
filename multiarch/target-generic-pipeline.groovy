@@ -147,5 +147,56 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
 			'''
 		}
+
+		dir(env.BASHBREW_LIBRARY) {
+			stash includes: env.ACT_ON_IMAGE, name: 'library'
+		}
 	}
+}
+
+node('') {
+	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+	dir(env.BASHBREW_LIBRARY) {
+		unstash 'library'
+	}
+
+	stage('Checkout Docs') {
+		checkout(
+			poll: true,
+			scm: [
+				$class: 'GitSCM',
+				userRemoteConfigs: [[
+					url: 'https://github.com/docker-library/docs.git',
+				]],
+				branches: [[name: '*/master']],
+				extensions: [
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'd',
+					],
+				],
+				doGenerateSubmoduleConfigurations: false,
+				submoduleCfg: [],
+			],
+		)
+	}
+
+	ansiColor('xterm') { dir('d') {
+		stage('Update Docs') {
+			sh '''
+				./update.sh "$TARGET_NAMESPACE/$ACT_ON_IMAGE"
+			'''
+		}
+
+		// TODO credentials
+		stage('Push Docs') {
+			sh '''
+				# TODO ./push.sh "$TARGET_NAMESPACE/$ACT_ON_IMAGE"
+				git diff
+			'''
+		}
+	} }
 }
