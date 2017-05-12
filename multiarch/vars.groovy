@@ -222,6 +222,125 @@ def prebuildSetup(context) {
 	context.env.TARGET_NAMESPACE = archNamespace(context.env.ACT_ON_ARCH)
 }
 
+def seedCache(context) {
+	context.withEnv([]) {
+		dir(env.BASHBREW_CACHE) {
+			// clear this directory first (since we "stash" it later, and want it to be as small as it can be for that)
+			deleteDir()
+		}
+
+		stage('Seed Cache') {
+			sh '''
+				# ensure the bashbrew cache directory exists, and has an initialized Git repo
+				bashbrew from https://raw.githubusercontent.com/docker-library/official-images/master/library/hello-world > /dev/null
+
+				# and fill it with our newly generated commit (so that "bashbrew build" can DTRT)
+				git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
+			'''
+		}
+	}
+}
+
+def generateStackbrewLibrary(context) {
+	context.stage('Generate') {
+		sh '''
+			mkdir -p "$BASHBREW_LIBRARY"
+			./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+			cat "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+			bashbrew cat "$ACT_ON_IMAGE"
+			bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
+		'''
+	}
+}
+
+def createFakeBashbrew(context) {
+	context.withEnv([
+		'BASHBREW_FROMS_TEMPLATE=' + '''
+			{{- range $.Entries -}}
+				{{- if not ($.SkipConstraints .) -}}
+					{{- $.DockerFrom . -}}
+					{{- "\\n" -}}
+				{{- end -}}
+			{{- end -}}
+		''',
+	]) {
+		stage('Pull') {
+			sh '''
+				# gather a list of expected parents
+				parents="$(
+					bashbrew cat -f "$BASHBREW_FROMS_TEMPLATE" "$ACT_ON_IMAGE" 2>/dev/null \\
+						| sort -u \\
+						| grep -vE '/|^scratch$|^'"$ACT_ON_IMAGE"'(:|$)'
+				)"
+
+				# pull the ones appropriate for our target architecture
+				echo "$parents" \\
+					| awk -v ns="$TARGET_NAMESPACE" '{ print ns "/" $0 }' \\
+					| xargs -rtn1 docker pull \\
+					|| true
+
+				# ... and then tag them without the namespace (so "bashbrew build" can "just work" as-is)
+				echo "$parents" \\
+					| awk -v ns="$TARGET_NAMESPACE" '{ print ns "/" $0; print }' \\
+					| xargs -rtn2 docker tag \\
+					|| true
+			'''
+		}
+
+		// gather a list of tags for which we successfully fetched their FROM
+		withEnv([
+			'TAGS=' + sh(returnStdout: true, script: '#!/bin/bash -e' + '''
+				# gather a list of tags we've seen (filled in build order) so we can catch "FROM $ACT_ON_IMAGE:xxx"
+				declare -A seen=()
+
+				for tag in $(bashbrew list --apply-constraints --build-order --uniq "$ACT_ON_IMAGE" 2>/dev/null); do
+					for from in $(bashbrew cat -f "$BASHBREW_FROMS_TEMPLATE" "$tag" 2>/dev/null); do
+						if [ "$from" = 'scratch' ]; then
+							# scratch doesn't exist, but is permissible
+							continue
+						fi
+
+						if [ -n "${seen[$from]:-}" ]; then
+							# this image is FROM one we're already planning to build, it's good
+							continue
+						fi
+
+						if ! docker inspect --type image "$from" > /dev/null 2>&1; then
+							# skip anything we couldn't successfully pull/tag above
+							continue 2
+						fi
+					done
+
+					echo "$tag"
+
+					# add all aliases to "seen" so we can accurately collect things "FROM $ACT_ON_IMAGE:xxx"
+					for otherTag in $(bashbrew list "$tag"); do
+						seen[$otherTag]=1
+					done
+				done
+			''').trim(),
+		]) {
+			stage('Fake It!') {
+				if (env.TAGS == '') {
+					error 'None of the parents for the tags of this image could be fetched! (so none of them can be built)'
+				}
+
+				sh '''
+					{
+						echo "Maintainers: Docker Library Bot <$ACT_ON_ARCH> (@docker-library-bot)"
+						echo
+						bashbrew cat $TAGS
+					} > "./$ACT_ON_IMAGE"
+					mv -v "./$ACT_ON_IMAGE" "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+					cat "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+					bashbrew cat "$ACT_ON_IMAGE"
+					bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
+				'''
+			}
+		}
+	}
+}
+
 def bashbrewBuildAndPush(context) {
 	context.stage('Build') {
 		retry(3) {

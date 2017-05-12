@@ -112,6 +112,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				}
 			}
 			env.VERSIONS = env.VERSIONS.trim()
+
 			stage('Commit') {
 				sh '''
 					git config user.name 'Docker Library Bot'
@@ -123,23 +124,16 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					git checkout -- .
 				'''
 			}
-			dir(env.BASHBREW_CACHE) { deleteDir() } // clear this directory first (since we "stash" it later, and want it to be as small as it can be for that)
-			stage('Seed Cache') {
-				sh '''
-					# ensure the bashbrew cache directory exists, and has an initialized Git repo
-					bashbrew from https://raw.githubusercontent.com/docker-library/official-images/master/library/hello-world > /dev/null
+			vars.seedCache(this)
 
-					# and fill it with our newly generated commit (so that "bashbrew build" can DTRT)
-					git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
-				'''
-			}
 			stage('Generate') {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail
 					{
-						echo "Maintainers: Docker Library Bot <$ACT_ON_ARCH> (@docker-library-bot),"
-						echo "             $(bashbrew cat -f '{{ (first .Entries).MaintainersString }}' "$ACT_ON_IMAGE")"
-						echo "Constraints: $(bashbrew cat -f '{{ (first .Entries).ConstraintsString }}' "$ACT_ON_IMAGE")"
+						for field in MaintainersString ConstraintsString; do
+							val="$(bashbrew cat -f "{{ (first .Entries).$field }}" "$ACT_ON_IMAGE")"
+							echo "${field%String}: $val"
+						done
 						commit="$(git log -1 --format='format:%H')"
 						for version in $VERSIONS; do
 							echo
@@ -160,95 +154,11 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			}
 		}
 
-		stage('Build') {
-			retry(3) {
-				sh '''
-					bashbrew build "$ACT_ON_IMAGE"
-				'''
-			}
-		}
+		vars.createFakeBashbrew(this)
+		vars.bashbrewBuildAndPush(this)
 
-		stage('Tag') {
-			sh '''
-				bashbrew tag --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-			'''
-		}
-
-		stage('Push') {
-			sh '''
-				bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-			'''
-		}
-
-		dir(env.BASHBREW_CACHE) { stash name: 'bashbrew-cache' }
-		dir(env.BASHBREW_LIBRARY) { stash includes: env.ACT_ON_IMAGE, name: 'bashbrew-library' }
+		vars.stashBashbrewBits(this)
 	}
 }
 
-node('') {
-	env.BASHBREW_CACHE = env.WORKSPACE + '/bashbrew-cache'
-	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
-	dir(env.BASHBREW_CACHE) { unstash 'bashbrew-cache' }
-	dir(env.BASHBREW_LIBRARY) { unstash 'bashbrew-library' }
-
-	stage('Checkout Docs') {
-		checkout(
-			poll: true,
-			scm: [
-				$class: 'GitSCM',
-				userRemoteConfigs: [[
-					url: 'https://github.com/docker-library/docs.git',
-				]],
-				branches: [[name: '*/master']],
-				extensions: [
-					[
-						$class: 'CleanCheckout',
-					],
-					[
-						$class: 'RelativeTargetDirectory',
-						relativeTargetDir: 'd',
-					],
-				],
-				doGenerateSubmoduleConfigurations: false,
-				submoduleCfg: [],
-			],
-		)
-	}
-
-	ansiColor('xterm') { dir('d') {
-		stage('Update Docs') {
-			sh '''
-				./update.sh "$TARGET_NAMESPACE/$ACT_ON_IMAGE"
-			'''
-		}
-
-		stage('Diff Docs') {
-			sh '''
-				git diff --color
-			'''
-		}
-
-		withCredentials([[
-			$class: 'UsernamePasswordMultiBinding',
-			credentialsId: 'docker-hub-' + env.ACT_ON_ARCH,
-			usernameVariable: 'USERNAME',
-			passwordVariable: 'PASSWORD',
-		]]) {
-			stage('Push Docs') {
-				sh '''
-					dockerImage="docker-library-docs:$ACT_ON_ARCH-$ACT_ON_IMAGE"
-					docker build --pull -t "$dockerImage" -q .
-					test -t 1 && it='-it' || it='-i'
-					set +x
-					docker run "$it" --rm -e TERM \
-						--entrypoint './push.pl' \
-						"$dockerImage" \
-						--username "$USERNAME" \
-						--password "$PASSWORD" \
-						--batchmode \
-						"$TARGET_NAMESPACE/$ACT_ON_IMAGE"
-				'''
-			}
-		}
-	} }
-}
+vars.docsBuildAndPush(this)

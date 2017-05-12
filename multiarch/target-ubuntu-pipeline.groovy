@@ -9,19 +9,17 @@ def vars = fileLoader.fromGit(
 	'master', // node/label
 )
 
-env.ACT_ON_IMAGE = env.JOB_BASE_NAME // "memcached", etc
-env.ACT_ON_ARCH = env.JOB_NAME.split('/')[-2] // "i386", etc
+// setup environment variables, etc.
+vars.prebuildSetup(this)
 
 env.DPKG_ARCH = vars.dpkgArches[env.ACT_ON_ARCH]
 if (!env.DPKG_ARCH) {
 	error("Unknown 'dpkg' architecture for '${env.ACT_ON_ARCH}'.")
 }
 
-env.TARGET_NAMESPACE = vars.archNamespace(env.ACT_ON_ARCH)
-
 node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 	env.BASHBREW_CACHE = env.WORKSPACE + '/bashbrew-cache'
-	env.BASHBREW_LIBRARY = env.WORKSPACE
+	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {
 		checkout(
@@ -30,6 +28,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				$class: 'GitSCM',
 				userRemoteConfigs: [[
 					url: 'https://github.com/tianon/docker-brew-ubuntu-core.git',
+					name: 'origin',
 					refspec: '+refs/heads/master:refs/remotes/origin/master',
 				]],
 				branches: [[name: '*/master']],
@@ -54,8 +53,6 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 	}
 
 	ansiColor('xterm') {
-		sh 'rm -f "./$ACT_ON_IMAGE"'
-
 		dir('brew') {
 			stage('Prep') {
 				sh '''
@@ -63,7 +60,13 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					echo "$TARGET_NAMESPACE/$ACT_ON_IMAGE" > repo
 				'''
 			}
-			stage('Update') { sh './update.sh' }
+
+			stage('Update') {
+				sh '''
+					./update.sh
+				'''
+			}
+
 			stage('Commit') {
 				sh '''
 					git config user.name 'Docker Library Bot'
@@ -73,34 +76,16 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					git commit -m "Update for $ACT_ON_ARCH"
 				'''
 			}
-			stage('Generate') { sh './generate-stackbrew-library.sh > "../$ACT_ON_IMAGE"' }
-			stage('Seed Cache') {
-				sh '''
-					# ensure the bashbrew cache directory exists, and has an initialized Git repo
-					bashbrew from https://raw.githubusercontent.com/docker-library/official-images/master/library/hello-world > /dev/null
+			vars.seedCache(this)
 
-					# and fill it with our newly generated commit (so that "bashbrew build" can DTRT)
-					git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
-				'''
-			}
+			vars.generateStackbrewLibrary(this)
 		}
 
-		stage('Build') {
-			sh '''
-				bashbrew build "./$ACT_ON_IMAGE"
-			'''
-		}
+		vars.createFakeBashbrew(this)
+		vars.bashbrewBuildAndPush(this)
 
-		stage('Tag') {
-			sh '''
-				bashbrew tag --namespace "$TARGET_NAMESPACE" "./$ACT_ON_IMAGE"
-			'''
-		}
-
-		stage('Push') {
-			sh '''
-				bashbrew push --namespace "$TARGET_NAMESPACE" "./$ACT_ON_IMAGE"
-			'''
-		}
+		vars.stashBashbrewBits(this)
 	}
 }
+
+vars.docsBuildAndPush(this)
