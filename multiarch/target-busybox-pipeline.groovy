@@ -44,7 +44,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			sh '''
 				sed -ri -e 's! --pull ! !g' build.sh
 
-				// TODO officially switch to Alpine 3.6 and remove this bit
+				# TODO officially switch to Alpine 3.6 and remove this bit
 				sed -ri -e 's!alpine:3.5!alpine:edge!g' musl/Dockerfile.builder
 			'''
 		}
