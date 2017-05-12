@@ -93,7 +93,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						'''
 					}
 					targetTarball = sh(returnStdout: true, script: '''
-						awk 'toupper($1) == "ADD" { print $2 }'
+						awk 'toupper($1) == "ADD" { print $2 }' Dockerfile
 					''').trim() // "openSUSE-Tumbleweed.tar.xz"
 					assert targetTarball.endsWith('.tar.xz') // minor sanity check
 					stage('Download ' + version) {
