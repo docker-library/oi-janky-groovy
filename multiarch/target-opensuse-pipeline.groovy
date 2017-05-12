@@ -98,7 +98,9 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						''').trim() // "openSUSE-Tumbleweed.tar.xz"
 						assert targetTarball.endsWith('.tar.xz') // minor sanity check
 						stage('Download ' + version) {
-							if (0 != sh(returnStatus: true, script: 'curl -fL -o rootfs.tar.xz "$ROOTFS_URL"')) {
+							if (0 != sh(returnStatus: true, script: """
+								curl -fL -o '${targetTarball}' "$ROOTFS_URL"
+							""")) {
 								echo("Failed to download openSUSE rootfs for ${version} on ${env.OPENSUSE_ARCH}; skipping!")
 								deleteDir()
 							}
@@ -115,8 +117,10 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					git config user.name 'Docker Library Bot'
 					git config user.email 'github+dockerlibrarybot@infosiftr.com'
 
-					git add -A .
+					git add -A $VERSIONS
 					git commit -m "Update for $ACT_ON_ARCH"
+					git clean -dfx
+					git checkout -- .
 				'''
 			}
 			stage('Seed Cache') {
