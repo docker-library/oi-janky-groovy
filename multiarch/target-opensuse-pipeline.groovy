@@ -100,10 +100,11 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						if (0 != sh(returnStatus: true, script: 'curl -fL -o rootfs.tar.xz "$ROOTFS_URL"')) {
 							echo("Failed to download openSUSE rootfs for ${version} on ${env.OPENSUSE_ARCH}; skipping!")
 							deleteDir()
-							continue
 						}
 					}
-					env.VERSIONS += ' ' + version
+					if (fileExists('Dockerfile')) {
+						env.VERSIONS += ' ' + version
+					}
 				}
 			}
 		}
