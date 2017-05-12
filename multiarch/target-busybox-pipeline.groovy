@@ -189,17 +189,16 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			'''
 		}
 
-		dir(env.BASHBREW_LIBRARY) {
-			stash includes: env.ACT_ON_IMAGE, name: 'library'
-		}
+		dir(env.BASHBREW_CACHE) { stash name: 'bashbrew-cache' }
+		dir(env.BASHBREW_LIBRARY) { stash includes: env.ACT_ON_IMAGE, name: 'bashbrew-library' }
 	} }
 }
 
 node('') {
+	env.BASHBREW_CACHE = env.WORKSPACE + '/bashbrew-cache'
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
-	dir(env.BASHBREW_LIBRARY) {
-		unstash 'library'
-	}
+	dir(env.BASHBREW_CACHE) { unstash 'bashbrew-cache' }
+	dir(env.BASHBREW_LIBRARY) { unstash 'bashbrew-library' }
 
 	stage('Checkout Docs') {
 		checkout(
