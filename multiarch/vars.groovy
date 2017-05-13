@@ -325,7 +325,7 @@ def createFakeBashbrew(context) {
 			stage('Fake It!') {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail
-					if [ -z "$TAGS" ]; then
+					if [ -z "${TAGS:-}" ]; then
 						echo >&2 'Error: none of the parents for the tags of this image could be fetched! (so none of them can be built)'
 						exit 1
 					fi
