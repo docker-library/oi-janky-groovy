@@ -59,25 +59,13 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				submoduleCfg: [],
 			],
 		)
-		checkout(
-			poll: false,
-			scm: [
-				$class: 'GitSCM',
-				extensions: [
-					[
-						$class: 'CloneOption',
-						honorRefspec: true,
-						noTags: true,
-					],
-					[
-						$class: 'RelativeTargetDirectory',
-						relativeTargetDir: 'alpine',
-					],
-				],
-				doGenerateSubmoduleConfigurations: false,
-				submoduleCfg: [],
-			],
-		)
+		dir('alpine') {
+			deleteDir()
+			sh '''
+				git init
+				git commit --allow-empty -m 'Initial commit'
+			'''
+		}
 	}
 
 	ansiColor('xterm') {
