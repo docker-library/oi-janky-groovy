@@ -276,6 +276,7 @@ def createFakeBashbrew(context) {
 				# all parents might be "scratch", in which case "$parents" will be empty
 
 				# pull the ones appropriate for our target architecture
+				# TODO allow arm32v7 to pull from arm32v6 (especially for alpine)
 				echo "$parents" \\
 					| awk -v ns="$TARGET_NAMESPACE" '{ print ns "/" $0 }' \\
 					| xargs -rtn1 docker pull \\
