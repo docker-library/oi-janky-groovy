@@ -121,7 +121,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 										deleteDir()
 									}
 									else {
-										assert sh(returnStatus: true, script: '''
+										assert 0 == sh(returnStatus: true, script: '''
 											echo "$ROOTFS_SHA256 *$ROOTFS_FILE" | sha256sum -c
 										''')
 										env.VERSIONS += ' ' + version
