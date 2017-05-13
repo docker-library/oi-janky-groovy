@@ -384,11 +384,13 @@ def stashBashbrewBits(context) {
 def unstashBashbrewBits(context) {
 	if (context.env.BASHBREW_CACHE) {
 		context.dir(context.env.BASHBREW_CACHE) {
+			deleteDir()
 			unstash 'bashbrew-cache'
 		}
 	}
 	if (context.env.BASHBREW_LIBRARY) {
 		context.dir(context.env.BASHBREW_LIBRARY) {
+			deleteDir()
 			unstash 'bashbrew-library'
 		}
 	}
