@@ -323,17 +323,20 @@ def createFakeBashbrew(context) {
 			''').trim(),
 		]) {
 			stage('Fake It!') {
-				if (env.TAGS == '') {
-					error 'None of the parents for the tags of this image could be fetched! (so none of them can be built)'
-				}
+				sh '''#!/usr/bin/env bash
+					set -Eeuo pipefail
+					if [ -z "$TAGS" ]; then
+						echo >&2 'Error: none of the parents for the tags of this image could be fetched! (so none of them can be built)'
+						exit 1
+					fi
 
-				sh '''
 					{
 						echo "Maintainers: Docker Library Bot <$ACT_ON_ARCH> (@docker-library-bot)"
 						echo
 						bashbrew cat $TAGS
-					} > "./$ACT_ON_IMAGE"
-					mv -v "./$ACT_ON_IMAGE" "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+					} > bashbrew-tmp
+					set -x
+					mv -v bashbrew-tmp "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
 					cat "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
 					bashbrew cat "$ACT_ON_IMAGE"
 					bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
