@@ -63,6 +63,8 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			deleteDir()
 			sh '''
 				git init
+				git config user.name 'Docker Library Bot'
+				git config user.email 'github+dockerlibrarybot@infosiftr.com'
 				git commit --allow-empty -m 'Initial commit'
 			'''
 		}
@@ -136,9 +138,6 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 			stage('Commit') {
 				sh '''
-					git config user.name 'Docker Library Bot'
-					git config user.email 'github+dockerlibrarybot@infosiftr.com'
-
 					git add -A $VERSIONS
 					git commit -m "Update for $ACT_ON_ARCH"
 					git clean -dfx
