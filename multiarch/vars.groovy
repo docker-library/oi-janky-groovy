@@ -20,15 +20,6 @@ dpkgArches = [
 	'ppc64le': 'ppc64el',
 	's390x': 's390x',
 ]
-apkArches = [
-	'amd64': 'x86_64',
-	'arm32v6': 'armhf',
-	'arm32v7': 'armhf', // Raspberry Pi, making life hard...
-	'arm64v8': 'aarch64',
-	'i386': 'x86',
-	'ppc64le': 'ppc64le',
-	's390x': 's390x',
-]
 
 def defaultImageMeta = [
 	['arches', ['amd64'] as Set],
@@ -48,6 +39,15 @@ imagesMeta['alpine'] = [
 		'ppc64le',
 		's390x',
 	] as Set,
+	'map': [
+		'amd64': 'x86_64',
+		'arm32v6': 'armhf',
+		'arm32v7': 'armhf', // Raspberry Pi, making life hard...
+		'arm64v8': 'aarch64',
+		'i386': 'x86',
+		'ppc64le': 'ppc64le',
+		's390x': 's390x',
+	],
 	'pipeline': 'multiarch/target-alpine-pipeline.groovy',
 ]
 imagesMeta['debian'] = [
