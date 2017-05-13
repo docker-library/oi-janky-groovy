@@ -65,6 +65,11 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				$class: 'GitSCM',
 				extensions: [
 					[
+						$class: 'CloneOption',
+						honorRefspec: true,
+						noTags: true,
+					],
+					[
 						$class: 'RelativeTargetDirectory',
 						relativeTargetDir: 'alpine',
 					],
