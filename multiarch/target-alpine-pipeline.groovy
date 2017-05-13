@@ -108,7 +108,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 							]) {
 								stage('Prep ' + version) {
 									sh '''
-										cat > Dockerfile <<-EODF
+										tee Dockerfile <<-EODF
 											FROM scratch
 											ADD $ROOTFS_FILE /
 											CMD ["sh"]
