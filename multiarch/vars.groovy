@@ -40,6 +40,8 @@ imagesMeta['alpine'] = [
 		's390x',
 	] as Set,
 	'map': [
+		// https://wiki.alpinelinux.org/wiki/Alpine_on_ARM
+		// "Currently Alpine supports armv6/armhf arch"
 		'amd64': 'x86_64',
 		'arm32v6': 'armhf',
 		'arm32v7': 'armhf', // Raspberry Pi, making life hard...
