@@ -48,27 +48,15 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				submoduleCfg: [],
 			],
 		)
-		checkout(
-			poll: false,
-			scm: [
-				$class: 'GitSCM',
-				userRemoteConfigs: [[
-					url: 'https://github.com/openSUSE/docker-containers-build.git',
-				]],
-				branches: [[name: '*/master']],
-				extensions: [
-					[
-						$class: 'CleanCheckout',
-					],
-					[
-						$class: 'RelativeTargetDirectory',
-						relativeTargetDir: 'opensuse',
-					],
-				],
-				doGenerateSubmoduleConfigurations: false,
-				submoduleCfg: [],
-			],
-		)
+		dir('opensuse') {
+			deleteDir()
+			sh '''
+				git init --shared
+				git config user.name 'Docker Library Bot'
+				git config user.email 'github+dockerlibrarybot@infosiftr.com'
+				git commit --allow-empty -m 'Initial commit'
+			'''
+		}
 	}
 
 	versions = sh(returnStdout: true, script: '#!/bin/bash -e' + '''
@@ -99,7 +87,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						assert targetTarball.endsWith('.tar.xz') // minor sanity check
 						stage('Download ' + version) {
 							if (0 != sh(returnStatus: true, script: """
-								curl -fL -o '${targetTarball}' "$ROOTFS_URL"
+								curl -fL -o '${targetTarball}' "\$ROOTFS_URL"
 							""")) {
 								echo("Failed to download openSUSE rootfs for ${version} on ${env.OPENSUSE_ARCH}; skipping!")
 								deleteDir()
@@ -115,9 +103,6 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 			stage('Commit') {
 				sh '''
-					git config user.name 'Docker Library Bot'
-					git config user.email 'github+dockerlibrarybot@infosiftr.com'
-
 					git add -A $VERSIONS
 					git commit -m "Update for $ACT_ON_ARCH"
 					git clean -dfx
@@ -137,10 +122,11 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						commit="$(git log -1 --format='format:%H')"
 						for version in $VERSIONS; do
 							echo
-							for field in TagsString GitRepo GitFetch; do
+							for field in TagsString; do
 								val="$(bashbrew cat -f "{{ .TagEntry.$field }}" "$ACT_ON_IMAGE:${version,,}")"
 								echo "${field%String}: $val"
 							done
+							echo "GitRepo: https://doi-janky.infosiftr.net" # obviously bogus
 							echo "GitCommit: $commit"
 							echo "Directory: $version"
 						done

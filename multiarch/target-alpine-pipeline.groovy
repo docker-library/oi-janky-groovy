@@ -158,7 +158,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 								val="$(bashbrew cat -f "{{ .TagEntry.$field }}" "$ACT_ON_IMAGE:$version")"
 								echo "${field%String}: $val"
 							done
-							echo "GitRepo: https://github.com/docker-library/oi-janky-groovy.git"
+							echo "GitRepo: https://doi-janky.infosiftr.net" # obviously bogus
 							echo "GitCommit: $commit"
 							echo "Directory: $version"
 						done
