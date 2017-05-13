@@ -62,7 +62,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		dir('alpine') {
 			deleteDir()
 			sh '''
-				git init
+				git init --shared
 				git config user.name 'Docker Library Bot'
 				git config user.email 'github+dockerlibrarybot@infosiftr.com'
 				git commit --allow-empty -m 'Initial commit'
