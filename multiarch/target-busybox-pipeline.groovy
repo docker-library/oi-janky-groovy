@@ -44,8 +44,12 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		dir('bb') {
 			stage('Prep') {
 				sh '''
-					# TODO officially switch to Alpine 3.6 and remove this bit
-					sed -ri -e 's!alpine:3.5!alpine:edge!g' musl/Dockerfile.builder
+					docker pull "$TARGET_NAMESPACE/alpine:3.5" || :
+					if ! docker inspect --type image "$TARGET_NAMESPACE/alpine:3.5" > /dev/null 2>&1; then
+						# if we don't have Alpine 3.5 (s390x, ppc64le), use Alpine Edge instead
+						# TODO officially switch to Alpine 3.6 and remove this bit
+						sed -ri -e 's!alpine:3.5!alpine:edge!g' musl/Dockerfile.builder
+					fi
 				'''
 			}
 
