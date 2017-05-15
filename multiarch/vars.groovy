@@ -217,15 +217,23 @@ for (image in imagesMeta.keySet()) {
 }
 images = images as Set
 
-def prebuildSetup(context) {
-	context.env.ACT_ON_IMAGE = context.env.JOB_BASE_NAME // "memcached", etc
-	context.env.ACT_ON_ARCH = context.env.JOB_NAME.split('/')[-2] // "i386", etc
+def _invokeWithContext(def context, Closure cl) {
+	cl.resolveStrategy = Closure.DELEGATE_FIRST
+	cl.delegate = context
+	cl()
+}
 
-	context.env.TARGET_NAMESPACE = archNamespace(context.env.ACT_ON_ARCH)
+def prebuildSetup(context) {
+	_invokeWithContext(context) {
+		env.ACT_ON_IMAGE = env.JOB_BASE_NAME // "memcached", etc
+		env.ACT_ON_ARCH = env.JOB_NAME.split('/')[-2] // "i386", etc
+
+		env.TARGET_NAMESPACE = archNamespace(env.ACT_ON_ARCH)
+	}
 }
 
 def seedCache(context) {
-	context.withEnv([]) {
+	_invokeWithContext(context) {
 		dir(env.BASHBREW_CACHE) {
 			// clear this directory first (since we "stash" it later, and want it to be as small as it can be for that)
 			deleteDir()
@@ -350,51 +358,57 @@ def createFakeBashbrew(context) {
 }
 
 def bashbrewBuildAndPush(context) {
-	context.stage('Build') {
-		retry(3) {
+	_invokeWithContext(context) {
+		stage('Build') {
+			retry(3) {
+				sh '''
+					bashbrew build "$ACT_ON_IMAGE"
+				'''
+			}
+		}
+
+		stage('Tag') {
 			sh '''
-				bashbrew build "$ACT_ON_IMAGE"
+				bashbrew tag --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
 			'''
 		}
-	}
 
-	context.stage('Tag') {
-		sh '''
-			bashbrew tag --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-		'''
-	}
-
-	context.stage('Push') {
-		sh '''
-			bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-		'''
+		stage('Push') {
+			sh '''
+				bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+			'''
+		}
 	}
 }
 
 def stashBashbrewBits(context) {
-	if (context.env.BASHBREW_CACHE) {
-		context.dir(context.env.BASHBREW_CACHE) {
-			stash name: 'bashbrew-cache'
+	_invokeWithContext(context) {
+		if (env.BASHBREW_CACHE) {
+			dir(env.BASHBREW_CACHE) {
+				stash name: 'bashbrew-cache'
+			}
 		}
-	}
-	if (context.env.BASHBREW_LIBRARY) {
-		context.dir(context.env.BASHBREW_LIBRARY) {
-			stash includes: env.ACT_ON_IMAGE, name: 'bashbrew-library'
+		if (env.BASHBREW_LIBRARY) {
+			dir(env.BASHBREW_LIBRARY) {
+				stash includes: env.ACT_ON_IMAGE, name: 'bashbrew-library'
+			}
 		}
 	}
 }
 
 def unstashBashbrewBits(context) {
-	if (context.env.BASHBREW_CACHE) {
-		context.dir(context.env.BASHBREW_CACHE) {
-			deleteDir()
-			unstash 'bashbrew-cache'
+	_invokeWithContext(context) {
+		if (env.BASHBREW_CACHE) {
+			dir(env.BASHBREW_CACHE) {
+				deleteDir()
+				unstash 'bashbrew-cache'
+			}
 		}
-	}
-	if (context.env.BASHBREW_LIBRARY) {
-		context.dir(context.env.BASHBREW_LIBRARY) {
-			deleteDir()
-			unstash 'bashbrew-library'
+		if (env.BASHBREW_LIBRARY) {
+			dir(env.BASHBREW_LIBRARY) {
+				deleteDir()
+				unstash 'bashbrew-library'
+			}
 		}
 	}
 }
