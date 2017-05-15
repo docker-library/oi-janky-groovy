@@ -81,6 +81,9 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			vars.generateStackbrewLibrary(this)
 		}
 
+		// avoid "404" links by adding fake GitRepo data
+		vars.scrubBashbrewGitRepo(this)
+
 		vars.createFakeBashbrew(this)
 		vars.bashbrewBuildAndPush(this)
 

@@ -263,6 +263,22 @@ def generateStackbrewLibrary(context) {
 	}
 }
 
+def scrubBashbrewGitRepo(context) {
+	context.stage('Scrub GitRepo') {
+		sh '''#!/usr/bin/env bash
+			set -Eeuo pipefail
+			{
+				echo 'GitRepo: https://doi-janky.infosiftr.net'
+				bashbrew cat "$ACT_ON_IMAGE" | grep -vE '^Git(Repo|Fetch):'
+			} > bashbrew-tmp
+			mv -v bashbrew-tmp "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+			cat "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+			bashbrew cat "$ACT_ON_IMAGE"
+			bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
+		'''
+	}
+}
+
 def createFakeBashbrew(context) {
 	context.withEnv([
 		'BASHBREW_FROMS_TEMPLATE=' + '''
