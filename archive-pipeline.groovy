@@ -70,6 +70,10 @@ node {
 		sshagent(['docker-library-bot']) {
 			stage('Archive') {
 				sh('''
+					# ensure the Git cache exists
+					bashbrew from https://github.com/docker-library/official-images/raw/master/library/hello-world > /dev/null
+
+					# do the thing
 					./all-bad.sh
 				''')
 			}
