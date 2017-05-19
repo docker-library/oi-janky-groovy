@@ -155,7 +155,9 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						for version in $VERSIONS; do
 							echo
 							for field in TagsString; do
-								val="$(bashbrew cat -f "{{ .TagEntry.$field }}" "$ACT_ON_IMAGE:$version")"
+								if ! val="$(bashbrew cat -f "{{ .TagEntry.$field }}" "$ACT_ON_IMAGE:$version" 2>/dev/null)"; then
+									val="$version"
+								fi
 								echo "${field%String}: $val"
 							done
 							echo "GitRepo: https://doi-janky.infosiftr.net" # obviously bogus
