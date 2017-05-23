@@ -27,6 +27,11 @@ node('master') {
 			"""
 			for (img in archImages) {
 				def imageMeta = vars.imagesMeta[img]
+				def triggers = []
+				if (imageMeta['cron']) {
+					triggers << "cron('${imageMeta['cron']}')"
+				}
+				// TODO more triggers, especially SCM-based triggers (if we can get them working sanely)
 				dsl += """
 					pipelineJob('${arch}/${img}') {
 						description('''
@@ -39,9 +44,7 @@ node('master') {
 						''')
 						logRotator { daysToKeep(14) }
 						concurrentBuild(false)
-						triggers {
-							//cron('H H * * *')
-						}
+						triggers { ${triggers.join('\n')} }
 						definition {
 							cpsScm {
 								scm {

@@ -51,6 +51,7 @@ imagesMeta['alpine'] = [
 		's390x': 's390x',
 	],
 	'pipeline': 'multiarch/target-alpine-pipeline.groovy',
+	'cron': '@weekly',
 ]
 imagesMeta['debian'] = [
 	'arches': [
@@ -65,6 +66,7 @@ imagesMeta['debian'] = [
 		's390x',
 	] as Set,
 	'pipeline': 'multiarch/target-debian-pipeline.groovy',
+	//'cron': '@weekly',
 ]
 imagesMeta['opensuse'] = [
 	'arches': [
@@ -84,6 +86,7 @@ imagesMeta['opensuse'] = [
 		's390x': 's390x',
 	],
 	'pipeline': 'multiarch/target-opensuse-pipeline.groovy',
+	'cron': '@weekly',
 ]
 imagesMeta['ubuntu'] = [
 	'arches': [
@@ -96,6 +99,7 @@ imagesMeta['ubuntu'] = [
 		's390x',
 	] as Set,
 	'pipeline': 'multiarch/target-ubuntu-pipeline.groovy',
+	'cron': '@weekly',
 ]
 
 // other images (whose "supported arches" lists are normally going to be a combination of their upstream image arches)
