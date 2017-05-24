@@ -17,11 +17,12 @@ if (!env.APK_ARCH) {
 	error("Unknown Alpine Linux architecture for '${env.ACT_ON_ARCH}'.")
 }
 
+mirror = 'http://dl-2.alpinelinux.org/alpine' // see http://rsync.alpinelinux.org/alpine/MIRRORS.txt (in my testing, dl-2 was fastest for our jenkins boxes)
 versions = [
 	// https://wiki.alpinelinux.org/wiki/Alpine_Linux:Releases
 	// https://github.com/docker-library/official-images/blob/master/library/alpine
 	// http://dl-cdn.alpinelinux.org/alpine/v3.5/releases/aarch64/latest-releases.yaml
-	'3.6', // no releases yet
+	'3.6',
 	'3.5',
 	//'3.4', // no minirootfs artifacts
 	//'3.3', // no minirootfs artifacts
@@ -74,7 +75,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		dir('alpine') {
 			env.VERSIONS = ''
 			for (version in versions) {
-				baseUrl = "http://dl-cdn.alpinelinux.org/alpine/v${version}/releases/${env.APK_ARCH}"
+				baseUrl = "${mirror}/v${version}/releases/${env.APK_ARCH}"
 				dir(version) {
 					deleteDir() // make sure we start with a clean slate every time
 					if (0 != sh(returnStatus: true, script: """
