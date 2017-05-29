@@ -92,7 +92,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail
 					{
-						echo 'Maintainers: Tianon Gravi <tianon@debian.org>'
+						echo 'Maintainers: Tianon Gravi <tianon@debian.org> (@tianon)'
 						echo "GitRepo: https://doi-janky.infosiftr.net" # obviously bogus
 						commit="$(git log -1 --format='format:%H')"
 						echo "GitCommit: $commit"
