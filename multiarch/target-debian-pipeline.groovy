@@ -73,7 +73,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						[ -f "$dir/rootfs-$DPKG_ARCH.tar.xz" ]
 						tee "$dir/Dockerfile" <<-EOF
 							FROM scratch
-							COPY rootfs-$DPKG_ARCH.tar.xz /
+							ADD rootfs-$DPKG_ARCH.tar.xz /
 							CMD ["bash"]
 						EOF
 					done
