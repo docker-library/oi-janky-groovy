@@ -113,6 +113,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						done
 					} > tmp-bashbrew
 					set -x
+					mkdir -p "$BASHBREW_LIBRARY"
 					mv -v tmp-bashbrew "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
 					cat "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
 					bashbrew cat "$ACT_ON_IMAGE"
