@@ -102,7 +102,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 							suite="$(basename "$suiteDir")"
 
 							echo
-							echo "Tags: $suite"
+							echo "Tags: $suite, ${suite}-${SERIAL}"
 							echo "Directory: $suiteDir"
 
 							if [ -d "$suiteDir/slim" ]; then
