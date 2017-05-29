@@ -17,88 +17,68 @@ if (!env.DPKG_ARCH) {
 	error("Unknown 'dpkg' architecture for '${env.ACT_ON_ARCH}'.")
 }
 
+// https://github.com/debuerreotype/debuerreotype/releases
+//env.debuerreotypeVersion = '0.1'
+env.debuerreotypeVersion = '4e6bdec185889624b44cbe058f41a1fe67056a3b' // several good PRs since 0.1
+
+env.TZ = 'UTC'
+
 node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 	env.BASHBREW_CACHE = env.WORKSPACE + '/bashbrew-cache'
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {
-		checkout(
-			poll: true,
-			scm: [
-				$class: 'GitSCM',
-				userRemoteConfigs: [[
-					url: 'https://github.com/tianon/docker-brew-debian.git',
-					name: 'origin',
-					refspec: '+refs/heads/master:refs/remotes/origin/master',
-				]],
-				branches: [[name: '*/master']],
-				extensions: [
-					[
-						$class: 'CloneOption',
-						honorRefspec: true,
-						noTags: true,
-					],
-					[
-						$class: 'CleanCheckout',
-					],
-					[
-						$class: 'RelativeTargetDirectory',
-						relativeTargetDir: 'brew',
-					],
-				],
-				doGenerateSubmoduleConfigurations: false,
-				submoduleCfg: [],
-			],
-		)
-		checkout(
-			poll: false,
-			changelog: true,
-			scm: [
-				$class: 'GitSCM',
-				userRemoteConfigs: [[
-					url: 'https://github.com/docker/docker.git',
-					name: 'origin',
-					refspec: '+refs/heads/master:refs/remotes/origin/master',
-				]],
-				branches: [[name: '68a5336b61c8b252966b582f0e4d08c6ae0bdb63']], // https://github.com/moby/moby/tree/master/contrib  ||  https://github.com/moby/moby/commits/master/contrib
-				extensions: [
-					[
-						$class: 'CloneOption',
-						honorRefspec: true,
-						noTags: true,
-					],
-					[
-						$class: 'CleanCheckout',
-					],
-					[
-						$class: 'RelativeTargetDirectory',
-						relativeTargetDir: 'docker',
-					],
-				],
-				doGenerateSubmoduleConfigurations: false,
-				submoduleCfg: [],
-			],
-		)
+		dir('debian') {
+			deleteDir()
+			sh '''
+				git init --shared
+				git config user.name 'Docker Library Bot'
+				git config user.email 'github+dockerlibrarybot@infosiftr.com'
+				git commit --allow-empty -m 'Initial commit'
+			'''
+		}
 	}
 
 	ansiColor('xterm') {
-		dir('brew') {
-			stage('Prep') {
+		env.debuerreotypeDir = env.WORKSPACE + '/debuerreotype'
+		dir(env.debuerreotypeDir) {
+			deleteDir()
+			stage('Download') {
 				sh '''
-					echo "$DPKG_ARCH" > arch
-					echo "$TARGET_NAMESPACE/$ACT_ON_IMAGE" > repo
+					wget -O 'debuerreotype.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeVersion}.tar.gz"
+					tar -xf debuerreotype.tgz --strip-components=1
+					rm -f debuerreotype.tgz
+					./scripts/debuerreotype-version
 
-					ln -svfT ../docker/contrib/mkimage.sh ./mkimage.sh
+					sed -ri "s!^FROM debian!FROM $TARGET_NAMESPACE/debian!" Dockerfile
 				'''
 			}
+		}
 
-			// TODO parallelize?  pre-build artifacts elsewhere which are then consumed here?  (as in Ubuntu)
-			stage('Update') {
-				retry(3) {
-					sh '''
-						./update.sh
-					'''
-				}
+		dir('debian') {
+			deleteDir()
+			stage('Build') {
+				sh '''
+					echo "$debuerreotypeVersion" > debuerreotype-version
+					epoch="$(date --date 'today 00:00:00' +%s)"
+					timestamp="@$epoch"
+					serial="$(date --date "$timestamp" +%Y%m%d)"
+					echo "$serial" > serial
+					"$debuerreotypeDir/build-all.sh" . "$timestamp"
+				'''
+			}
+			env.SERIAL = readFile('serial').trim()
+			stage('Prep') {
+				sh '''
+					for dir in "$SERIAL"/*/ "$SERIAL"/*/slim/; do
+						[ -f "$dir/rootfs-$DPKG_ARCH.tar.xz" ]
+						cat > "$dir/Dockerfile" <<-EOF
+							FROM scratch
+							COPY rootfs-$DPKG_ARCH.tar.xz
+							CMD ["bash"]
+						EOF
+					done
+				'''
 			}
 
 			stage('Commit') {
@@ -112,17 +92,43 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			}
 			vars.seedCache(this)
 
-			vars.generateStackbrewLibrary(this)
+			stage('Generate') {
+				sh '''#!/usr/bin/env bash
+					set -Eeuo pipefail
+					{
+						echo 'Maintainers: Tianon Gravi <tianon@debian.org>'
+						echo "GitRepo: https://doi-janky.infosiftr.net" # obviously bogus
+						commit="$(git log -1 --format='format:%H')"
+						echo "GitCommit: $commit"
+
+						for suiteDir in "$SERIAL"/*/; do
+							suiteDir="${suiteDir%/}"
+							suite="$(basename "$suiteDir")"
+
+							echo
+							echo "Tags: $suite"
+							echo "Directory: $suiteDir"
+
+							if [ -d "$suiteDir/slim" ]; then
+								echo
+								echo "Tags: ${suite}-slim"
+								echo "Directory: ${suiteDir}/slim"
+							fi
+						done
+					} > tmp-bashbrew
+					set -x
+					mv -v tmp-bashbrew "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+					cat "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+					bashbrew cat "$ACT_ON_IMAGE"
+					bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
+				'''
+			}
 		}
 
-		// avoid "404" links by adding fake GitRepo data
-		vars.scrubBashbrewGitRepo(this)
+		// TODO vars.bashbrewBuildAndPush(this)
 
-		vars.createFakeBashbrew(this)
-		vars.bashbrewBuildAndPush(this)
-
-		vars.stashBashbrewBits(this)
+		// TODO vars.stashBashbrewBits(this)
 	}
 }
 
-vars.docsBuildAndPush(this)
+// TODO vars.docsBuildAndPush(this)
