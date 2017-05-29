@@ -71,7 +71,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				sh '''
 					for dir in "$SERIAL"/*/ "$SERIAL"/*/slim/; do
 						[ -f "$dir/rootfs-$DPKG_ARCH.tar.xz" ]
-						cat > "$dir/Dockerfile" <<-EOF
+						tee "$dir/Dockerfile" <<-EOF
 							FROM scratch
 							COPY rootfs-$DPKG_ARCH.tar.xz
 							CMD ["bash"]
