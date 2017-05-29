@@ -56,7 +56,6 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		}
 
 		dir('debian') {
-			deleteDir()
 			stage('Build') {
 				sh '''
 					echo "$debuerreotypeVersion" > debuerreotype-version
@@ -83,9 +82,6 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 			stage('Commit') {
 				sh '''
-					git config user.name 'Docker Library Bot'
-					git config user.email 'github+dockerlibrarybot@infosiftr.com'
-
 					git add -A .
 					git commit -m "Build for $ACT_ON_ARCH"
 				'''
