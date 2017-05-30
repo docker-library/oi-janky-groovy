@@ -72,14 +72,15 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				dir(version) {
 					deleteDir() // make sure we start with a clean slate every time
 
-					url = sh(returnStdout: true, script: '#!/bin/bash -Eeu' + """
+					url = sh(returnStdout: true, script: '#!/bin/bash -Eeux' + """
 						set -o pipefail
 						for folder in fedora fedora-secondary; do
 							urlBase="https://dl.fedoraproject.org/pub/\$folder"
 							possibles="\$(
 								curl -fsSL "\$urlBase/imagelist-\$folder" \\
 									| grep -E '^([.]/)?(linux/)?releases/${version}/Docker/${env.FEDORA_ARCH}/.*[.]tar[.]xz\$' \\
-									| sort -ruV
+									| sort -ruV \\
+									|| true
 							)"
 							if [ -n "\$possibles" ]; then
 								for possible in \$possibles; do
