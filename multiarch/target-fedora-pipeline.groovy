@@ -72,7 +72,8 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				dir(version) {
 					deleteDir() // make sure we start with a clean slate every time
 
-					url = sh(returnStdout: true, script: '#!/bin/bash -Eeuo pipefail' + """
+					url = sh(returnStdout: true, script: '#!/bin/bash -Eeu' + """
+						set -o pipefail
 						for folder in fedora fedora-secondary; do
 							urlBase="https://dl.fedoraproject.org/pub/\$folder"
 							possibles="\$(
