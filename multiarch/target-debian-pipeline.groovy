@@ -67,6 +67,13 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				'''
 			}
 			env.SERIAL = readFile('serial').trim()
+			// whichever suite "stable" points to should get tagged as latest
+			env.LATEST = sh(returnStdout: true, script: '''
+				mirror="$("$debuerreotypeDir/scripts/.snapshot-url.sh" "$SERIAL")"
+				wget -qO- "$mirror/dists/stable/Release" \
+					| tac|tac \
+					| awk -F ': ' '$1 == "Codename" { print $2; exit }'
+			''').trim()
 			stage('Prep') {
 				sh '''
 					mirror="$("$debuerreotypeDir/scripts/.snapshot-url.sh" "$SERIAL")"
@@ -132,8 +139,36 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 							[ -f "$suiteDir/Dockerfile" ] || continue
 
+							tags="$suite"
+
+							# only add "suite-SERIAL" as an alias for debuerreotype tags (no soup for experimental/rc-buggy)
+							if [ -f "$suiteDir/rootfs-$DPKG_ARCH.debuerreotype-epoch" ]; then
+								tags+=", ${suite}-${SERIAL}"
+							fi
+
+							# version number aliases
+							case "$suite" in
+								sid|testing|*stable|experimental|rc-buggy) ;;
+								*)
+									if [ -s "$suiteDir/rootfs-$DPKG_ARCH.debian_version" ]; then
+										debianVersion="$(< "$suiteDir/rootfs-$DPKG_ARCH.debian_version")"
+										if [[ "$debianVersion" != */sid ]]; then
+											while [ "$debianVersion" != "${debianVersion%.*}" ]; do
+												tags+=", $debianVersion"
+												debianVersion="${debianVersion%.*}"
+											done
+											tags+=", $debianVersion"
+										fi
+									fi
+									;;
+							esac
+
+							if [ "$suite" = "$LATEST" ]; then
+								tags+=', latest'
+							fi
+
 							echo
-							echo "Tags: $suite, ${suite}-${SERIAL}"
+							echo "Tags: $tags"
 							echo "Directory: $suiteDir"
 
 							for variant in slim backports; do
