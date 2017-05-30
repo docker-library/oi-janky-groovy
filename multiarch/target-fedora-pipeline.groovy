@@ -116,7 +116,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 										'*/layer.tar'
 									[ -f layer.tar ]
 									rm "\$dockerSaveTarball"
-									xz --compress -9 layer.tar
+									xz --compress layer.tar
 									[ -f layer.tar.xz ]
 									rm layer.tar
 									mv layer.tar.xz '${targetTarball}'
