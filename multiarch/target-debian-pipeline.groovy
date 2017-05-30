@@ -69,12 +69,41 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			env.SERIAL = readFile('serial').trim()
 			stage('Prep') {
 				sh '''
-					for dir in "$SERIAL"/*/ "$SERIAL"/*/slim/; do
+					mirror="$("$debuerreotypeDir/scripts/.snapshot-url.sh" "$SERIAL")"
+
+					for dir in "$SERIAL"/*/; do
+						dir="${dir%/}"
+						suite="$(basename "$dir")"
+
 						[ -f "$dir/rootfs-$DPKG_ARCH.tar.xz" ]
 						tee "$dir/Dockerfile" <<-EOF
 							FROM scratch
 							ADD rootfs-$DPKG_ARCH.tar.xz /
 							CMD ["bash"]
+						EOF
+						if [ -f "$dir/slim/rootfs-$DPKG_ARCH.tar.xz" ]; then
+							cp -av "$dir/Dockerfile" "$dir/slim/Dockerfile"
+						fi
+
+						# check whether xyz-backports exists at this epoch
+						if wget --quiet --spider "$mirror/dists/${suite}-backports/main/binary-$DPKG_ARCH/Packages.gz"; then
+							mkdir -p "$dir/backports"
+							tee "$dir/backports/Dockerfile" <<-EOF
+								FROM $ACT_ON_IMAGE:$suite
+								RUN echo 'deb http://deb.debian.org/debian ${suite}-backports main' > /etc/apt/sources.list.d/backports.list
+							EOF
+						fi
+					done
+
+					for exp in experimental=unstable rc-buggy=sid; do
+						suite="${exp%%=*}"
+						base="${exp#${suite}=}"
+						dir="$SERIAL/$suite"
+						[ ! -d "$dir" ]
+						mkdir -p "$dir"
+						tee "$dir/Dockerfile" <<-EOF
+							FROM $ACT_ON_IMAGE:$base
+							RUN echo 'deb http://deb.debian.org/debian $suite main' > /etc/apt/sources.list.d/experimental.list
 						EOF
 					done
 				'''
@@ -101,15 +130,19 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 							suiteDir="${suiteDir%/}"
 							suite="$(basename "$suiteDir")"
 
+							[ -f "$suiteDir/Dockerfile" ] || continue
+
 							echo
 							echo "Tags: $suite, ${suite}-${SERIAL}"
 							echo "Directory: $suiteDir"
 
-							if [ -d "$suiteDir/slim" ]; then
-								echo
-								echo "Tags: ${suite}-slim"
-								echo "Directory: ${suiteDir}/slim"
-							fi
+							for variant in slim backports; do
+								if [ -f "$suiteDir/$variant/Dockerfile" ]; then
+									echo
+									echo "Tags: ${suite}-${variant}"
+									echo "Directory: ${suiteDir}/${variant}"
+								fi
+							done
 						done
 					} > tmp-bashbrew
 					set -x
