@@ -75,7 +75,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					url = sh(returnStdout: true, script: '#!/bin/bash -Eeuo pipefail' + """
 						for folder in fedora fedora-secondary; do
 							urlBase="https://dl.fedoraproject.org/pub/\$folder"
-							possibles="$(
+							possibles="\$(
 								curl -fsSL "\$urlBase/imagelist-\$folder" \\
 									| grep -E '^([.]/)?(linux/)?releases/${version}/Docker/${env.FEDORA_ARCH}/.*[.]tar[.]xz\$' \\
 									| sort -ruV
