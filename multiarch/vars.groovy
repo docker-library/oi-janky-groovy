@@ -68,6 +68,27 @@ imagesMeta['debian'] = [
 	'pipeline': 'multiarch/target-debian-pipeline.groovy',
 	//'cron': '@weekly',
 ]
+imagesMeta['fedora'] = [
+	'arches': [
+		// see https://dl.fedoraproject.org/pub/fedora/ and https://dl.fedoraproject.org/pub/fedora-secondary/
+		// $ curl -fsSL 'https://dl.fedoraproject.org/pub/fedora/imagelist-fedora' 'https://dl.fedoraproject.org/pub/fedora-secondary/imagelist-fedora-secondary' | grep -E '^([.]/)?(linux/)?releases/[^/]+/Docker/' | sed -r -e 's!^([.]/)?(linux/)?releases/!!' | cut -d/ -f3 | sort -u
+		'amd64',
+		'arm32v7',
+		'arm64v8',
+		'ppc64le',
+	] as Set,
+	'map': [
+		// our-arch-name: fedora-arch-name
+		'amd64': 'x86_64',
+		'arm32v7': 'armhfp',
+		'arm64v8': 'aarch64',
+		'ppc64le': 'ppc64le',
+		// https://fedoraproject.org/wiki/Raspberry_Pi#What_about_support_for_the_Raspberry_Pi_Models_A.2FA.2B.2C_B.2FB.2B_.28generation_1.29.2C_Zero.2FZeroW_and_Compute_Module.3F
+		// "Fedora doesn't, and NEVER will, support ARMv6 processors."
+	],
+	'pipeline': 'multiarch/target-fedora-pipeline.groovy',
+	//'cron': '@weekly',
+]
 imagesMeta['opensuse'] = [
 	'arches': [
 		// see http://download.opensuse.org/repositories/Virtualization:/containers:/images:/openSUSE-Tumbleweed/images/
