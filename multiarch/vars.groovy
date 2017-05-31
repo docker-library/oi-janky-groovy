@@ -491,6 +491,13 @@ def docsBuildAndPush(context) {
 		ansiColor('xterm') { dir('d') {
 			stage('Update Docs') {
 				sh '''
+					# add a link to Jenkins build status
+					cat >> .template-helpers/generate-dockerfile-links-partial.sh <<-EOSH
+						cat <<-'EOBADGE'
+							[![Build Status](${JOB_URL%/}/badge/icon) (\\`$TARGET_NAMESPACE/$ACT_ON_IMAGE\\` build job)](${JOB_URL})
+						EOBADGE
+					EOSH
+
 					./update.sh "$TARGET_NAMESPACE/$ACT_ON_IMAGE"
 				'''
 			}
