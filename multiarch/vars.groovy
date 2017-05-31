@@ -129,6 +129,7 @@ imagesMeta['bash'] = [
 ]
 imagesMeta['buildpack-deps'] = [
 	'arches': (imagesMeta['debian']['arches'] + imagesMeta['ubuntu']['arches']),
+	'cron': '@weekly',
 ]
 imagesMeta['busybox'] = [
 	'arches': (imagesMeta['alpine']['arches'] + imagesMeta['debian']['arches'] + [
