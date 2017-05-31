@@ -112,6 +112,8 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 										tee Dockerfile <<-EODF
 											FROM scratch
 											ADD $ROOTFS_FILE /
+											# ensure UTC instead of the default GMT
+											ENV TZ UTC
 											CMD ["sh"]
 										EODF
 									'''
