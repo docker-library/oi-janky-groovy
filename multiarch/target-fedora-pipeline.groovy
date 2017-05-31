@@ -118,7 +118,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 									rm "\$dockerSaveTarball"
 									xz --compress layer.tar
 									[ -f layer.tar.xz ]
-									rm layer.tar
+									# xz deletes the source file for us
 									mv layer.tar.xz '${targetTarball}'
 								""")) {
 									echo("Failed to download Fedora rootfs for ${version} on ${env.FEDORA_ARCH}; skipping!")
