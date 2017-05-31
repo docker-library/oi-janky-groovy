@@ -467,6 +467,7 @@ def docsBuildAndPush(context) {
 		stage('Checkout Docs') {
 			checkout(
 				poll: true,
+				changelog: false,
 				scm: [
 					$class: 'GitSCM',
 					userRemoteConfigs: [[
