@@ -192,8 +192,8 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 		vars.bashbrewBuildAndPush(this)
 
-		// TODO vars.stashBashbrewBits(this)
+		vars.stashBashbrewBits(this)
 	}
 }
 
-// TODO vars.docsBuildAndPush(this)
+vars.docsBuildAndPush(this)

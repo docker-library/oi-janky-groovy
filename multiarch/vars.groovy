@@ -66,7 +66,7 @@ imagesMeta['debian'] = [
 		's390x',
 	] as Set,
 	'pipeline': 'multiarch/target-debian-pipeline.groovy',
-	//'cron': '@weekly',
+	'cron': '@monthly',
 ]
 imagesMeta['fedora'] = [
 	'arches': [
@@ -129,7 +129,7 @@ imagesMeta['bash'] = [
 ]
 imagesMeta['buildpack-deps'] = [
 	'arches': (imagesMeta['debian']['arches'] + imagesMeta['ubuntu']['arches']),
-	'cron': '@weekly',
+	'cron': '@monthly',
 ]
 imagesMeta['busybox'] = [
 	'arches': (imagesMeta['alpine']['arches'] + imagesMeta['debian']['arches'] + [
