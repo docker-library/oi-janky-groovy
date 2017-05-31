@@ -19,7 +19,7 @@ if (!env.DPKG_ARCH) {
 
 // https://github.com/debuerreotype/debuerreotype/releases
 //env.debuerreotypeVersion = '0.1'
-env.debuerreotypeVersion = 'ec828bfb82ec28629dc3ba0c517637fb81a3bc28' // several good PRs since 0.1
+env.debuerreotypeVersion = '0cadb50f8a4503d929188b2cdda9b2b7ec10a762' // several good PRs since 0.1
 
 env.TZ = 'UTC'
 
