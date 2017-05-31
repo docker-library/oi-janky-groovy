@@ -87,7 +87,7 @@ imagesMeta['fedora'] = [
 		// "Fedora doesn't, and NEVER will, support ARMv6 processors."
 	],
 	'pipeline': 'multiarch/target-fedora-pipeline.groovy',
-	//'cron': '@weekly',
+	'cron': '@weekly',
 ]
 imagesMeta['opensuse'] = [
 	'arches': [
