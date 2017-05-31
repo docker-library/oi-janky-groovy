@@ -160,6 +160,7 @@ imagesMeta['golang'] = [
 		'ppc64le',
 		's390x',
 	]),
+	'cron': '@weekly',
 ]
 imagesMeta['postgres'] = [
 	'arches': (imagesMeta['alpine']['arches'] + [
