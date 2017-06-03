@@ -145,6 +145,7 @@ imagesMeta['busybox'] = [
 		's390x',
 	]),
 	'pipeline': 'multiarch/target-busybox-pipeline.groovy',
+	'cron': '@monthly',
 ]
 // TODO "docker" (Alpine-only, needs 17.06); https://download.docker.com/linux/static/edge/
 imagesMeta['gcc'] = [
