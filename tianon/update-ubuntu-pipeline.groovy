@@ -1,3 +1,8 @@
+properties([
+	buildDiscarder(logRotator(numToKeepStr: '10')),
+	disableConcurrentBuilds(),
+])
+
 arches = [
 	// see https://partner-images.canonical.com/core/xenial/current/
 	['amd64', 'amd64'],
@@ -93,7 +98,7 @@ node {
 						)"
 						latestDate="${latestSerial%%[^0-9]*}"
 						rfc2822="$(date --date "$latestDate" --rfc-2822)"
-						git commit --date="$rfc2822" -m "Update to $latestSerial for $ARCH ($DPKG_ARCH)"
+						git commit --date="$rfc2822" --message "Update to $latestSerial for $ARCH ($DPKG_ARCH)" --message "$(./status.sh)"
 					'''
 				}
 
