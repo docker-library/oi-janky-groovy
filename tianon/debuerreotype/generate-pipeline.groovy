@@ -30,9 +30,6 @@ node('master') {
 					parameters {
 						stringParam('timestamp', 'today 00:00:00', 'A string that "date(1)" can parse.')
 					}
-					triggers {
-						//cron('@monthly')
-					}
 					definition {
 						cpsScm {
 							scm {
@@ -63,9 +60,6 @@ node('master') {
 				parameters {
 					stringParam('timestamp', 'today 00:00:00', 'A string that "date(1)" can parse.')
 				}
-				triggers {
-					//cron('@monthly')
-				}
 				definition {
 					cps {
 						script("""
@@ -89,9 +83,31 @@ node('master') {
 					}
 				}
 			}
-		'''
 
-		// TODO "_collector" to pull together all the arch artifacts into GitHub branches
+			pipelineJob('_collector') {
+				logRotator { numToKeep(10) }
+				concurrentBuild(false)
+				definition {
+					cpsScm {
+						scm {
+							git {
+								remote {
+									url('https://github.com/docker-library/oi-janky-groovy.git')
+								}
+								branch('*/master')
+								extensions {
+									cleanAfterCheckout()
+								}
+							}
+							scriptPath('tianon/debuerreotype/collector-pipeline.groovy')
+						}
+					}
+				}
+				configure {
+					it / definition / lightweight(true)
+				}
+			}
+		'''
 
 		jobDsl(
 			lookupStrategy: 'SEED_JOB',
