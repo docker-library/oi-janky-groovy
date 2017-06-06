@@ -14,7 +14,6 @@ vars.prebuildSetup(this)
 
 node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
-	env.BASHBREW_ARCH = env.ACT_ON_ARCH
 
 	stage('Checkout') {
 		checkout(
@@ -55,6 +54,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 	'''
 
 	ansiColor('xterm') {
+		vars.createFakeBashbrew(this)
 		vars.bashbrewBuildAndPush(this)
 
 		vars.stashBashbrewBits(this)

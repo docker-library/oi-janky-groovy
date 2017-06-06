@@ -23,7 +23,7 @@ dpkgArches = [
 
 def defaultImageMeta = [
 	['arches', ['amd64'] as Set],
-	['pipeline', 'multiarch/target-generic-pipeline.groovy'],
+	['pipeline', 'multiarch/target-outdated-pipeline.groovy'],
 ]
 
 imagesMeta = [:]
@@ -119,7 +119,7 @@ imagesMeta['ubuntu'] = [
 		'ppc64le',
 		's390x',
 	] as Set,
-	'pipeline': 'multiarch/target-ubuntu-pipeline.groovy',
+	'pipeline': 'multiarch/target-generic-pipeline.groovy',
 	'cron': '@weekly',
 ]
 
