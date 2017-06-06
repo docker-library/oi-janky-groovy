@@ -259,6 +259,9 @@ def prebuildSetup(context) {
 		env.ACT_ON_ARCH = env.JOB_NAME.split('/')[-2] // "i386", etc
 
 		env.TARGET_NAMESPACE = archNamespace(env.ACT_ON_ARCH)
+
+		// we'll pull images explicitly -- we don't want it to ever happen _implicitly_ (since the architecture will be wrong if it does)
+		env.BASHBREW_PULL = 'never'
 	}
 }
 
@@ -309,7 +312,7 @@ def scrubBashbrewGitRepo(context) {
 	}
 }
 
-def createFakeBashbrew(context) {
+def pullFakeFroms(context) {
 	context.withEnv([
 		'BASHBREW_FROMS_TEMPLATE=' + '''
 			{{- range $.Entries -}}
@@ -332,7 +335,6 @@ def createFakeBashbrew(context) {
 				# all parents might be "scratch", in which case "$parents" will be empty
 
 				# pull the ones appropriate for our target architecture
-				# TODO allow arm32v7 to pull from arm32v6 (especially for alpine)
 				echo "$parents" \\
 					| awk -v ns="$TARGET_NAMESPACE" '{ print ns "/" $0 }' \\
 					| xargs -rtn1 docker pull \\
@@ -344,11 +346,9 @@ def createFakeBashbrew(context) {
 					| xargs -rtn2 docker tag \\
 					|| true
 			'''
-		}
 
-		// gather a list of tags for which we successfully fetched their FROM
-		withEnv([
-			'TAGS=' + sh(returnStdout: true, script: '#!/bin/bash -e' + '''
+			// gather a list of tags for which we successfully fetched their FROM
+			env.TAGS = sh(returnStdout: true, script: '#!/bin/bash -e' + '''
 				# gather a list of tags we've seen (filled in build order) so we can catch "FROM $ACT_ON_IMAGE:xxx"
 				declare -A seen=()
 
@@ -377,29 +377,35 @@ def createFakeBashbrew(context) {
 						seen[$otherTag]=1
 					done
 				done
-			''').trim(),
-		]) {
-			stage('Fake It!') {
-				sh '''#!/usr/bin/env bash
-					set -Eeuo pipefail
-					if [ -z "${TAGS:-}" ]; then
-						echo >&2 'Error: none of the parents for the tags of this image could be fetched! (so none of them can be built)'
-						exit 1
-					fi
+			''').trim()
 
-					{
-						echo "Maintainers: Docker Library Bot <$ACT_ON_ARCH> (@docker-library-bot)"
-						echo
-						bashbrew cat $TAGS
-					} > bashbrew-tmp
-					set -x
-					mv -v bashbrew-tmp "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
-					cat "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
-					bashbrew cat "$ACT_ON_IMAGE"
-					bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
-				'''
-			}
+			sh '#!/usr/bin/env bash' + '''
+				set -Eeuo pipefail
+				if [ -z "${TAGS:-}" ]; then
+					echo >&2 'Error: none of the parents for the tags of this image could be fetched! (so none of them can be built)'
+					exit 1
+				fi
+			'''
 		}
+	}
+}
+
+def createFakeBashbrew(context) {
+	pullFakeFroms(context)
+
+	context.stage('Fake It!') {
+		sh '''#!/usr/bin/env bash
+			{
+				echo "Maintainers: Docker Library Bot <$ACT_ON_ARCH> (@docker-library-bot)"
+				echo
+				bashbrew cat $TAGS
+			} > bashbrew-tmp
+			set -x
+			mv -v bashbrew-tmp "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+			cat "$BASHBREW_LIBRARY/$ACT_ON_IMAGE"
+			bashbrew cat "$ACT_ON_IMAGE"
+			bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
+		'''
 	}
 }
 

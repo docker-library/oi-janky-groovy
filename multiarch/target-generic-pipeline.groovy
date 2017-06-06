@@ -55,6 +55,8 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 	'''
 
 	ansiColor('xterm') {
+		vars.pullFakeFroms(this)
+
 		vars.bashbrewBuildAndPush(this)
 
 		vars.stashBashbrewBits(this)
