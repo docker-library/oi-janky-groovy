@@ -67,7 +67,7 @@ imagesMeta['debian'] = [
 		'ppc64le',
 		's390x',
 	] as Set,
-	'pipeline': 'multiarch/target-debian-pipeline.groovy',
+	'pipeline': 'multiarch/target-generic-pipeline.groovy',
 	'cron': '@monthly',
 ]
 imagesMeta['fedora'] = [
