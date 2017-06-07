@@ -1,14 +1,14 @@
 // properties are set via "generate-pipeline.groovy" (jobDsl)
 
 // TODO rebuild all arches and then remove this DPKG_ARCH hackery (since then the artifacts will include the "dpkg-arch" file directly)
-def multiarchVars = fileLoader.fromGit(
+def vars = fileLoader.fromGit(
 	'multiarch/vars.groovy', // script
 	'https://github.com/docker-library/oi-janky-groovy.git', // repo
 	'master', // branch
 	null, // credentialsId
 	'master', // node/label
 )
-env.DPKG_ARCH = multiarchVars.dpkgArches[env.ACT_ON_ARCH]
+env.DPKG_ARCH = vars.dpkgArches[env.ACT_ON_ARCH]
 if (!env.DPKG_ARCH) {
 	error("Unknown 'dpkg' architecture for '${env.ACT_ON_ARCH}'.")
 }
