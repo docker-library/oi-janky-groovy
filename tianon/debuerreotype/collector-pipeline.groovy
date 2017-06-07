@@ -14,7 +14,7 @@ if (!env.DPKG_ARCH) {
 }
 
 // we can't use "load()" here because we don't have a file context (or a real checkout of "oi-janky-groovy" -- the pipeline plugin hides that checkout from the actual pipeline execution)
-def vars = fileLoader.fromGit(
+vars = fileLoader.fromGit(
 	'tianon/debuerreotype/vars.groovy', // script
 	'https://github.com/docker-library/oi-janky-groovy.git', // repo
 	'master', // branch
