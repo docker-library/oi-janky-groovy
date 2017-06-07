@@ -84,6 +84,8 @@ node {
 					'''
 				}
 
+				// TODO fingerprint files again for "threading the needle" ?
+
 				stage('Commit ' + arch) {
 					sh '#!/bin/bash' + '''
 						set -Eeuo pipefail
