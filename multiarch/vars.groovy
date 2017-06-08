@@ -131,6 +131,7 @@ imagesMeta['bash'] = [
 ]
 imagesMeta['buildpack-deps'] = [
 	'arches': (imagesMeta['debian']['arches'] + imagesMeta['ubuntu']['arches']),
+	'pipeline': 'multiarch/target-generic-pipeline.groovy',
 	'cron': '@monthly',
 ]
 imagesMeta['busybox'] = [
@@ -152,6 +153,7 @@ imagesMeta['busybox'] = [
 // TODO "docker" (Alpine-only, needs 17.06); https://download.docker.com/linux/static/edge/
 imagesMeta['gcc'] = [
 	'arches': imagesMeta['debian']['arches'],
+	'pipeline': 'multiarch/target-generic-pipeline.groovy',
 ]
 imagesMeta['golang'] = [
 	'arches': (imagesMeta['alpine']['arches'] + [
@@ -163,6 +165,7 @@ imagesMeta['golang'] = [
 		'ppc64le',
 		's390x',
 	]),
+	'pipeline': 'multiarch/target-generic-pipeline.groovy',
 	'cron': '@weekly',
 ]
 imagesMeta['postgres'] = [
@@ -176,14 +179,21 @@ imagesMeta['postgres'] = [
 
 // only debian and alpine variants
 for (img in [
+	'openjdk',
+	'redis',
+]) {
+	imagesMeta[img] = [
+		'arches': (imagesMeta['alpine']['arches'] + imagesMeta['debian']['arches']),
+		'pipeline': 'multiarch/target-generic-pipeline.groovy',
+	]
+}
+for (img in [
 	'haproxy',
 	'httpd',
 	'memcached',
-	'openjdk', 'tomcat',
 	'php', 'wordpress',
 	'python',
 	//'rabbitmq', // TODO figure out erlang-solutions.com repo
-	'redis',
 	'ruby',
 	'tomcat',
 ]) {
