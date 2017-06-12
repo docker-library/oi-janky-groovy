@@ -51,6 +51,7 @@ node {
 		def dsl = ''
 
 		def allImages = []
+		def theGoodImages = []
 
 		for (arch in vars.arches) {
 			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
@@ -59,8 +60,12 @@ node {
 				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all
 			""").trim().tokenize()
 
+			theGoodImages += archImages
+
 			archImages += vars.archImages(arch)
 			archImages = archImages as Set
+
+			allImages += archImages
 
 			def ns = vars.archNamespace(arch)
 			dsl += """
@@ -110,45 +115,51 @@ node {
 					}
 				"""
 				// "fileExists" throws annoying exceptions ("java.io.NotSerializableException: java.util.LinkedHashMap$LinkedKeyIterator")
-
-				allImages << img
 			}
 		}
 
 		allImages = allImages as Set
+		theGoodImages = theGoodImages as Set
 
-		dsl += '''
-			nestedView('images') {
-				columns {
-					status()
-					weather()
-				}
-				views {
-		'''
-		for (image in allImages) {
+		for (imageList in [
+			['all-images', allImages],
+			['images', theGoodImages],
+		]) {
+			name = imageList[0]
+			images = imageList[1]
 			dsl += """
-					listView('${image}') {
-						jobs {
-							regex('.*/${image}')
-						}
-						recurse()
-						columns {
-							status()
-							weather()
-							name()
-							lastSuccess()
-							lastFailure()
-							lastDuration()
-							nextLaunch()
-							buildButton()
-						}
+				nestedView('${name}') {
+					columns {
+						status()
+						weather()
 					}
+					views {
 			"""
-		}
-		dsl += '''
-				}
+			for (image in images) {
+				dsl += """
+						listView('${image}') {
+							jobs {
+								regex('.*/${image}')
+							}
+							recurse()
+							columns {
+								status()
+								weather()
+								name()
+								lastSuccess()
+								lastFailure()
+								lastDuration()
+								nextLaunch()
+								buildButton()
+							}
+						}
+				"""
 			}
-		'''
+			dsl += '''
+					}
+				}
+			'''
+		}
 
 		dsl += '''
 			listView('flat') {
