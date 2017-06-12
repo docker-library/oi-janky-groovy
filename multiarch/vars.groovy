@@ -175,12 +175,17 @@ imagesMeta['postgres'] = [
 		'i386',
 		'ppc64le',
 	]),
+	'pipeline': 'multiarch/target-generic-pipeline.groovy',
 ]
 
 // only debian and alpine variants
 for (img in [
+	'haproxy',
+	'httpd',
+	'memcached',
 	'openjdk',
 	'redis',
+	'tomcat',
 ]) {
 	imagesMeta[img] = [
 		'arches': (imagesMeta['alpine']['arches'] + imagesMeta['debian']['arches']),
@@ -188,14 +193,10 @@ for (img in [
 	]
 }
 for (img in [
-	'haproxy',
-	'httpd',
-	'memcached',
 	'php', 'wordpress',
 	'python',
 	//'rabbitmq', // TODO figure out erlang-solutions.com repo
 	'ruby',
-	'tomcat',
 ]) {
 	imagesMeta[img] = [
 		'arches': (imagesMeta['alpine']['arches'] + imagesMeta['debian']['arches']),
