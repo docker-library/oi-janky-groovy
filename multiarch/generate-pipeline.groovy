@@ -50,6 +50,8 @@ node {
 	stage('Generate') {
 		def dsl = ''
 
+		def allImages = []
+
 		for (arch in vars.arches) {
 			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
 				set -Eeuo pipefail
@@ -108,6 +110,8 @@ node {
 					}
 				"""
 				// "fileExists" throws annoying exceptions ("java.io.NotSerializableException: java.util.LinkedHashMap$LinkedKeyIterator")
+
+				allImages << img
 			}
 		}
 
@@ -119,7 +123,7 @@ node {
 				}
 				views {
 		'''
-		for (image in vars.images) {
+		for (image in (allImages as Set)) {
 			dsl += """
 					listView('${image}') {
 						jobs {
