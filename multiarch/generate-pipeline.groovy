@@ -56,11 +56,11 @@ node {
 			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
 				set -Eeuo pipefail
 				set -x
-				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all \\
-					| sort -u
+				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all
 			""").trim().tokenize()
 
-			//def archImages = vars.archImages(arch)
+			archImages += vars.archImages(arch)
+			archImages = archImages as Set
 
 			def ns = vars.archNamespace(arch)
 			dsl += """
@@ -115,6 +115,8 @@ node {
 			}
 		}
 
+		allImages = allImages as Set
+
 		dsl += '''
 			nestedView('images') {
 				columns {
@@ -123,7 +125,7 @@ node {
 				}
 				views {
 		'''
-		for (image in (allImages as Set)) {
+		for (image in allImages) {
 			dsl += """
 					listView('${image}') {
 						jobs {
