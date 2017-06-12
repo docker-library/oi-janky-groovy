@@ -126,7 +126,16 @@ for (img in [
 	'ruby',
 ]) {
 	imagesMeta[img] = [
-		'arches': (imagesMeta['alpine']['arches'] + imagesMeta['debian']['arches']),
+		'arches': (imagesMeta['alpine']['arches'] + [
+			// temporary arches of Debian
+			'amd64',
+			'arm32v5',
+			'arm32v7',
+			'arm64v8',
+			'i386',
+			'ppc64le',
+			's390x',
+		]),
 	]
 }
 
