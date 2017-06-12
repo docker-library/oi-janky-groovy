@@ -52,7 +52,7 @@ node('master') {
 
 		for (arch in vars.arches) {
 			def archImages = sh(returnStdout: true, script: """
-				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ $.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all \\
+				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all \\
 					| sort -u
 			""").trim().tokenize()
 
