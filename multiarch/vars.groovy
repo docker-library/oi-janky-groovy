@@ -102,7 +102,16 @@ imagesMeta['bash'] = [
 	'arches': imagesMeta['alpine']['arches'],
 ]
 imagesMeta['busybox'] = [
-	'arches': (imagesMeta['alpine']['arches'] + imagesMeta['debian']['arches'] + [
+	'arches': (imagesMeta['alpine']['arches'] + [
+		// temporary arches of Debian
+		'amd64',
+		'arm32v5',
+		'arm32v7',
+		'arm64v8',
+		'i386',
+		'ppc64le',
+		's390x',
+	] + [
 		// uClibc supported architectures
 		// https://github.com/docker-library/busybox/blob/780be7ab73975a3d14fbc6b4acd04231658348f1/uclibc/Dockerfile.builder#L61-L86
 		'amd64',
