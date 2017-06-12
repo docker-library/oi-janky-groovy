@@ -15,7 +15,7 @@ def vars = fileLoader.fromGit(
 	'master', // node/label
 )
 
-node('master') {
+node {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {
@@ -51,7 +51,9 @@ node('master') {
 		def dsl = ''
 
 		for (arch in vars.arches) {
-			def archImages = sh(returnStdout: true, script: """
+			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
+				set -Eeuo pipefail
+				set -x
 				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all \\
 					| sort -u
 			""").trim().tokenize()
