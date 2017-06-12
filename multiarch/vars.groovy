@@ -55,21 +55,6 @@ imagesMeta['alpine'] = [
 	'pipeline': 'multiarch/target-alpine-pipeline.groovy',
 	'cron': '@weekly',
 ]
-imagesMeta['debian'] = [
-	'arches': [
-		// see https://www.debian.org/ports/#portlist-released
-		// see also https://lists.debian.org/debian-devel-announce/2016/10/msg00008.html ("Release Architectures for Debian 9 'Stretch'")
-		'amd64',
-		'arm32v5',
-		'arm32v7',
-		'arm64v8',
-		'i386',
-		'ppc64le',
-		's390x',
-	] as Set,
-	'pipeline': 'multiarch/target-generic-pipeline.groovy',
-	'cron': '@monthly',
-]
 imagesMeta['fedora'] = [
 	'arches': [
 		// see https://dl.fedoraproject.org/pub/fedora/ and https://dl.fedoraproject.org/pub/fedora-secondary/
@@ -111,28 +96,10 @@ imagesMeta['opensuse'] = [
 	'pipeline': 'multiarch/target-opensuse-pipeline.groovy',
 	'cron': '@weekly',
 ]
-imagesMeta['ubuntu'] = [
-	'arches': [
-		// see https://partner-images.canonical.com/core/xenial/current/
-		'amd64',
-		'arm32v7',
-		'arm64v8',
-		'i386',
-		'ppc64le',
-		's390x',
-	] as Set,
-	'pipeline': 'multiarch/target-generic-pipeline.groovy',
-	'cron': '@weekly',
-]
 
 // other images (whose "supported arches" lists are normally going to be a combination of their upstream image arches)
 imagesMeta['bash'] = [
 	'arches': imagesMeta['alpine']['arches'],
-]
-imagesMeta['buildpack-deps'] = [
-	'arches': (imagesMeta['debian']['arches'] + imagesMeta['ubuntu']['arches']),
-	'pipeline': 'multiarch/target-generic-pipeline.groovy',
-	'cron': '@monthly',
 ]
 imagesMeta['busybox'] = [
 	'arches': (imagesMeta['alpine']['arches'] + imagesMeta['debian']['arches'] + [
@@ -150,48 +117,8 @@ imagesMeta['busybox'] = [
 	'pipeline': 'multiarch/target-busybox-pipeline.groovy',
 	'cron': '@monthly',
 ]
-// TODO "docker" (Alpine-only, needs 17.06); https://download.docker.com/linux/static/edge/
-imagesMeta['gcc'] = [
-	'arches': imagesMeta['debian']['arches'],
-	'pipeline': 'multiarch/target-generic-pipeline.groovy',
-]
-imagesMeta['golang'] = [
-	'arches': (imagesMeta['alpine']['arches'] + [
-		// https://golang.org/dl/
-		// https://github.com/docker-library/golang/blob/master/update.sh ("dpkgArches")
-		'amd64',
-		'arm32v7', // "armv6l" binaries, but inside debian's "armhf"
-		'i386',
-		'ppc64le',
-		's390x',
-	]),
-	'pipeline': 'multiarch/target-generic-pipeline.groovy',
-	'cron': '@weekly',
-]
-imagesMeta['postgres'] = [
-	'arches': (imagesMeta['alpine']['arches'] + [
-		// see http://apt.postgresql.org/pub/repos/apt/dists/jessie-pgdg/main/
-		'amd64',
-		'i386',
-		'ppc64le',
-	]),
-	'pipeline': 'multiarch/target-generic-pipeline.groovy',
-]
 
 // only debian and alpine variants
-for (img in [
-	'haproxy',
-	'httpd',
-	'memcached',
-	'openjdk',
-	'redis',
-	'tomcat',
-]) {
-	imagesMeta[img] = [
-		'arches': (imagesMeta['alpine']['arches'] + imagesMeta['debian']['arches']),
-		'pipeline': 'multiarch/target-generic-pipeline.groovy',
-	]
-}
 for (img in [
 	'php', 'wordpress',
 	'python',

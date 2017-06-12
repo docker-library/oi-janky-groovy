@@ -16,17 +16,56 @@ def vars = fileLoader.fromGit(
 )
 
 node('master') {
+	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+
+	stage('Checkout') {
+		checkout(
+			poll: true,
+			scm: [
+				$class: 'GitSCM',
+				userRemoteConfigs: [[
+					url: 'https://github.com/docker-library/official-images.git',
+				]],
+				branches: [[name: '*/master']],
+				extensions: [
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'oi',
+					],
+					[
+						$class: 'PathRestriction',
+						excludedRegions: '',
+						includedRegions: 'library/**',
+					],
+				],
+				doGenerateSubmoduleConfigurations: false,
+				submoduleCfg: [],
+			],
+		)
+	}
+
 	stage('Generate') {
 		def dsl = ''
 
 		for (arch in vars.arches) {
-			def archImages = vars.archImages(arch)
+			def archImages = sh(returnStdout: true, script: """
+				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ $.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all \\
+					| sort -u
+			""").trim().tokenize()
+
+			//def archImages = vars.archImages(arch)
+
 			def ns = vars.archNamespace(arch)
 			dsl += """
 				folder('${arch}')
 			"""
 			for (img in archImages) {
-				def imageMeta = vars.imagesMeta[img]
+				def imageMeta = vars.imagesMeta[img] ?: {
+					'pipeline': 'multiarch/target-generic-pipeline.groovy',
+				}
 				def triggers = []
 				if (imageMeta['cron']) {
 					triggers << "cron('${imageMeta['cron']}')"
