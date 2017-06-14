@@ -231,7 +231,7 @@ def seedCache(context) {
 		stage('Seed Cache') {
 			sh '''
 				# ensure the bashbrew cache directory exists, and has an initialized Git repo
-				bashbrew from https://raw.githubusercontent.com/docker-library/official-images/master/library/hello-world > /dev/null
+				bashbrew from --apply-constraints https://raw.githubusercontent.com/docker-library/official-images/master/library/hello-world > /dev/null
 
 				# and fill it with our newly generated commit (so that "bashbrew build" can DTRT)
 				git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:

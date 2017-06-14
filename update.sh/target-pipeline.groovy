@@ -67,7 +67,7 @@ node {
 
 			# prefill the bashbrew cache
 			./generate-stackbrew-library.sh \\
-				| bashbrew from /dev/stdin > /dev/null
+				| bashbrew from --apply-constraints /dev/stdin > /dev/null
 		'''
 
 	}
