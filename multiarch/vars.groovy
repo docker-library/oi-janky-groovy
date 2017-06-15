@@ -357,9 +357,11 @@ def bashbrewBuildAndPush(context) {
 		}
 
 		stage('Push') {
-			sh '''
-				bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-			'''
+			retry(3) {
+				sh '''
+					bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+				'''
+			}
 		}
 	}
 }
