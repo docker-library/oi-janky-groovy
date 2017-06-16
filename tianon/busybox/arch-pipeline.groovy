@@ -110,8 +110,8 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			sh '''
 				git add -A .
 
-				# set bogus timestamps to try to get 100% reproducible commit hashes
-				export GIT_AUTHOR_DATE='Thu, 01 Jan 1970 00:00:00 +0000'
+				# set explicit timestamps to try to get 100% reproducible commit hashes (given a master commit we're based on)
+				export GIT_AUTHOR_DATE="$(git log -1 --format='format:%aD' origin/master)"
 				export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"
 
 				git commit --message "Build for $ACT_ON_ARCH"
