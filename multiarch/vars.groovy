@@ -102,27 +102,6 @@ imagesMeta['bash'] = [
 	'arches': imagesMeta['alpine']['arches'],
 ]
 
-// only debian and alpine variants
-for (img in [
-	'php', 'wordpress',
-	'python',
-	//'rabbitmq', // TODO figure out erlang-solutions.com repo
-	'ruby',
-]) {
-	imagesMeta[img] = [
-		'arches': (imagesMeta['alpine']['arches'] + [
-			// temporary arches of Debian
-			'amd64',
-			'arm32v5',
-			'arm32v7',
-			'arm64v8',
-			'i386',
-			'ppc64le',
-			's390x',
-		]),
-	]
-}
-
 // list of arches
 arches = []
 // list of images
