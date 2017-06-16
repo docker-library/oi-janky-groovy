@@ -91,10 +91,17 @@ node {
 					sh '#!/bin/bash' + '''
 						set -Eeuo pipefail
 						set -x
+
 						git add -A .
+
 						serial="$(< serial)"
+
+						# set explicit timestamps to try to get 100% reproducible commit hashes (given a master commit we're based on)
 						rfc2822="$(date --date "$serial" --rfc-2822)"
-						git commit --date="$rfc2822" --message "Update to $serial for $ARCH (debuerreotype $(< debuerreotype-version))"
+						export GIT_AUTHOR_DATE="$rfc2822"
+						export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"
+
+						git commit --message "Update to $serial for $ARCH (debuerreotype $(< debuerreotype-version))"
 					'''
 				}
 
