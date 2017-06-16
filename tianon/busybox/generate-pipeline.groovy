@@ -26,6 +26,7 @@ node('master') {
 		for (arch in arches) {
 			dsl += """
 				pipelineJob('${arch}') {
+					description('<a href="https://github.com/docker-library/busybox/tree/dist-${arch}"><code>docker-library/busybox</code> @ <code>dist-${arch}</code></a>')
 					logRotator { numToKeep(10) }
 					concurrentBuild(false)
 					definition {
