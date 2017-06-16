@@ -22,6 +22,7 @@ node('master') {
 		for (arch in vars.arches) {
 			dsl += """
 				pipelineJob('${arch}') {
+					description('<a href="https://github.com/debuerreotype/docker-debian-artifacts/tree/dist-${arch}"><code>debuerreotype/docker-debian-artifacts</code> @ <code>dist-${arch}</code></a>')
 					logRotator {
 						numToKeep(10)
 						artifactNumToKeep(3)
