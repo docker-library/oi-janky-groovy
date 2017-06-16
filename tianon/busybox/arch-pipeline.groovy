@@ -109,7 +109,12 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		stage('Commit') {
 			sh '''
 				git add -A .
-				git commit --date='Thu, 01 Jan 1970 00:00:00 +0000' --message "Build for $ACT_ON_ARCH"
+
+				# set bogus timestamps to try to get 100% reproducible commit hashes
+				export GIT_AUTHOR_DATE='Thu, 01 Jan 1970 00:00:00 +0000'
+				export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"
+
+				git commit --message "Build for $ACT_ON_ARCH"
 			'''
 		}
 
