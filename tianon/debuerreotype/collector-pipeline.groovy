@@ -1,14 +1,5 @@
 // properties are set via "generate-pipeline.groovy" (jobDsl)
 
-// TODO rebuild all arches and then remove this DPKG_ARCH hackery (since then the artifacts will include the "dpkg-arch" file directly)
-def multiarchVars = fileLoader.fromGit(
-	'multiarch/vars.groovy', // script
-	'https://github.com/docker-library/oi-janky-groovy.git', // repo
-	'master', // branch
-	null, // credentialsId
-	'master', // node/label
-)
-
 // we can't use "load()" here because we don't have a file context (or a real checkout of "oi-janky-groovy" -- the pipeline plugin hides that checkout from the actual pipeline execution)
 def vars = fileLoader.fromGit(
 	'tianon/debuerreotype/vars.groovy', // script
@@ -65,17 +56,11 @@ node {
 				'ARCH=' + arch,
 				'ARCH_BRANCH=' + ('dist-' + arch),
 			]) {
-				// TODO remove this crap
-				env.DPKG_ARCH = multiarchVars.dpkgArches[arch]
-				if (!env.DPKG_ARCH) {
-					error("Unknown 'dpkg' architecture for '${arch}'.")
-				}
 				stage('Prep ' + arch) {
 					sh '''
 						git branch -D "$ARCH_BRANCH" || :
 						git checkout -b "$ARCH_BRANCH" origin/master
 						echo "$ARCH" > arch
-						echo "$DPKG_ARCH" > dpkg-arch # TODO REMOVE THIS LINE WITH THE SECTION ABOVE AFTER THE NEXT REBUILD OF THE TARBALLS
 					'''
 				}
 

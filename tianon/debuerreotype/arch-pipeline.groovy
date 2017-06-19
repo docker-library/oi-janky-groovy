@@ -59,7 +59,6 @@ node(multiarchVars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					echo "$debuerreotypeVersion" > "$artifactsDir/debuerreotype-version"
 					echo "$serial" > "$artifactsDir/serial"
 					echo "$DPKG_ARCH" > "$artifactsDir/dpkg-arch"
-					"$debuerreotypeDir/scripts/.snapshot-url.sh" "$serial" > "$artifactsDir/snapshot-url"
 
 					"$debuerreotypeDir/build-all.sh" . "@$epoch"
 				'''

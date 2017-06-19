@@ -11,9 +11,7 @@ arches = [
 ] as Set
 
 // https://github.com/debuerreotype/debuerreotype/releases
-//debuerreotypeVersion = '0.1'
-// several good commits since 0.1  O:)
-debuerreotypeVersion = '6e079dbad9e16002695e5c0484187c9e9922ce4d'
+debuerreotypeVersion = '0.2'
 
 // return "this" (for use via "load" in Jenkins pipeline, for example)
 this
