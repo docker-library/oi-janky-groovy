@@ -44,15 +44,6 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		)
 	}
 
-	env.BASHBREW_FROMS_TEMPLATE = '''
-		{{- range $.Entries -}}
-			{{- if not ($.SkipConstraints .) -}}
-				{{- $.DockerFrom . -}}
-				{{- "\\n" -}}
-			{{- end -}}
-		{{- end -}}
-	'''
-
 	ansiColor('xterm') {
 		vars.createFakeBashbrew(this)
 		vars.bashbrewBuildAndPush(this)
