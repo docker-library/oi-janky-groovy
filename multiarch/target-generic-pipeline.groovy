@@ -50,6 +50,18 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 		vars.bashbrewBuildAndPush(this)
 
+		stage('Trigger Children') {
+			children = sh(returnStdout: true, script: '''
+				bashbrew children --apply-constraints --depth 1 "$ACT_ON_IMAGE" \\
+					| grep -vE '^'"$ACT_ON_IMAGE"'(:|$)' \\
+					| cut -d: -f1 \\
+					| sort -u
+			''').trim().tokenize()
+			for (child in children) {
+				build job: child, wait: false
+			}
+		}
+
 		vars.stashBashbrewBits(this)
 	}
 }
