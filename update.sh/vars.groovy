@@ -127,6 +127,9 @@ def rawReposData = [
 	]],
 	['wordpress', [
 		'env': 'WORDPRESS_VERSION',
+		'otherEnvs': [
+			['cli', 'WORDPRESS_CLI_VERSION'],
+		],
 	]],
 
 	// versionless
