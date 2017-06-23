@@ -10,9 +10,6 @@ def rawReposData = [
 	['cassandra', [
 		'env': 'CASSANDRA_VERSION',
 	]],
-	['celery', [
-		'env': 'CELERY_VERSION',
-	]],
 	['docker', [
 		'env': 'DOCKER_VERSION',
 	]],
