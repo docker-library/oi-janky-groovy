@@ -235,7 +235,10 @@ def pullFakeFroms(context) {
 		''',
 	]) {
 		stage('Pull') {
-			sh '''
+			sh '''#!/usr/bin/env bash
+				set -Eeuo pipefail
+				set -x
+
 				# gather a list of expected parents
 				parents="$(
 					bashbrew cat -f "$BASHBREW_FROMS_TEMPLATE" "$ACT_ON_IMAGE" 2>/dev/null \\
@@ -261,7 +264,9 @@ def pullFakeFroms(context) {
 			'''
 
 			// gather a list of tags for which we successfully fetched their FROM
-			env.TAGS = sh(returnStdout: true, script: '#!/bin/bash -e' + '''
+			env.TAGS = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+				set -Eeuo pipefail
+
 				# gather a list of tags we've seen (filled in build order) so we can catch "FROM $ACT_ON_IMAGE:xxx"
 				declare -A seen=()
 
@@ -292,8 +297,9 @@ def pullFakeFroms(context) {
 				done
 			''').trim()
 
-			sh '#!/usr/bin/env bash' + '''
+			sh '''#!/usr/bin/env bash
 				set -Eeuo pipefail
+
 				if [ -z "${TAGS:-}" ]; then
 					echo >&2 'Error: none of the parents for the tags of this image could be fetched! (so none of them can be built)'
 					exit 1
