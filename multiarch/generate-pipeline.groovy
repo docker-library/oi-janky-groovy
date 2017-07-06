@@ -74,12 +74,15 @@ node {
 			for (img in archImages) {
 				def imageMeta = vars.imagesMeta[img] ?: [
 					'pipeline': 'multiarch/target-generic-pipeline.groovy',
+					'scmPolling': true,
 				]
 				def triggers = []
 				if (imageMeta['cron']) {
 					triggers << "cron('${imageMeta['cron']}')"
 				}
-				// TODO more triggers, especially SCM-based triggers (if we can get them working sanely)
+				if (imageMeta['scmPolling']) {
+					triggers << "scm('H/15 * * * *')"
+				}
 				dsl += """
 					pipelineJob('${arch}/${img}') {
 						description('''
