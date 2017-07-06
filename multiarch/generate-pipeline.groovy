@@ -81,7 +81,7 @@ node {
 					triggers << "cron('${imageMeta['cron']}')"
 				}
 				if (imageMeta['scmPolling']) {
-					triggers << "scm('H/15 * * * *')"
+					triggers << "scm('H * * * *')"
 				}
 				dsl += """
 					pipelineJob('${arch}/${img}') {
