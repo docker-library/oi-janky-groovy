@@ -441,7 +441,7 @@ def docsBuildAndPush(context) {
 
 			withCredentials([[
 				$class: 'UsernamePasswordMultiBinding',
-				credentialsId: 'docker-hub-' + env.ACT_ON_ARCH,
+				credentialsId: 'docker-hub-' + env.TARGET_NAMESPACE,
 				usernameVariable: 'USERNAME',
 				passwordVariable: 'PASSWORD',
 			]]) {
