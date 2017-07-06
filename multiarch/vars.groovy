@@ -121,7 +121,7 @@ def archImages(arch) {
 
 // given an arch, returns a target namespace
 def archNamespace(arch) {
-	return arch.replaceAll(/^windows-/, '')
+	return arch.replaceAll(/^windows-/, 'win')
 }
 
 // given an arch/image combo, returns a target node expression
@@ -441,7 +441,7 @@ def docsBuildAndPush(context) {
 
 			withCredentials([[
 				$class: 'UsernamePasswordMultiBinding',
-				credentialsId: 'docker-hub-' + env.TARGET_NAMESPACE,
+				credentialsId: 'docker-hub-' + env.ACT_ON_ARCH.replaceAll(/^[^-]+-/, ''),
 				usernameVariable: 'USERNAME',
 				passwordVariable: 'PASSWORD',
 			]]) {
