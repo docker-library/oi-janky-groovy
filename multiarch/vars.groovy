@@ -412,6 +412,16 @@ def docsBuildAndPush(context) {
 							$class: 'RelativeTargetDirectory',
 							relativeTargetDir: 'd',
 						],
+						[
+							$class: 'PathRestriction',
+							excludedRegions: '',
+							includedRegions: [
+								env.ACT_ON_IMAGE + '/**',
+								'*.pl',
+								'*.sh',
+								'.*/**',
+							].join('\n'),
+						],
 					],
 					doGenerateSubmoduleConfigurations: false,
 					submoduleCfg: [],
