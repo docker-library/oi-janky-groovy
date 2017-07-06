@@ -11,6 +11,7 @@ archesMeta = [
 	['i386', [:]],
 	['ppc64le', [:]],
 	['s390x', [:]],
+	['windows-amd64', [:]],
 ]
 dpkgArches = [
 	'amd64': 'amd64',
@@ -120,7 +121,7 @@ def archImages(arch) {
 
 // given an arch, returns a target namespace
 def archNamespace(arch) {
-	return arch
+	return arch.replaceAll(/^windows-/, '')
 }
 
 // given an arch/image combo, returns a target node expression
