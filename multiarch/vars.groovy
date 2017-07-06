@@ -240,22 +240,24 @@ def pullFakeFroms(context) {
 				parents="$(
 					bashbrew cat -f "$BASHBREW_FROMS_TEMPLATE" "$ACT_ON_IMAGE" 2>/dev/null \\
 						| sort -u \\
-						| grep -vE '/|^scratch$|^'"$ACT_ON_IMAGE"'(:|$)' \\
+						| grep -vE '^$|^scratch$|^'"$ACT_ON_IMAGE"'(:|$)' \\
 						|| true
 				)"
 				# all parents might be "scratch", in which case "$parents" will be empty
 
-				# pull the ones appropriate for our target architecture
-				echo "$parents" \\
-					| awk -v ns="$TARGET_NAMESPACE" '{ print ns "/" $0 }' \\
-					| xargs -rtn1 docker pull \\
-					|| true
+				if [ -n "$parents" ]; then
+					# pull the ones appropriate for our target architecture
+					echo "$parents" \\
+						| awk -v ns="$TARGET_NAMESPACE" '{ if (/\\//) { print $0 } else { print ns "/" $0 } }' \\
+						| xargs -rtn1 docker pull \\
+						|| true
 
-				# ... and then tag them without the namespace (so "bashbrew build" can "just work" as-is)
-				echo "$parents" \\
-					| awk -v ns="$TARGET_NAMESPACE" '{ print ns "/" $0; print }' \\
-					| xargs -rtn2 docker tag \\
-					|| true
+					# ... and then tag them without the namespace (so "bashbrew build" can "just work" as-is)
+					echo "$parents" \\
+						| awk -v ns="$TARGET_NAMESPACE" '!/\\// { print ns "/" $0; print }' \\
+						| xargs -rtn2 docker tag \\
+						|| true
+				fi
 			'''
 
 			// gather a list of tags for which we successfully fetched their FROM
