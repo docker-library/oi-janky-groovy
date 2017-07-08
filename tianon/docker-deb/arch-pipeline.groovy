@@ -8,6 +8,13 @@ def multiarchVars = fileLoader.fromGit(
 	null, // credentialsId
 	'master', // node/label
 )
+def vars = fileLoader.fromGit(
+	'tianon/docker-deb/vars.groovy', // script
+	'https://github.com/docker-library/oi-janky-groovy.git', // repo
+	'master', // branch
+	null, // credentialsId
+	'master', // node/label
+)
 
 env.ACT_ON_ARCH = env.JOB_BASE_NAME // "amd64", "arm64v8", etc.
 
@@ -102,11 +109,12 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 			'CHANGES_URL=' + 'https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/source/lastSuccessfulBuild/artifact/' + changesFile,
 			'DSC=' + dscFile,
 			'SUITE=' + suite,
+			'COMP=' + vars.component,
 		]) {
 			stage(suite) {
 				sh '''
 					docker run -i --rm \\
-						-e CHANGES_URL -e DSC -e SUITE \\
+						-e CHANGES_URL -e DSC -e SUITE -e COMP \\
 						-v "$PWD":/work \\
 						-w /work \\
 						-e CHOWN="$(id -u):$(id -g)" \\
@@ -116,7 +124,7 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 							set -x
 
 							dpkgArch="$(dpkg --print-architecture)"
-							targetDir="output/pool/$SUITE/main/$dpkgArch"
+							targetDir="output/pool/$SUITE/$COMP/$dpkgArch"
 
 							mkdir -p "$targetDir"
 							# attempt to avoid "java.nio.file.AccessDeniedException" on failed builds (root-owned files)
@@ -143,7 +151,7 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 								--no-arch-all
 							)
 							# TODO figure out an OK way to handle arch:all packages (no need yet)
-							# (need to go into "output/pool/$SUITE/main/all/")
+							# (need to go into "output/pool/$SUITE/$COMP/all/")
 
 							case "$SUITE" in
 								jessie)

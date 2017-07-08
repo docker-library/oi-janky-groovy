@@ -1,18 +1,13 @@
-properties([
-	buildDiscarder(logRotator(
-		numToKeepStr: '10',
-		artifactNumToKeepStr: '2',
-	)),
-	disableConcurrentBuilds(),
-])
+// properties are set via "generate-pipeline.groovy" (jobDsl)
 
-suites = [
-	'jessie',
-	'stretch',
-
-	'xenial',
-	'zesty',
-]
+// we can't use "load()" here because we don't have a file context (or a real checkout of "oi-janky-groovy" -- the pipeline plugin hides that checkout from the actual pipeline execution)
+def vars = fileLoader.fromGit(
+	'tianon/docker-deb/vars.groovy', // script
+	'https://github.com/docker-library/oi-janky-groovy.git', // repo
+	'master', // branch
+	null, // credentialsId
+	'master', // node/label
+)
 
 node {
 	stage('Checkout') {
@@ -60,7 +55,7 @@ node {
 		'''
 	}
 
-	for (suite in suites) {
+	for (suite in vars.suites) {
 		stage(suite) {
 			withEnv([
 				'SUITE=' + suite,
