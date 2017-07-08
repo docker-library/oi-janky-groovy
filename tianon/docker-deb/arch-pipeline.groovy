@@ -140,12 +140,10 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 								--arch "$dpkgArch"
 								--no-source
 								--arch-any
+								--no-arch-all
 							)
-
-							case "$dpkgArch" in
-								amd64) sbuildArgs+=( --arch-all ) ;;
-								*) sbuildArgs+=( --no-arch-all ) ;;
-							esac
+							# TODO figure out an OK way to handle arch:all packages (no need yet)
+							# (need to go into "output/pool/$SUITE/main/all/")
 
 							case "$SUITE" in
 								jessie)
