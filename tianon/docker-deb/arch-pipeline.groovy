@@ -50,27 +50,6 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 		}
 	}
 
-	dir('sources') {
-		stage('Download') {
-			sh '''
-				wget -O sources.zip 'https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/source/lastSuccessfulBuild/artifact/*_source.changes/*zip*/archive.zip'
-				unzip sources.zip
-				rm sources.zip
-			'''
-		}
-	}
-
-	// "findFiles" causes "java.io.NotSerializableException: java.util.AbstractList$Itr" (intermittently)
-	changesFiles = sh(returnStdout: true, script: '''#!/usr/bin/env bash
-		set -Eeuo pipefail
-		shopt -s nullglob
-		cd sources
-		echo *_source.changes
-	''').tokenize()
-	if (!changesFiles) {
-		error('No files matching "*_source.changes" found!')
-	}
-
 	dir('tianon-dockerfiles/sbuild') {
 		stage('Pull') {
 			sh '''
@@ -86,6 +65,38 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 				docker build -t tianon/sbuild .
 			'''
 		}
+	}
+
+	dir('sources') {
+		stage('Download') {
+			sh '''#!/usr/bin/env bash
+				set -Eeuo pipefail
+
+				docker run -i --rm \\
+					-v "$PWD":/work \\
+					-w /work \\
+					-u "$(id -u):$(id -g)" \\
+					tianon/sbuild bash -c '
+						set -Eeuo pipefail
+						set -x
+
+						wget -O sources.zip "https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/source/lastSuccessfulBuild/artifact/*_source.changes/*zip*/archive.zip"
+						unzip sources.zip
+						rm sources.zip
+					'
+			'''
+		}
+	}
+
+	// "findFiles" causes "java.io.NotSerializableException: java.util.AbstractList$Itr" (intermittently)
+	changesFiles = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+		set -Eeuo pipefail
+		shopt -s nullglob
+		cd sources
+		echo *_source.changes
+	''').tokenize()
+	if (!changesFiles) {
+		error('No files matching "*_source.changes" found!')
 	}
 
 	for (changesFile in changesFiles) {
