@@ -116,7 +116,7 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 							set -x
 
 							dpkgArch="$(dpkg --print-architecture)"
-							targetDir="output/pool/$SUITE/$dpkgArch"
+							targetDir="output/pool/$SUITE/main/$dpkgArch"
 
 							mkdir -p "$targetDir"
 							# attempt to avoid "java.nio.file.AccessDeniedException" on failed builds (root-owned files)
