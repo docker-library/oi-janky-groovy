@@ -11,7 +11,7 @@ def multiarchVars = fileLoader.fromGit(
 
 env.ACT_ON_ARCH = env.JOB_BASE_NAME // "amd64", "arm64v8", etc.
 
-node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) {
+node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 	stage('Checkout') {
 		checkout(
 			poll: false,
@@ -43,17 +43,28 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) {
 		}
 	}
 
-	stage('Download') { dir('sources') {
-		sh '''
-			wget -O sources.zip 'https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/source/lastSuccessfulBuild/artifact/*zip*/archive.zip'
-			unzip sources.zip
-			rm sources.zip
-			mv archive/* ./
-			rmdir archive
-		'''
-	} }
+	dir('sources') {
+		stage('Download') {
+			sh '''
+				wget -O sources.zip 'https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/source/lastSuccessfulBuild/artifact/*_source.changes/*zip*/archive.zip'
+				unzip sources.zip
+				rm sources.zip
+			'''
+		}
+	}
 
-	dir('tianon-dockerfiles/sbuild') { ansiColor('xterm') {
+	// "findFiles" causes "java.io.NotSerializableException: java.util.AbstractList$Itr" (intermittently)
+	changesFiles = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+		set -Eeuo pipefail
+		shopt -s nullglob
+		cd sources
+		echo *_source.changes
+	''').tokenize()
+	if (!changesFiles) {
+		error('No files matching "*_source.changes" found!')
+	}
+
+	dir('tianon-dockerfiles/sbuild') {
 		stage('Pull') {
 			sh '''
 				awk -v arch="$ACT_ON_ARCH" 'toupper($1) == "FROM" { $2 = arch "/" $2 } { print }' Dockerfile > Dockerfile.new
@@ -68,31 +79,15 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) {
 				docker build -t tianon/sbuild .
 			'''
 		}
-	} }
-
-	// "findFiles" causes "java.io.NotSerializableException: java.util.AbstractList$Itr" (intermittently)
-	changesFiles = sh(returnStdout: true, script: '''#!/usr/bin/env bash
-		set -Eeuo pipefail
-		shopt -s nullglob
-		echo sources/*_source.changes
-	''').tokenize()
-	if (!changesFiles) {
-		error('No files matching "*_source.changes" found!')
 	}
 
 	for (changesFile in changesFiles) {
 		changesFile = changesFile as String // convert "org.jenkinsci.plugins.pipeline.utility.steps.fs.FileWrapper" to String
-
 		dscFile = changesFile.replaceAll(/_source[.]changes$/, '.dsc')
-
-		// "fileExists" causes "java.io.NotSerializableException: java.util.AbstractList$Itr" (intermittently)
-		if (0 != sh(returnStatus: true, script: "test -f '${dscFile}'")) {
-			error("DSC file '${dscFile}' does not exist!")
-		}
 
 		// "readFile" causes "java.io.NotSerializableException: java.util.AbstractList$Itr" (intermittently)
 		suite = sh(returnStdout: true, script: """
-			awk -F ': ' '\$1 == "Distribution" { print \$2; exit }' '${changesFile}'
+			awk -F ': ' '\$1 == "Distribution" { print \$2; exit }' 'sources/${changesFile}'
 		""").trim()
 		if (!suite) {
 			error("Failed to determine suite for '${changesFile}'!")
@@ -103,23 +98,38 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) {
 			continue
 		}
 
-		stage(suite) {
-			withEnv([
-				'DSC=' + dscFile,
-				'SUITE=' + suite,
-			]) {
+		withEnv([
+			'CHANGES_URL=' + 'https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/source/lastSuccessfulBuild/artifact/' + changesFile,
+			'DSC=' + dscFile,
+			'SUITE=' + suite,
+		]) {
+			stage(suite) {
 				sh '''
 					docker run -i --rm \\
+						-e CHANGES_URL -e DSC -e SUITE \\
 						-v "$PWD":/work \\
 						-w /work \\
 						-e CHOWN="$(id -u):$(id -g)" \\
-						-e DSC -e SUITE \\
 						--cap-add SYS_ADMIN \\
 						tianon/sbuild bash -c '
 							set -Eeuo pipefail
 							set -x
 
 							dpkgArch="$(dpkg --print-architecture)"
+							targetDir="output/pool/$SUITE/$dpkgArch"
+
+							mkdir -p "$targetDir"
+							# attempt to avoid "java.nio.file.AccessDeniedException" on failed builds (root-owned files)
+							# (see "dir(output) { deleteDir }" above)
+							chown -R "$CHOWN" output
+							chmod g+srwX output
+
+							(
+								cd "$targetDir"
+								dget -du "$CHANGES_URL"
+								[ -f "$DSC" ]
+								chown -R "$CHOWN" .
+							)
 
 							# TODO handle ubuntu
 							download-debuerreotype-tarball.sh "$SUITE" "$dpkgArch"
@@ -146,14 +156,7 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) {
 									;;
 							esac
 
-							# attempt to avoid "java.nio.file.AccessDeniedException" on failed builds (root-owned files)
-							# (see "dir(output) { deleteDir }" above)
-							mkdir -p output
-							chown -R "$CHOWN" output
-							chmod g+srwX output
-
-							DSC="$(readlink -f "$DSC")"
-							cd output
+							cd "$targetDir"
 							sbuild "${sbuildArgs[@]}" "$DSC"
 							chown -R "$CHOWN" .
 						'
@@ -168,4 +171,4 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) {
 			fingerprint: true,
 		)
 	} }
-}
+} }
