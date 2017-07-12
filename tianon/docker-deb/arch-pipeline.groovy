@@ -67,12 +67,19 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 		}
 	}
 
+	// account for AppArmor
+	env.DOCKER_FLAGS = sh(returnStdout: true, script: '''
+		if docker info | grep -q apparmor; then
+			echo --security-opt apparmor=unconfined
+		fi
+	''').tokenize().join(' ')
+
 	dir('sources') {
 		stage('Download') {
 			sh '''#!/usr/bin/env bash
 				set -Eeuo pipefail
 
-				docker run -i --rm \\
+				docker run -i --rm $DOCKER_FLAGS \\
 					-v "$PWD":/work \\
 					-w /work \\
 					-u "$(id -u):$(id -g)" \\
@@ -124,7 +131,7 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 		]) {
 			stage(suite) {
 				sh '''
-					docker run -i --rm \\
+					docker run -i --rm $DOCKER_FLAGS \\
 						-e CHANGES_URL -e DSC -e SUITE -e COMP \\
 						-v "$PWD":/work \\
 						-w /work \\
