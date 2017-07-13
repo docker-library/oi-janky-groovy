@@ -1,5 +1,3 @@
-// TODO refactor "Architectures"-supporting pipelines to use the manifest file itself as the source-of-truth for supported architectures!
-
 // https://github.com/jenkinsci/pipeline-examples/blob/666e5e3f8104efd090e698aa9b5bc09dd6bf5997/docs/BEST_PRACTICES.md#groovy-gotchas
 // tl;dr, iterating over Maps in pipeline groovy is pretty broken in real-world use
 archesMeta = [
@@ -31,8 +29,8 @@ def defaultImageMeta = [
 
 imagesMeta = [:]
 
-// base images (requires custom pipelines for now)
 imagesMeta['alpine'] = [
+	// TODO https://github.com/gliderlabs/docker-alpine/issues/304#issuecomment-315157660
 	'arches': [
 		// see http://dl-cdn.alpinelinux.org/alpine/edge/main/
 		'amd64',
@@ -56,7 +54,12 @@ imagesMeta['alpine'] = [
 	'pipeline': 'multiarch/target-alpine-pipeline.groovy',
 	'cron': '@weekly',
 ]
+imagesMeta['bash'] = [
+	// TODO https://github.com/tianon/docker-bash/pull/6
+	'arches': imagesMeta['alpine']['arches'],
+]
 imagesMeta['opensuse'] = [
+	// TODO https://github.com/openSUSE/docker-containers-build/issues/22#issuecomment-309163169
 	'arches': [
 		// see http://download.opensuse.org/repositories/Virtualization:/containers:/images:/openSUSE-Tumbleweed/images/
 		'amd64',
@@ -75,11 +78,6 @@ imagesMeta['opensuse'] = [
 	],
 	'pipeline': 'multiarch/target-opensuse-pipeline.groovy',
 	'cron': '@weekly',
-]
-
-// other images (whose "supported arches" lists are normally going to be a combination of their upstream image arches)
-imagesMeta['bash'] = [
-	'arches': imagesMeta['alpine']['arches'],
 ]
 
 // list of arches
