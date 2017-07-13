@@ -18,7 +18,11 @@ def vars = fileLoader.fromGit(
 
 env.ACT_ON_ARCH = env.JOB_BASE_NAME // "amd64", "arm64v8", etc.
 env.BUILD_ARCH = vars.buildArch[env.ACT_ON_ARCH] ?: env.ACT_ON_ARCH
-env.DPKG_ARCH_IMAGE = env.ACT_ON_ARCH + '/debian:stretch-slim'
+
+env.DPKG_ARCH = multiarchVars.dpkgArches[env.ACT_ON_ARCH]
+if (!env.DPKG_ARCH) {
+	error("Unknown 'dpkg' architecture for '${env.ACT_ON_ARCH}'.")
+}
 
 node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 	stage('Checkout') {
@@ -60,8 +64,6 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 				awk 'toupper($1) == "FROM" { print $2 }' Dockerfile \\
 					| xargs -rtn1 docker pull \\
 					|| true
-
-				docker pull "$DPKG_ARCH_IMAGE" || true
 			'''
 		}
 		stage('Build') {
@@ -70,10 +72,6 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 			'''
 		}
 	}
-
-	env.DPKG_ARCH = sh(returnStdout: true, script: '''
-		docker run -i --rm "$DPKG_ARCH_IMAGE" dpkg --print-architecture
-	''').trim()
 
 	// account for AppArmor
 	env.DOCKER_FLAGS = sh(returnStdout: true, script: '''
