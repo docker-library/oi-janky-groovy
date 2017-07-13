@@ -22,6 +22,13 @@ exclusions = [
 	's390x': ['jessie'] as Set,
 ]
 
+// some arches need to sbuild their packages in a different environment than the final target
+buildArch = [
+	// $ schroot --help
+	// Illegal instruction (core dumped)
+	'arm32v5': 'arm32v7',
+]
+
 component = 'main'
 
 // return "this" (for use via "load" in Jenkins pipeline, for example)

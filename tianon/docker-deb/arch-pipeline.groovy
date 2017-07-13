@@ -17,8 +17,10 @@ def vars = fileLoader.fromGit(
 )
 
 env.ACT_ON_ARCH = env.JOB_BASE_NAME // "amd64", "arm64v8", etc.
+env.BUILD_ARCH = vars.buildArch[env.ACT_ON_ARCH] ?: env.ACT_ON_ARCH
+env.DPKG_ARCH_IMAGE = env.ACT_ON_ARCH + '/debian:stretch-slim'
 
-node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
+node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 	stage('Checkout') {
 		checkout(
 			poll: false,
@@ -53,11 +55,13 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 	dir('tianon-dockerfiles/sbuild') {
 		stage('Pull') {
 			sh '''
-				awk -v arch="$ACT_ON_ARCH" 'toupper($1) == "FROM" { $2 = arch "/" $2 } { print }' Dockerfile > Dockerfile.new
+				awk -v arch="$BUILD_ARCH" 'toupper($1) == "FROM" { $2 = arch "/" $2 } { print }' Dockerfile > Dockerfile.new
 				mv Dockerfile.new Dockerfile
 				awk 'toupper($1) == "FROM" { print $2 }' Dockerfile \\
 					| xargs -rtn1 docker pull \\
 					|| true
+
+				docker pull "$DPKG_ARCH_IMAGE" || true
 			'''
 		}
 		stage('Build') {
@@ -66,6 +70,10 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 			'''
 		}
 	}
+
+	env.DPKG_ARCH = sh(returnStdout: true, script: '''
+		docker run -i --rm "$DPKG_ARCH_IMAGE" dpkg --print-architecture
+	''').trim()
 
 	// account for AppArmor
 	env.DOCKER_FLAGS = sh(returnStdout: true, script: '''
@@ -137,7 +145,7 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 			stage(suite) {
 				sh '''
 					docker run -i --rm ${DOCKER_FLAGS:-} \\
-						-e CHANGES_URL -e DSC -e SUITE -e COMP \\
+						-e CHANGES_URL -e DSC -e SUITE -e COMP -e DPKG_ARCH \\
 						-v "$PWD":/work \\
 						-w /work \\
 						-e CHOWN="$(id -u):$(id -g)" \\
@@ -146,8 +154,7 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 							set -Eeuo pipefail
 							set -x
 
-							dpkgArch="$(dpkg --print-architecture)"
-							targetDir="output/pool/$SUITE/$COMP/$dpkgArch"
+							targetDir="output/pool/$SUITE/$COMP/$DPKG_ARCH"
 
 							mkdir -p "$targetDir"
 							# attempt to avoid "java.nio.file.AccessDeniedException" on failed builds (root-owned files)
@@ -163,12 +170,12 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 							)
 
 							# TODO handle ubuntu
-							download-debuerreotype-tarball.sh "$SUITE" "$dpkgArch"
+							download-debuerreotype-tarball.sh "$SUITE" "$DPKG_ARCH"
 
 							sbuildArgs=(
 								--verbose
 								--dist "$SUITE"
-								--arch "$dpkgArch"
+								--arch "$DPKG_ARCH"
 								--no-source
 								--arch-any
 								--no-arch-all
