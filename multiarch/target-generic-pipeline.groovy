@@ -58,7 +58,11 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					| sort -u
 			''').trim().tokenize()
 			for (child in children) {
-				build job: child, wait: false
+				build(
+					job: child,
+					quietPeriod: 15 * 60, // 15 minutes
+					wait: false,
+				)
 			}
 		}
 
