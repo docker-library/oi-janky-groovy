@@ -17,6 +17,7 @@ suites = [
 ] as Set
 
 exclusions = [
+	'arm32v5': (suites - 'stretch'), // arm32v5 is slooooow, so save time by only building stretch
 	'ppc64le': ['jessie'] as Set,
 	's390x': ['jessie'] as Set,
 ]
