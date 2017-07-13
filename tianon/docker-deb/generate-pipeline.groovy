@@ -101,7 +101,7 @@ node('master') {
 		'''
 		for (suite in vars.suites) {
 			dsl += """
-						<br /><code>deb https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/repo/lastSuccessfulBuild/artifact <strong>${suite}</strong> ${vars.component}</code><br />
+						<br /><code>deb [ allow-insecure=yes trusted=yes ] https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/repo/lastSuccessfulBuild/artifact <strong>${suite}</strong> ${vars.component}</code><br />
 			"""
 		}
 		dsl += '''
