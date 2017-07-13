@@ -123,6 +123,11 @@ node(multiarchVars.node(env.ACT_ON_ARCH, 'sbuild')) { ansiColor('xterm') {
 			continue
 		}
 
+		if (vars.exclusions[env.ACT_ON_ARCH] && vars.exclusions[env.ACT_ON_ARCH].contains(suite)) {
+			// skip arch+suite combinations known not to work
+			continue
+		}
+
 		withEnv([
 			'CHANGES_URL=' + 'https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/source/lastSuccessfulBuild/artifact/' + changesFile,
 			'DSC=' + dscFile,

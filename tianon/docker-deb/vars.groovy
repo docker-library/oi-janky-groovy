@@ -16,6 +16,11 @@ suites = [
 	'zesty',
 ] as Set
 
+exclusions = [
+	'ppc64le': ['jessie'] as Set,
+	's390x': ['jessie'] as Set,
+]
+
 component = 'main'
 
 // return "this" (for use via "load" in Jenkins pipeline, for example)
