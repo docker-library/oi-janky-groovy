@@ -85,25 +85,42 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			'''
 		}
 
-		stage('Builders') {
-			sh '''
-				for builder in */Dockerfile.builder; do
-					variant="$(basename "$(dirname "$builder")")"
-					from="$(awk 'toupper($1) == "FROM" { print $2 }' "$builder")"
+		variants = sh(returnStdout: true, script: '''
+			echo */Dockerfile.builder \\
+				| xargs -n1 dirname \\
+				| xargs -n1 basename
+		''').trim().tokenize()
+
+		for (variant in variants) {
+			withEnv(['variant=' + variant]) { stage(variant) {
+				sh '''
+					from="$(awk 'toupper($1) == "FROM" { print $2 }' "$variant/Dockerfile.builder")"
 
 					if ! docker inspect --type image "$from" > /dev/null 2>&1; then
 						# skip anything we couldn't successfully pull/tag above
 						# (deleting so that "./generate-stackbrew-library.sh" will DTRT)
+						echo >&2 "warning: $variant is 'FROM $from', which failed to pull -- skipping"
 						rm -rf "$variant"
-						continue
+						exit
 					fi
 
 					if ! ./build.sh "$variant"; then
-						echo >&2 "error: $variant failed to build -- skipping"
-						rm -rf "$variant"
+						if [ "$variant" = 'uclibc' ]; then
+							case "$ACT_ON_ARCH" in
+								# expected failures
+								ppc64le|s390x)
+									echo >&2 "warning: $variant failed to build (expected) -- skipping"
+									rm -rf "$variant"
+									exit
+									;;
+							esac
+						fi
+
+						echo >&2 "error: $variant failed to build"
+						exit 1
 					fi
-				done
-			'''
+				'''
+			} }
 		}
 
 		stage('Commit') {
