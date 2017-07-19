@@ -135,15 +135,6 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 			'SUITE=' + suite,
 			'COMP=' + vars.component,
 		]) {
-			// Ubuntu doesn't publish official sbuild-ready tarballs, so we need to create one
-			sbuildSuiteTarball = sh(returnStdout: true, script: '''#!/usr/bin/env bash
-				set -Eeuo pipefail
-
-				# if this fails, we're probably not building for an ubuntu suite
-				docker pull "$ACT_ON_ARCH/ubuntu:$SUITE" > /dev/null \\
-					|| exit
-			''').trim()
-
 			stage(suite) {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail
