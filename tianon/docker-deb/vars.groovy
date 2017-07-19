@@ -14,6 +14,7 @@ suites = [
 
 	'xenial',
 	'zesty',
+	'artful',
 ] as Set
 
 exclusions = [

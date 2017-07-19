@@ -218,6 +218,12 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 										--extra-repository "deb http://deb.debian.org/debian ${SUITE}-backports main"
 									)
 									;;
+								xenial)
+									# btrfs-progs vs btrfs-tools
+									sbuildArgs+=(
+										--build-dep-resolver aptitude
+									)
+									;;
 							esac
 
 							cd "$targetDir"
