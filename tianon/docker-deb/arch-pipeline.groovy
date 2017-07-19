@@ -153,7 +153,7 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 					export TARGET_TARBALL="sbuild-$SUITE-$DPKG_ARCH.tar"
 					# if this pull fails, we're probably not building for an Ubuntu suite
 					if docker pull "$ACT_ON_ARCH/ubuntu:$SUITE"; then
-						targetImage="tianon/sbuild:target-$SUITE-$DPKG_ARCH"
+						targetImage="tianon/sbuild-target:$SUITE-$DPKG_ARCH"
 						docker build -t "$targetImage" - <<-EOF
 							FROM $ACT_ON_ARCH/ubuntu:$SUITE
 							RUN apt-get update && apt-get install -y --no-install-recommends build-essential fakeroot && rm -rf /var/lib/apt/lists/*
