@@ -150,8 +150,8 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 							RUN apt-get update && apt-get install -y --no-install-recommends build-essential fakeroot && rm -rf /var/lib/apt/lists/*
 						EOF
 						targetContainer="sbuild-target-$SUITE-$DPKG_ARCH"
-						trap "docker rm -vf '$targetContainer'" EXIT
-						docker rm -vf "$targetContainer"
+						trap "docker rm -vf '$targetContainer' || :" EXIT
+						docker rm -vf "$targetContainer" || :
 						docker create --name "$targetContainer" "$targetImage"
 						docker export -o "$TARGET_TARBALL" "$targetContainer"
 						docker rm -vf "$targetContainer"
