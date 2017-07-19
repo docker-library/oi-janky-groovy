@@ -124,11 +124,6 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 			error("Failed to determine suite for '${changesFile}'!")
 		}
 
-		if (suite == 'xenial' || suite == 'zesty') {
-			// TODO ubuntu
-			continue
-		}
-
 		if (vars.exclusions[env.ACT_ON_ARCH] && vars.exclusions[env.ACT_ON_ARCH].contains(suite)) {
 			// skip arch+suite combinations known not to work
 			continue
@@ -140,10 +135,40 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 			'SUITE=' + suite,
 			'COMP=' + vars.component,
 		]) {
+			// Ubuntu doesn't publish official sbuild-ready tarballs, so we need to create one
+			sbuildSuiteTarball = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+				set -Eeuo pipefail
+
+				# if this fails, we're probably not building for an ubuntu suite
+				docker pull "$ACT_ON_ARCH/ubuntu:$SUITE" > /dev/null \\
+					|| exit
+			''').trim()
+
 			stage(suite) {
-				sh '''
+				sh '''#!/usr/bin/env bash
+					set -Eeuo pipefail
+					set -x
+
+					# Ubuntu doesn't publish official sbuild-ready tarballs, so we might need to create one
+					export TARGET_TARBALL="sbuild-$SUITE-$DPKG_ARCH.tar"
+					# if this pull fails, we're probably not building for an Ubuntu suite
+					if docker pull "$ACT_ON_ARCH/ubuntu:$SUITE"; then
+						targetImage="tianon/sbuild:target-$SUITE-$DPKG_ARCH"
+						docker build -t "$targetImage" - <<-EOF
+							FROM $ACT_ON_ARCH/ubuntu:$SUITE
+							RUN apt-get update && apt-get install -y --no-install-recommends build-essential fakeroot && rm -rf /var/lib/apt/lists/*
+						EOF
+						targetContainer="sbuild-target-$SUITE-$DPKG_ARCH"
+						trap "docker rm -vf '$targetContainer'" EXIT
+						docker rm -vf "$targetContainer"
+						docker create --name "$targetContainer" "$targetImage"
+						docker export -o "$TARGET_TARBALL" "$targetContainer"
+						docker rm -vf "$targetContainer"
+						trap - EXIT
+					fi
+
 					docker run -i --rm ${DOCKER_FLAGS:-} \\
-						-e CHANGES_URL -e DSC -e SUITE -e COMP -e DPKG_ARCH \\
+						-e CHANGES_URL -e DSC -e SUITE -e COMP -e DPKG_ARCH -e TARGET_TARBALL \\
 						-v "$PWD":/work \\
 						-w /work \\
 						-e CHOWN="$(id -u):$(id -g)" \\
@@ -167,8 +192,22 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 								chown -R "$CHOWN" .
 							)
 
-							# TODO handle ubuntu
-							download-debuerreotype-tarball.sh "$SUITE" "$DPKG_ARCH"
+							if [ -e "$TARGET_TARBALL" ]; then
+								mv "$TARGET_TARBALL" "/tarballs/$TARGET_TARBALL"
+								chown root:root "/tarballs/$TARGET_TARBALL" # schroot is picky about tarball ownership
+								tee "/etc/schroot/chroot.d/$SUITE-$DPKG_ARCH-sbuild" <<-EOF
+									[$SUITE-$DPKG_ARCH-sbuild]
+									description=Ubuntu $SUITE/$DPKG_ARCH autobuilder
+									groups=root,sbuild
+									root-groups=root,sbuild
+									profile=sbuild
+									type=file
+									file=/tarballs/$TARGET_TARBALL
+									source-root-groups=root,sbuild
+								EOF
+							else
+								download-debuerreotype-tarball.sh "$SUITE" "$DPKG_ARCH"
+							fi
 
 							sbuildArgs=(
 								--verbose
