@@ -84,6 +84,7 @@ node {
 					sh '#!/bin/bash' + '''
 						set -Eeuo pipefail
 						set -x
+
 						for dir in */; do
 							dir="${dir%/}"
 							if [ ! -f "$dir/Dockerfile" ]; then
@@ -91,14 +92,19 @@ node {
 							fi
 							git add -A "$dir"
 						done
+
 						latestSerial="$(
 							awk -F '=' '$1 == "SERIAL" { print $2 }' */build-info.txt \\
 								| sort -un \\
 								| tail -1
 						)"
+
 						latestDate="${latestSerial%%[^0-9]*}"
 						rfc2822="$(date --date "$latestDate" --rfc-2822)"
-						git commit --date="$rfc2822" --message "Update to $latestSerial for $ARCH ($DPKG_ARCH)" --message "$(./status.sh)"
+						export GIT_AUTHOR_DATE="$rfc2822"
+						export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"
+
+						git commit --message "Update to $latestSerial for $ARCH ($DPKG_ARCH)" --message "$(./status.sh)"
 					'''
 				}
 
