@@ -113,7 +113,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 											FROM scratch
 											ADD $ROOTFS_FILE /
 											# ensure UTC instead of the default GMT
-											ENV TZ UTC
+											RUN [ ! -e /etc/localtime ] && apk add --no-cache --virtual .tz-utc tzdata && cp -vL /usr/share/zoneinfo/UTC /etc/localtime && apk del .tz-utc
 											CMD ["sh"]
 										EODF
 									'''
