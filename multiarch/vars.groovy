@@ -58,6 +58,11 @@ imagesMeta['bash'] = [
 	// TODO https://github.com/tianon/docker-bash/pull/6
 	'arches': imagesMeta['alpine']['arches'],
 ]
+imagesMeta['docker'] = [
+	// TODO remove this with official Alpine multiarch
+	'arches': imagesMeta['alpine']['arches'],
+	// let's just try all of them -- some will fail, and that's OK
+]
 imagesMeta['opensuse'] = [
 	// TODO https://github.com/openSUSE/docker-containers-build/issues/22#issuecomment-309163169
 	'arches': [
