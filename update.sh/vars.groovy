@@ -24,6 +24,9 @@ def rawReposData = [
 	]],
 	['ghost', [
 		'env': 'GHOST_VERSION',
+		'otherEnvs': [
+			['ghost-cli', 'GHOST_CLI_VERSION'],
+		],
 	]],
 	['golang', [
 		'env': 'GOLANG_VERSION',
