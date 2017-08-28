@@ -39,7 +39,7 @@ node {
 	ansiColor('xterm') {
 		stage('Build') {
 			sh '''
-				docker build -t bashbrew --pull -q -f oi/bashbrew/Dockerfile.release oi/bashbrew
+				docker build -t bashbrew --pull -f oi/bashbrew/Dockerfile.release oi/bashbrew
 				rm -rf bin
 				docker run -i --rm bashbrew tar -c bin \\
 					| tar -xv
