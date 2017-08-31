@@ -50,8 +50,8 @@ node {
 	stage('Generate') {
 		def dsl = ''
 
-		def allImages = []
-		def theGoodImages = []
+		def fakedImages = []
+		def images = []
 
 		for (arch in vars.arches) {
 			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
@@ -59,13 +59,13 @@ node {
 				set -x
 				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all
 			""").trim().tokenize()
+			def fakedArchImages = vars.archImages(arch)
 
-			theGoodImages += archImages
+			images += archImages
+			fakedImages += fakedArchImages
 
-			archImages += vars.archImages(arch)
+			archImages += fakedArchImages
 			archImages = archImages as Set
-
-			allImages += archImages
 
 			def ns = vars.archNamespace(arch)
 			dsl += """
@@ -121,12 +121,12 @@ node {
 			}
 		}
 
-		allImages = allImages as Set
-		theGoodImages = theGoodImages as Set
+		fakedImages = fakedImages as Set
+		images = images as Set
 
 		for (imageList in [
-			['all-images', allImages],
-			['images', theGoodImages],
+			['faked-images', fakedImages],
+			['images', images],
 		]) {
 			name = imageList[0]
 			images = imageList[1]
