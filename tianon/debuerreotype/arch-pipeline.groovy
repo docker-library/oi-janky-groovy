@@ -19,6 +19,7 @@ def vars = fileLoader.fromGit(
 env.ACT_ON_ARCH = env.JOB_BASE_NAME // "amd64", "arm64v8", etc.
 env.ACT_ON_IMAGE = 'debian'
 env.TARGET_NAMESPACE = multiarchVars.archNamespace(env.ACT_ON_ARCH)
+env.BUILD_ARCH = vars.buildArch[env.ACT_ON_ARCH] ?: env.ACT_ON_ARCH
 
 env.DPKG_ARCH = multiarchVars.dpkgArches[env.ACT_ON_ARCH]
 if (!env.DPKG_ARCH) {
@@ -28,7 +29,7 @@ if (!env.DPKG_ARCH) {
 env.debuerreotypeVersion = vars.debuerreotypeVersion
 env.TZ = 'UTC'
 
-node(multiarchVars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
+node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 	ansiColor('xterm') {
 		env.debuerreotypeDir = env.WORKSPACE + '/debuerreotype'
 		dir(env.debuerreotypeDir) {
