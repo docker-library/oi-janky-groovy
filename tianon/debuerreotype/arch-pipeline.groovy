@@ -42,6 +42,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 					./scripts/debuerreotype-version
 
 					sed -ri "s!^FROM debian!FROM $TARGET_NAMESPACE/debian!" Dockerfile
+					sed -ri "s!^dockerImage=.*\\$!dockerImage='debuerreotype/debuerreotype:${debuerreotypeVersion}-${ACT_ON_ARCH}'!" build*.sh
 				'''
 			}
 		}
