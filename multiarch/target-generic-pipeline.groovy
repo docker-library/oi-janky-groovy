@@ -48,26 +48,30 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 	ansiColor('xterm') {
 		vars.pullFakeFroms(this)
 
-		vars.bashbrewBuildAndPush(this)
+		env.BAP_RESULT = vars.bashbrewBuildAndPush(this)
 
-		stage('Trigger Children') {
-			children = sh(returnStdout: true, script: '''
-				bashbrew children --apply-constraints --depth 1 "$ACT_ON_IMAGE" \\
-					| grep -vE '^'"$ACT_ON_IMAGE"'(:|$)' \\
-					| cut -d: -f1 \\
-					| sort -u
-			''').trim().tokenize()
-			for (child in children) {
-				build(
-					job: child,
-					quietPeriod: 15 * 60, // 15 minutes
-					wait: false,
-				)
+		if (env.BAP_RESULT != 'skip') {
+			stage('Trigger Children') {
+				children = sh(returnStdout: true, script: '''
+					bashbrew children --apply-constraints --depth 1 "$ACT_ON_IMAGE" \\
+						| grep -vE '^'"$ACT_ON_IMAGE"'(:|$)' \\
+						| cut -d: -f1 \\
+						| sort -u
+				''').trim().tokenize()
+				for (child in children) {
+					build(
+						job: child,
+						quietPeriod: 15 * 60, // 15 minutes
+						wait: false,
+					)
+				}
 			}
-		}
 
-		vars.stashBashbrewBits(this)
+			vars.stashBashbrewBits(this)
+		}
 	}
 }
 
-vars.docsBuildAndPush(this)
+if (env.BAP_RESULT != 'skip') {
+	vars.docsBuildAndPush(this)
+}

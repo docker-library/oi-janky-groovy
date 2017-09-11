@@ -325,15 +325,25 @@ def bashbrewBuildAndPush(context) {
 				bashbrew tag --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
 			'''
 		}
+	}
 
-		stage('Push') {
-			retry(3) {
-				sh '''
-					bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-				'''
-			}
+	def dryRun = context.sh(returnStdout: true, script: '''
+		bashbrew push --dry-run --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+	''').trim()
+	if (dryRun == '') {
+		// if we don't need to push anything, let's not (and let's tell whoever invoked us that we didn't, so they scan skip other things too)
+		return 'skip'
+	}
+
+	context.stage('Push') {
+		retry(3) {
+			sh '''
+				bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+			'''
 		}
 	}
+
+	return 'push'
 }
 
 def stashBashbrewBits(context) {
