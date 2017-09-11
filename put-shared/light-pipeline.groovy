@@ -15,11 +15,14 @@ def vars = fileLoader.fromGit(
 	'master', // node/label
 )
 
+def arches = (vars.arches + 'amd64')
+env.PUSH_TO_NAMESPACE = 'trollin'
+
 node {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	archNamespaces = []
-	for (arch in (vars.arches + 'amd64')) {
+	for (arch in arches) {
 		archNamespaces << arch + ' = ' + vars.archNamespace(arch)
 	}
 	env.BASHBREW_ARCH_NAMESPACES = archNamespaces.join(', ')
@@ -58,7 +61,7 @@ node {
 			bashbrew list --all --repos \\
 				| grep -vE "^($(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|'))(:|\$)" \\
 				| xargs -P "$(( $(nproc) * 2 ))" -n1 \\
-					bashbrew put-shared --namespace trollin
+					bashbrew put-shared --namespace "$PUSH_TO_NAMESPACE"
 		'''
 	}
 }
