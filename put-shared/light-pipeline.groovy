@@ -56,7 +56,7 @@ node {
 	stage('Put Shared') {
 		sh '''
 			bashbrew list --all --repos \\
-				| grep -E "^($(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|'))(:|\$)" \\
+				| grep -vE "^($(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|'))(:|\$)" \\
 				| xargs -P "$(( $(nproc) * 2 ))" -n1 \\
 					bashbrew put-shared --namespace trollin
 		'''
