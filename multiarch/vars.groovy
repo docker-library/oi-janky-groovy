@@ -329,6 +329,9 @@ def bashbrewBuildAndPush(context) {
 
 	def dryRun = context.sh(returnStdout: true, script: '''
 		bashbrew push --dry-run --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+		if [ -n "$BASHBREW_ARCH" ]; then
+			bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --dry-run --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+		fi
 	''').trim()
 	if (dryRun == '') {
 		// if we don't need to push anything, let's not (and let's tell whoever invoked us that we didn't, so they scan skip other things too)
@@ -340,6 +343,13 @@ def bashbrewBuildAndPush(context) {
 			sh '''
 				bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
 			'''
+		}
+		if (env.BASHBREW_ARCH) {
+			retry(3) {
+				sh '''
+					bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+				'''
+			}
 		}
 	}
 
