@@ -72,17 +72,19 @@ node {
 				folder('${arch}')
 			"""
 			for (img in archImages) {
-				def pipeline = vars.imagesMeta[img]['pipeline'] ?: 'multiarch/target-generic-pipeline.groovy'
+				def imageMeta = vars.imagesMeta[img] ?: [:]
+
+				def pipeline = imageMeta['pipeline'] ?: 'multiarch/target-generic-pipeline.groovy'
 				if (arch == 'amd64') {
 					// amd64 MUST always use the generic pipeline, regardless of any other hacks
 					pipeline = 'multiarch/target-generic-pipeline.groovy'
 				}
 
 				def triggers = []
-				if (vars.imagesMeta[img]['cron']) {
-					triggers << "cron('${vars.imagesMeta[img]['cron']}')"
+				if (imageMeta['cron']) {
+					triggers << "cron('${imageMeta['cron']}')"
 				}
-				if (vars.imagesMeta[img]['scmPolling'] ?: true) {
+				if (imageMeta['scmPolling'] ?: true) {
 					triggers << "scm('@daily')"
 				}
 
