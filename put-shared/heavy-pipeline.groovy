@@ -18,15 +18,13 @@ def vars = fileLoader.fromGit(
 def arches = (vars.arches + 'amd64')
 env.PUSH_TO_NAMESPACE = 'trollin'
 
+archNamespaces = []
+for (arch in arches) {
+	archNamespaces << arch + ' = ' + vars.archNamespace(arch)
+}
+env.BASHBREW_ARCH_NAMESPACES = archNamespaces.join(', ')
+
 node {
-	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
-
-	archNamespaces = []
-	for (arch in arches) {
-		archNamespaces << arch + ' = ' + vars.archNamespace(arch)
-	}
-	env.BASHBREW_ARCH_NAMESPACES = archNamespaces.join(', ')
-
 	stage('Checkout') {
 		checkout(
 			poll: true,
@@ -56,12 +54,39 @@ node {
 		)
 	}
 
-	stage('Put Shared') {
-		sh '''
-			bashbrew list --all --repos \\
-				| grep -vE "^($(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|'))(:|\\$)" \\
-				| xargs -P "$(( $(nproc) * 2 ))" -n1 \\
-					bashbrew put-shared --namespace "$PUSH_TO_NAMESPACE"
-		'''
+	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+	env.REPOS = sh(returnStdout: true, script: '''
+		bashbrew list --all --repos \\
+			| grep -E "^($(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|'))(:|\\$)"
+	''').trim()
+
+	stash(
+		name: 'library',
+		includes: 'oi/library/**',
+	)
+}
+
+repos = env.REPOS.tokenize()
+for (repo in repos) {
+	env.REPO = repo
+	stage(repo) {
+		node {
+			unstash 'library'
+			env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+			env.DRY_RUN = sh(returnStdout: true, script: '''
+				bashbrew put-shared --dry-run --namespace "$PUSH_TO_NAMESPACE" "$REPO"
+			''').trim()
+			if (env.DRY_RUN != '') {
+				sh '''
+					bashbrew put-shared --namespace "$PUSH_TO_NAMESPACE" "$REPO"
+				'''
+			}
+		}
+		if (env.DRY_RUN != '') {
+			sleep(
+				time: 15,
+				unit: 'MINUTES',
+			)
+		}
 	}
 }
