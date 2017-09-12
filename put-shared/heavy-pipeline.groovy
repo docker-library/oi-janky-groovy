@@ -69,13 +69,16 @@ node {
 repos = env.REPOS.tokenize()
 for (repo in repos) {
 	env.REPO = repo
-	stage(repo) {
-		node {
-			unstash 'library'
-			env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+
+	node {
+		unstash 'library'
+		env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+
+		stage(repo) {
 			env.DRY_RUN = sh(returnStdout: true, script: '''
 				bashbrew put-shared --dry-run --namespace "$PUSH_TO_NAMESPACE" "$REPO"
 			''').trim()
+
 			if (env.DRY_RUN != '') {
 				sh '''
 					bashbrew put-shared --namespace "$PUSH_TO_NAMESPACE" "$REPO"
@@ -83,6 +86,7 @@ for (repo in repos) {
 			}
 		}
 	}
+
 	stage('Sleep') {
 		if (env.DRY_RUN != '') {
 			sleep(
