@@ -76,6 +76,10 @@ node {
 					'pipeline': 'multiarch/target-generic-pipeline.groovy',
 					'scmPolling': true,
 				]
+				if (arch == 'amd64') {
+					// amd64 MUST always use the generic pipeline, regardless of any other faking
+					imageMeta['pipeline'] = 'multiarch/target-generic-pipeline.groovy'
+				}
 				def triggers = []
 				if (imageMeta['cron']) {
 					triggers << "cron('${imageMeta['cron']}')"
