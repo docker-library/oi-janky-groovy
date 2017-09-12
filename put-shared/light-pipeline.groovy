@@ -15,7 +15,7 @@ def vars = fileLoader.fromGit(
 	'master', // node/label
 )
 
-def arches = (vars.arches + 'amd64')
+def arches = vars.arches
 env.PUSH_TO_NAMESPACE = 'trollin'
 
 node {

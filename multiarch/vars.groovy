@@ -1,7 +1,7 @@
 // https://github.com/jenkinsci/pipeline-examples/blob/666e5e3f8104efd090e698aa9b5bc09dd6bf5997/docs/BEST_PRACTICES.md#groovy-gotchas
 // tl;dr, iterating over Maps in pipeline groovy is pretty broken in real-world use
 archesMeta = [
-	//['amd64', [:]],
+	['amd64', [:]],
 	['arm32v5', [:]],
 	['arm32v6', [:]],
 	['arm32v7', [:]],
