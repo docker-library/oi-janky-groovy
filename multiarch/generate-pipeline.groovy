@@ -72,7 +72,7 @@ node {
 				folder('${arch}')
 			"""
 			for (img in archImages) {
-				def imageMeta = vars.imagesMeta[img] ?: [
+				def imageMeta = [:] + vars.imagesMeta[img] ?: [
 					'pipeline': 'multiarch/target-generic-pipeline.groovy',
 					'scmPolling': true,
 				]
