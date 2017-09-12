@@ -82,6 +82,8 @@ for (repo in repos) {
 				'''
 			}
 		}
+	}
+	stage('Sleep') {
 		if (env.DRY_RUN != '') {
 			sleep(
 				time: 15,
