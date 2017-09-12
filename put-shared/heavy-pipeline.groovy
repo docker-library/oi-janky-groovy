@@ -16,7 +16,7 @@ def vars = fileLoader.fromGit(
 )
 
 def arches = vars.arches
-env.PUSH_TO_NAMESPACE = 'trollin'
+env.PUSH_TO_NAMESPACE = 'library'
 
 archNamespaces = []
 for (arch in arches) {
