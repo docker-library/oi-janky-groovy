@@ -258,6 +258,8 @@ def pullFakeFroms(context) {
 						fetch --no-tags \\
 						https://github.com/tianon/bad-ideas.git \\
 						$refsList
+
+					bashbrew from --uniq --apply-constraints "$ACT_ON_IMAGE"
 				fi
 			'''
 
