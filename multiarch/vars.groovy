@@ -243,6 +243,22 @@ def pullFakeFroms(context) {
 						| xargs -rtn2 docker tag \\
 						|| true
 				fi
+
+				# if we can't fetch the tags from their real locations, let's try Tianon's "bad-ideas"
+				if ! bashbrew from --uniq --apply-constraints "$ACT_ON_IMAGE"; then
+					refsList="$(
+						bashbrew list --uniq --apply-constraints "$ACT_ON_IMAGE" \\
+							| sed \\
+								-e 's!:!/!' \\
+								-e 's!^!refs/tags/!' \\
+								-e 's!$!:!'
+					)"
+					[ -n "$refsList" ]
+					git -C "${BASHBREW_CACHE:-$HOME/.cache/bashbrew}/git" \\
+						fetch --no-tags \\
+						https://github.com/tianon/bad-ideas.git \\
+						$refsList
+				fi
 			'''
 
 			// gather a list of tags for which we successfully fetched their FROM
