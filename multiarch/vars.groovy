@@ -250,7 +250,7 @@ def pullFakeFroms(context) {
 						bashbrew list --uniq --apply-constraints "$ACT_ON_IMAGE" \\
 							| sed \\
 								-e 's!:!/!' \\
-								-e 's!^!refs/tags/!' \\
+								-e "s!^!refs/tags/$ACT_ON_ARCH/!" \\
 								-e 's!$!:!'
 					)"
 					[ -n "$refsList" ]
