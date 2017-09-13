@@ -256,6 +256,7 @@ def pullFakeFroms(context) {
 					for from in $(bashbrew cat -f "$BASHBREW_FROMS_TEMPLATE" "$tag" 2>/dev/null); do
 						if [ "$from" = 'scratch' ]; then
 							# scratch doesn't exist, but is permissible
+							echo >&2 "note: '$tag' is 'FROM $from' (which is explicitly permissible)"
 							continue
 						fi
 
@@ -266,6 +267,7 @@ def pullFakeFroms(context) {
 
 						if ! docker inspect --type image "$from" > /dev/null 2>&1; then
 							# skip anything we couldn't successfully pull/tag above
+							echo >&2 "warning: skipping '$tag' (missing 'FROM $from')"
 							continue 2
 						fi
 					done
