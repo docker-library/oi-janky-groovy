@@ -252,8 +252,10 @@ def pullFakeFroms(context) {
 				# gather a list of tags we've seen (filled in build order) so we can catch "FROM $ACT_ON_IMAGE:xxx"
 				declare -A seen=()
 
-				for tag in $(bashbrew list --apply-constraints --build-order --uniq "$ACT_ON_IMAGE" 2>/dev/null); do
-					for from in $(bashbrew cat -f "$BASHBREW_FROMS_TEMPLATE" "$tag" 2>/dev/null); do
+				tags="$(bashbrew list --apply-constraints --build-order --uniq "$ACT_ON_IMAGE")"
+				for tag in $tags; do
+					froms="$(bashbrew cat -f "$BASHBREW_FROMS_TEMPLATE" "$tag")"
+					for from in $froms; do
 						if [ "$from" = 'scratch' ]; then
 							# scratch doesn't exist, but is permissible
 							echo >&2 "note: '$tag' is 'FROM $from' (which is explicitly permissible)"
@@ -275,7 +277,8 @@ def pullFakeFroms(context) {
 					echo "$tag"
 
 					# add all aliases to "seen" so we can accurately collect things "FROM $ACT_ON_IMAGE:xxx"
-					for otherTag in $(bashbrew list "$tag"); do
+					otherTags="$(bashbrew list "$tag")"
+					for otherTag in $otherTags; do
 						seen[$otherTag]=1
 					done
 				done
