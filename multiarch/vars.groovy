@@ -422,6 +422,8 @@ def bashbrewBuildAndPush(context) {
 
 		retry(3) {
 			sh '''
+				bashbrew tag --namespace "$TARGET_NAMESPACE" $tags
+
 				bashbrew push --namespace "$TARGET_NAMESPACE" $tags
 
 				if [ -n "$BASHBREW_ARCH" ]; then
