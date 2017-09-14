@@ -334,48 +334,106 @@ def createFakeBashbrew(context) {
 }
 
 def bashbrewBuildAndPush(context) {
-	_invokeWithContext(context) {
-		stage('Build') {
-			retry(3) {
-				sh '''
-					bashbrew build "$ACT_ON_IMAGE"
-				'''
+	// flat list of unique tags to try building (in build order)
+	def tags = context.sh(returnStdout: true, script: '''
+		bashbrew list --apply-constraints --build-order --uniq "$ACT_ON_IMAGE"
+	''').tokenize()
+
+	// list of tag alias lists which failed ([['latest', '1', '1.0', ...], ['0', '0.1', ...]])
+	def failed = []
+	// flat list of unique tags that succeeded
+	def success = []
+
+	for (tag in tags) { context.stage(tag) { withEnv(['tag=' + tag]) {
+		def tagFrom = sh(returnStdout: true, script: '''
+			bashbrew cat --format '{{- .DockerFrom .TagEntry -}}' "$tag"
+		''').trim()
+
+		def tagFailed = false
+		if (failed.flatten().contains(tagFrom)) {
+			tagFailed = true
+		} else {
+			withEnv(['tagFrom=' + tagFrom]) {
+				tagFailed = (0 != sh(returnStatus: true, script: '''
+					# pre-build sanity check
+					docker inspect --type image "$tagFrom"
+
+					# retry building each tag up to three times
+					bashbrew build "$tag" || bashbrew build "$tag" || bashbrew build "$tag"
+				'''))
 			}
 		}
 
-		stage('Tag') {
-			sh '''
-				bashbrew tag --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-			'''
+		if (tagFailed) {
+			// if this tag failed to build, record all aliases as failing
+			failed << sh(returnStdout: true, script: '''
+				bashbrew list "$tag"
+			''').tokenize()
+		} else {
+			// otherwise, onwards and upwards!
+			success << tag
+		}
+	} } }
+
+	// add an extra "stage" with a summary so it's easier to figure out which tag caused the build to be unstable
+	context.stage('Summary') {
+		def summary = []
+
+		if (success) {
+			summary << 'The following tags built successfully:\n'
+			for (tag in success) {
+				summary << '  - ' + tag
+			}
+		} else {
+			summary << 'No tags built successfully! :('
+		}
+
+		if (failed) {
+			summary << 'The following tags failed to build:\n'
+			for (tagGroup in failed) {
+				summary << '  - ' + tagGroup[0]
+			}
+		} else {
+			summary << 'No tags failed to build! :D'
+		}
+
+		summary = summary.join('\n\n')
+		if (failed && !success) {
+			// if nothing succeeded, mark the build as a failure and abort
+			error(summary)
+		} else {
+			if (failed) {
+				// if we had partial success (not full), mark the build as unstable
+				currentBuild.result = 'UNSTABLE'
+			}
+			echo(summary)
 		}
 	}
 
-	def dryRun = context.sh(returnStdout: true, script: '''
-		bashbrew push --dry-run --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-		if [ -n "$BASHBREW_ARCH" ]; then
-			bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --dry-run --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-		fi
-	''').trim()
-	if (dryRun == '') {
-		// if we don't need to push anything, let's not (and let's tell whoever invoked us that we didn't, so they scan skip other things too)
-		return 'skip'
-	}
+	def dryRun = false
+	context.stage('Push') { withEnv(['tags=' + success.join(' ')]) {
+		dryRun = sh(returnStdout: true, script: '''
+			bashbrew push --dry-run --namespace "$TARGET_NAMESPACE" $tags
 
-	context.stage('Push') {
+			if [ -n "$BASHBREW_ARCH" ]; then
+				bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --dry-run --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+			fi
+		''').trim()
+
 		retry(3) {
 			sh '''
-				bashbrew push --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+				bashbrew push --namespace "$TARGET_NAMESPACE" $tags
+
+				if [ -n "$BASHBREW_ARCH" ]; then
+					bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+				fi
 			'''
 		}
-		if (env.BASHBREW_ARCH) {
-			retry(3) {
-				sh '''
-					bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-				'''
-			}
-		}
+	} }
+	if (dryRun == '') {
+		// if we didn't need to push anything let's tell whoever invoked us that we didn't, so they scan skip other things too (triggering children, for example)
+		return 'skip'
 	}
-
 	return 'push'
 }
 
