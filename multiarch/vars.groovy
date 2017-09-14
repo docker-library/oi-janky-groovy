@@ -380,19 +380,21 @@ def bashbrewBuildAndPush(context) {
 		def summary = []
 
 		if (success) {
-			summary << 'The following tags built successfully:\n'
+			def successSummary = 'The following tags built successfully:\n\n'
 			for (tag in success) {
-				summary << '  - ' + tag
+				successSummary += '  - ' + tag + '\n'
 			}
+			summary << successSummary
 		} else {
 			summary << 'No tags built successfully! :('
 		}
 
 		if (failed) {
-			summary << 'The following tags failed to build:\n'
+			def failedSummary = 'The following tags failed to build:\n\n'
 			for (tagGroup in failed) {
-				summary << '  - ' + tagGroup[0]
+				failedSummary += '  - ' + tagGroup[0] + '\n'
 			}
+			summary << failedSummary
 		} else {
 			summary << 'No tags failed to build! :D'
 		}
@@ -420,16 +422,20 @@ def bashbrewBuildAndPush(context) {
 			fi
 		''').trim()
 
-		retry(3) {
-			sh '''
-				bashbrew tag --namespace "$TARGET_NAMESPACE" $tags
+		if (dryRun != '') {
+			retry(3) {
+				sh '''
+					bashbrew tag --namespace "$TARGET_NAMESPACE" $tags
 
-				bashbrew push --namespace "$TARGET_NAMESPACE" $tags
+					bashbrew push --namespace "$TARGET_NAMESPACE" $tags
 
-				if [ -n "$BASHBREW_ARCH" ]; then
-					bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-				fi
-			'''
+					if [ -n "$BASHBREW_ARCH" ]; then
+						bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+					fi
+				'''
+			}
+		} else {
+			echo('Skipping unnecessary push!')
 		}
 	} }
 	if (dryRun == '') {
