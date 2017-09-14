@@ -356,7 +356,7 @@ def bashbrewBuildAndPush(context) {
 			withEnv(['tagFrom=' + tagFrom]) {
 				tagFailed = (0 != sh(returnStatus: true, script: '''
 					# pre-build sanity check
-					docker inspect --type image "$tagFrom" > /dev/null
+					[ "$tagFrom" = 'scratch' ] || docker inspect --type image "$tagFrom" > /dev/null
 
 					# retry building each tag up to three times
 					bashbrew build "$tag" || bashbrew build "$tag" || bashbrew build "$tag"
