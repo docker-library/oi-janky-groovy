@@ -85,7 +85,12 @@ node {
 					triggers << "cron('${imageMeta['cron']}')"
 				}
 				if (imageMeta['scmPolling'] ?: true) {
-					triggers << "scm('@daily')"
+					if (arch == 'amd64') {
+						triggers << "scm('@hourly')"
+					}
+					else {
+						triggers << "scm('@daily')"
+					}
 				}
 
 				dsl += """
