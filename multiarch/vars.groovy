@@ -108,6 +108,9 @@ def archNamespace(arch) {
 
 // given an arch/image combo, returns a target node expression
 def node(arch, image) {
+	if (arch.startsWith('arm32') && image == 'memcached') {
+		return 'multiarch-rpi2'
+	}
 	return 'multiarch-' + arch
 }
 
