@@ -47,7 +47,7 @@ node {
 					[
 						$class: 'PathRestriction',
 						excludedRegions: '',
-						includedRegions: 'library/**',
+						includedRegions: 'library/.+',
 					],
 				],
 				doGenerateSubmoduleConfigurations: false,
