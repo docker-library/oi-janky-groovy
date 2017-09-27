@@ -449,7 +449,8 @@ def bashbrewBuildAndPush(context) {
 
 def stashBashbrewBits(context) {
 	_invokeWithContext(context) {
-		if (env.BASHBREW_CACHE) {
+		if (env.BASHBREW_CACHE && env.BASHBREW_CACHE.startsWith(env.WORKSPACE)) {
+			// if we have a BASHBREW_CACHE in our workspace, let's stash it for the docs
 			dir(env.BASHBREW_CACHE) {
 				stash name: 'bashbrew-cache'
 			}
@@ -464,10 +465,15 @@ def stashBashbrewBits(context) {
 
 def unstashBashbrewBits(context) {
 	_invokeWithContext(context) {
-		if (env.BASHBREW_CACHE) {
+		if (env.BASHBREW_CACHE && env.BASHBREW_CACHE.startsWith(env.WORKSPACE)) {
 			dir(env.BASHBREW_CACHE) {
 				deleteDir()
-				unstash 'bashbrew-cache'
+				try {
+					unstash 'bashbrew-cache'
+				} catch (err) {
+					// if we failed to unstash, ignore the cache variable completely
+					env.BASHBREW_CACHE = ''
+				}
 			}
 		}
 		if (env.BASHBREW_LIBRARY) {
