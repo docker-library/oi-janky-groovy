@@ -1,3 +1,11 @@
+properties([
+	buildDiscarder(logRotator(daysToKeepStr: '30')),
+	disableConcurrentBuilds(),
+	pipelineTriggers([
+		cron('H H(18-23) * * *'),
+	]),
+])
+
 node {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
