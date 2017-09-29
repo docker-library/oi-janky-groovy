@@ -45,12 +45,31 @@ node {
 			set -Eeuo pipefail
 
 			for img in $(bashbrew list --uniq "$repo"); do
-				from="$(bashbrew from --apply-constraints --uniq "$img" 2>/dev/null | cut -d' ' -f2)"
-				case "$from" in
-					scratch|microsoft/*) continue ;;
-				esac
-				if ! bashbrew list "$from" &> /dev/null; then
-					echo "$img=$from"
+				naughtyArches=()
+
+				for BASHBREW_ARCH in $(bashbrew cat --format '{{ join " " .TagEntry.Architectures }}' "$img"); do
+					export BASHBREW_ARCH
+
+					from="$(bashbrew cat --format '{{ $.DockerFrom .TagEntry }}' "$img")"
+					case "$from" in
+						# a few explicitly permissible exceptions to Santa's naughty list
+						scratch \
+						| microsoft/windowsservercore \
+						| microsoft/windowsservercore:* \
+						| microsoft/nanoserver \
+						| microsoft/nanoserver:* \
+						) continue ;;
+					esac
+
+					if ! bashbrew list --apply-constraints "$from" > /dev/null; then
+						naughtyArches+=( "$BASHBREW_ARCH" )
+					fi
+				done
+
+				if [ "${#naughtyArches[@]}" -ne 0 ]; then
+					IFS=','
+					echo "$img=$from=${naughtyArches[*]}"
+					unset IFS
 				fi
 			done
 		''').tokenize()
@@ -58,11 +77,12 @@ node {
 		if (naughtyTags) {
 			stage(repo) {
 				str = "Naughty tags in the '${repo}' repo:\n"
-				for (tagPair in naughtyTags) {
-					tagPair = tagPair.tokenize('=')
+				for (naughtyTag in naughtyTags) {
+					tagPair = naughtyTag.tokenize('=')
 					tag = tagPair[0]
 					from = tagPair[1]
-					str += "\n - ${tag} (FROM ${from})"
+					arches = tagPair[2].tokenize(',')
+					str += "\n - ${tag} (FROM ${from}) [${arches.join(', ')}]"
 				}
 				echo(str)
 			}
