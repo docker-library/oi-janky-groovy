@@ -66,6 +66,7 @@ node {
 					fi
 				done
 
+				# TODO this block uses the leaky "from" from above, which might actually change per-arch, so we really need to track arches-per-from for each of these repo:tags (but it's not a big deal, hence TODO rather than a code fix)
 				if [ "${#naughtyArches[@]}" -ne 0 ]; then
 					IFS=','
 					echo "$img=$from=${naughtyArches[*]}"
