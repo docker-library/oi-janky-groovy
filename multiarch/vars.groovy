@@ -521,7 +521,7 @@ def docsBuildAndPush(context) {
 								env.ACT_ON_IMAGE + '/.+',
 								'.+[.]pl',
 								'.+[.]sh',
-								'.+/.+',
+								'[.].+/.+',
 							].join('\n'),
 						],
 					],
