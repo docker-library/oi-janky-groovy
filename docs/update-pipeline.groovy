@@ -6,8 +6,18 @@ properties([
 	]),
 ])
 
+// we can't use "load()" here because we don't have a file context (or a real checkout of "oi-janky-groovy" -- the pipeline plugin hides that checkout from the actual pipeline execution)
+def vars = fileLoader.fromGit(
+	'multiarch/vars.groovy', // script
+	'https://github.com/docker-library/oi-janky-groovy.git', // repo
+	'master', // branch
+	null, // credentialsId
+	'master', // node/label
+)
+
 node {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+	env.BASHBREW_ARCH_NAMESPACES = vars.archNamespaces()
 
 	stage('Checkout') {
 		checkout(

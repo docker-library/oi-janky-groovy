@@ -106,6 +106,15 @@ def archNamespace(arch) {
 	return arch.replaceAll(/^windows-/, 'win')
 }
 
+// returns a value suitable for "env.BASHBREW_ARCH_NAMESPACES"
+def archNamespaces() {
+	def mappings = []
+	for (arch in arches) {
+		mappings << arch + ' = ' + archNamespace(arch)
+	}
+	return mappings.join(', ')
+}
+
 // given an arch/image combo, returns a target node expression
 def node(arch, image) {
 	if (arch.startsWith('arm32') && image == 'memcached') {
@@ -530,6 +539,8 @@ def docsBuildAndPush(context) {
 				],
 			)
 		}
+
+		env.BASHBREW_ARCH_NAMESPACES = archNamespaces()
 
 		ansiColor('xterm') { dir('d') {
 			stage('Update Docs') {

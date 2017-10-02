@@ -20,12 +20,7 @@ env.PUSH_TO_NAMESPACE = 'library'
 
 node {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
-
-	archNamespaces = []
-	for (arch in arches) {
-		archNamespaces << arch + ' = ' + vars.archNamespace(arch)
-	}
-	env.BASHBREW_ARCH_NAMESPACES = archNamespaces.join(', ')
+	env.BASHBREW_ARCH_NAMESPACES = vars.archNamespaces()
 
 	stage('Checkout') {
 		checkout(

@@ -18,11 +18,7 @@ def vars = fileLoader.fromGit(
 def arches = vars.arches
 env.PUSH_TO_NAMESPACE = 'library'
 
-archNamespaces = []
-for (arch in arches) {
-	archNamespaces << arch + ' = ' + vars.archNamespace(arch)
-}
-env.BASHBREW_ARCH_NAMESPACES = archNamespaces.join(', ')
+env.BASHBREW_ARCH_NAMESPACES = vars.archNamespaces()
 
 node {
 	stage('Checkout') {
