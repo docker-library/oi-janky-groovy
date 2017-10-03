@@ -391,16 +391,6 @@ def bashbrewBuildAndPush(context) {
 	context.stage('Summary') {
 		def summary = []
 
-		if (success) {
-			def successSummary = 'The following tags built successfully:\n\n'
-			for (tag in success) {
-				successSummary += '  - ' + tag + '\n'
-			}
-			summary << successSummary
-		} else {
-			summary << 'No tags built successfully! :('
-		}
-
 		if (failed) {
 			def failedSummary = 'The following tags failed to build:\n\n'
 			for (tagGroup in failed) {
@@ -409,6 +399,16 @@ def bashbrewBuildAndPush(context) {
 			summary << failedSummary
 		} else {
 			summary << 'No tags failed to build! :D'
+		}
+
+		if (success) {
+			def successSummary = 'The following tags built successfully:\n\n'
+			for (tag in success) {
+				successSummary += '  - ' + tag + '\n'
+			}
+			summary << successSummary
+		} else {
+			summary << 'No tags built successfully! :('
 		}
 
 		summary = summary.join('\n\n')
