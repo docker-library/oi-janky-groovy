@@ -15,8 +15,8 @@ debuerreotypeVersion = '0.4'
 
 // build some arches explicitly elsewhere for speed/reliability
 buildArch = [
-	'arm32v5': 'arm64v8',
-	'arm32v7': 'arm64v8',
+	//'arm32v5': 'arm64v8',
+	//'arm32v7': 'arm64v8',
 ]
 
 // return "this" (for use via "load" in Jenkins pipeline, for example)
