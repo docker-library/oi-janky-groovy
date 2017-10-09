@@ -343,6 +343,8 @@ def createFakeBashbrew(context) {
 			bashbrew list --uniq --build-order "$ACT_ON_IMAGE"
 		'''
 	}
+
+	context.env.FAKE_BASHBREW = '1'
 }
 
 def bashbrewBuildAndPush(context) {
@@ -545,6 +547,17 @@ def docsBuildAndPush(context) {
 		ansiColor('xterm') { dir('d') {
 			stage('Update Docs') {
 				sh '''
+					if [ -n "${FAKE_BASHBREW:-}" ]; then
+						{
+							echo '# **Technology Preview**'
+							echo
+							echo 'This image is provided on as as-is basis as a technology preview, and is **NOT** officially supported (either by the maintainer listed below or by the larger official-images project). Use at your own risk!'
+							echo
+							cat .template-helpers/template.md
+						} > .template-helpers/template.md.new
+						mv .template-helpers/template.md.new .template-helpers/template.md
+					fi
+
 					# add a link to Jenkins build status
 					cat >> .template-helpers/generate-dockerfile-links-partial.sh <<-EOSH
 						cat <<-'EOBADGE'
