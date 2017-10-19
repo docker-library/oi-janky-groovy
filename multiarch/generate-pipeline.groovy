@@ -54,18 +54,17 @@ node {
 		def images = []
 
 		for (arch in vars.arches) {
-			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
+			def officialArchImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
 				set -Eeuo pipefail
 				set -x
 				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all
 			""").trim().tokenize()
 			def fakedArchImages = vars.archImages(arch)
 
-			images += archImages
+			images += officialArchImages
 			fakedImages += fakedArchImages
 
-			archImages += fakedArchImages
-			archImages = archImages as Set
+			def archImages = (officialArchImages + fakedArchImages) as Set
 
 			def ns = vars.archNamespace(arch)
 			dsl += """
@@ -75,8 +74,9 @@ node {
 				def imageMeta = vars.imagesMeta[img] ?: [:]
 
 				def pipeline = imageMeta['pipeline'] ?: 'multiarch/target-generic-pipeline.groovy'
-				if (arch == 'amd64') {
+				if (officialArchImages.contains(img)) {
 					// amd64 MUST always use the generic pipeline, regardless of any other hacks
+					// so, if "library/xxx" supports the current architecture, use the generic pipeline always
 					pipeline = 'multiarch/target-generic-pipeline.groovy'
 				}
 
