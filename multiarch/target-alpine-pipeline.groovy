@@ -17,7 +17,8 @@ if (!env.APK_ARCH) {
 	error("Unknown Alpine Linux architecture for '${env.ACT_ON_ARCH}'.")
 }
 
-mirror = 'http://dl-2.alpinelinux.org/alpine' // see http://rsync.alpinelinux.org/alpine/MIRRORS.txt (in my testing, dl-2 was fastest for our jenkins boxes)
+//mirror = 'http://dl-2.alpinelinux.org/alpine' // see http://rsync.alpinelinux.org/alpine/MIRRORS.txt (in my testing, dl-2 was fastest for our jenkins boxes)
+mirror = 'http://dl-cdn.alpinelinux.org/alpine' // dl-2 was down as of 2017-10-23; hopefully this is all temporary (https://github.com/gliderlabs/docker-alpine/issues/304)
 versions = [
 	// https://wiki.alpinelinux.org/wiki/Alpine_Linux:Releases
 	// https://github.com/docker-library/official-images/blob/master/library/alpine
