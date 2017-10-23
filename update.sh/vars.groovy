@@ -16,6 +16,9 @@ def rawReposData = [
 	['drupal', [
 		'env': 'DRUPAL_VERSION',
 	]],
+	['elasticsearch', [
+		'env': 'ELASTICSEARCH_VERSION',
+	]],
 	['gcc', [
 		'env': 'GCC_VERSION',
 	]],
@@ -40,6 +43,12 @@ def rawReposData = [
 	]],
 	['julia', [
 		'env': 'JULIA_VERSION',
+	]],
+	['kibana', [
+		'env': 'KIBANA_VERSION',
+	]],
+	['logstash', [
+		'env': 'LOGSTASH_VERSION',
 	]],
 	['mariadb', [
 		'env': 'MARIADB_VERSION',
