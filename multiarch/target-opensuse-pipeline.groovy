@@ -89,7 +89,8 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						assert targetTarball.endsWith('.tar.xz') // minor sanity check
 						stage('Download ' + version) {
 							if (0 != sh(returnStatus: true, script: """
-								curl -fL -o '${targetTarball}' "\$ROOTFS_URL"
+								curl -fL -o '${targetTarball}' "https://raw.githubusercontent.com/openSUSE/docker-containers-build/openSUSE-\$VERSION/\$OPENSUSE_ARCH/${targetTarball}" \
+								|| curl -fL -o '${targetTarball}' "\$ROOTFS_URL"
 							""")) {
 								echo("Failed to download openSUSE rootfs for ${version} on ${env.OPENSUSE_ARCH}; skipping!")
 								deleteDir()
