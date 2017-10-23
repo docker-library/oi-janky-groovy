@@ -73,12 +73,14 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					deleteDir() // make sure we start with a clean slate every time
 					withEnv([
 						"ROOTFS_URL=http://download.opensuse.org/repositories/Virtualization:/containers:/images:/openSUSE-${version}/images/openSUSE-${version}-docker-guest-docker.${env.OPENSUSE_ARCH}.tar.xz",
-						// use upstream's exact Dockerfile as-is
-						"DOCKERFILE_URL=https://raw.githubusercontent.com/openSUSE/docker-containers-build/openSUSE-${version}/docker/Dockerfile",
+						"VERSION=" + version,
 					]) {
 						stage('Prep ' + version) {
+							// use upstream's exact Dockerfile as-is
 							sh '''
-								curl -fL -o Dockerfile "$DOCKERFILE_URL"
+								curl -fL -o Dockerfile "https://raw.githubusercontent.com/openSUSE/docker-containers-build/openSUSE-$VERSION/$OPENSUSE_ARCH/Dockerfile" \
+								|| curl -fL -o Dockerfile "https://raw.githubusercontent.com/openSUSE/docker-containers-build/openSUSE-$VERSION/docker/Dockerfile" \
+								|| curl -fL -o Dockerfile "https://raw.githubusercontent.com/openSUSE/docker-containers-build/openSUSE-$VERSION/x86_64/Dockerfile"
 							'''
 						}
 						targetTarball = sh(returnStdout: true, script: '''
