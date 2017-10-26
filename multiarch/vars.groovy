@@ -24,45 +24,11 @@ dpkgArches = [
 
 def defaultImageMeta = [
 	['arches', ['amd64'] as Set],
-	['pipeline', 'multiarch/target-outdated-pipeline.groovy'],
+	['pipeline', 'multiarch/target-generic-pipeline.groovy'],
 ]
 
 imagesMeta = [:]
 
-imagesMeta['alpine'] = [
-	// TODO https://github.com/gliderlabs/docker-alpine/issues/304#issuecomment-315157660
-	'arches': [
-		// see http://dl-cdn.alpinelinux.org/alpine/edge/main/
-		'amd64',
-		'arm32v6',
-		'arm64v8',
-		'i386',
-		'ppc64le',
-		's390x',
-	] as Set,
-	'map': [
-		// https://wiki.alpinelinux.org/wiki/Alpine_on_ARM
-		// "Currently Alpine supports armv6/armhf arch"
-		'amd64': 'x86_64',
-		'arm32v6': 'armhf',
-		'arm32v7': 'armhf', // Raspberry Pi, making life hard...
-		'arm64v8': 'aarch64',
-		'i386': 'x86',
-		'ppc64le': 'ppc64le',
-		's390x': 's390x',
-	],
-	'pipeline': 'multiarch/target-alpine-pipeline.groovy',
-	'cron': '@weekly',
-]
-imagesMeta['bash'] = [
-	// TODO https://github.com/tianon/docker-bash/pull/6
-	'arches': imagesMeta['alpine']['arches'],
-]
-imagesMeta['docker'] = [
-	// TODO remove this with official Alpine multiarch
-	'arches': imagesMeta['alpine']['arches'],
-	// let's just try all of them -- some will fail, and that's OK
-]
 imagesMeta['opensuse'] = [
 	// TODO https://github.com/openSUSE/docker-containers-build/issues/22#issuecomment-309163169
 	'arches': [
