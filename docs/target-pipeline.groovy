@@ -21,7 +21,7 @@ if (isLibrary) {
 	// normalize such that ACT_ON_ARCH
 	env.ACT_ON_ARCH = 'amd64'
 }
-env.TARGET_NAMESPACE = (isLibrary ? 'library' : archNamespace(env.ACT_ON_ARCH))
+env.TARGET_NAMESPACE = (isLibrary ? 'library' : vars.archNamespace(env.ACT_ON_ARCH))
 env.ACT_ON_IMAGE = 'docker-library-docs:' + (isLibrary ? 'latest' : env.ACT_ON_ARCH)
 
 node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
