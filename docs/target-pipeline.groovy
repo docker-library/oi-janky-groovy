@@ -126,11 +126,11 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 			stage('Push') {
 				if (isLibrary) {
 					sh '''
-						git push origin HEAD:master
+						git push origin HEAD:refs/heads/master
 					'''
 				} else {
 					sh '''
-						git push -f origin HEAD:$ACT_ON_ARCH
+						git push -f origin HEAD:refs/heads/$ACT_ON_ARCH
 					'''
 				}
 			}

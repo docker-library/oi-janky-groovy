@@ -27,6 +27,7 @@ node('master') {
 						<ul>
 							<li><a href="https://hub.docker.com/u/${namespace}/"><code>docker.io/${namespace}</code></a></li>
 							<li><a href="https://hub.docker.com/u/${namespace}/dashboard/"><code>docker.io/${namespace}</code> (dashboard)</a></li>
+							<li><a href="https://github.com/docker-library/docs/tree/${arch}"><code>github.com/d-l/docs/${arch}</code> (committed docs)</a></li>
 						</ul>
 					''')
 					logRotator {
