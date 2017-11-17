@@ -15,7 +15,16 @@ def vars = fileLoader.fromGit(
 	'master', // node/label
 )
 
-node {
+env.ACT_ON_ARCH = env.JOB_BASE_NAME // "library", "i386", etc
+isLibrary = (env.ACT_ON_ARCH == 'library')
+if (isLibrary) {
+	// normalize such that ACT_ON_ARCH
+	env.ACT_ON_ARCH = 'amd64'
+}
+env.TARGET_NAMESPACE = (isLibrary ? 'library' : archNamespace(env.ACT_ON_ARCH))
+env.ACT_ON_IMAGE = 'docker-library-docs:' + (isLibrary ? 'latest' : env.ACT_ON_ARCH)
+
+node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 	env.BASHBREW_ARCH_NAMESPACES = vars.archNamespaces()
 
@@ -59,6 +68,13 @@ node {
 					[
 						$class: 'CleanCheckout',
 					],
+					[
+						$class: 'PathRestriction',
+						excludedRegions: '',
+						includedRegions: [
+							'library/.*',
+						],
+					],
 				],
 				doGenerateSubmoduleConfigurations: false,
 				submoduleCfg: [],
@@ -68,45 +84,61 @@ node {
 
 	ansiColor('xterm') { dir('d') {
 		stage('Update') {
-			sh('''
-				./update.sh
-			''')
+			if (isLibrary) {
+				sh './update.sh'
+			} else {
+				sh '''
+					# add a link to Jenkins build status
+					cat >> .template-helpers/generate-dockerfile-links-partial.sh <<-'EOSH'
+
+						cat <<-EOBADGE
+							[![Build Status](${JOB_URL%/}/badge/icon) (\\`$TARGET_NAMESPACE/$1\\` build job)](${JOB_URL})
+						EOBADGE
+					EOSH
+
+					./update.sh --namespace "$TARGET_NAMESPACE"
+				'''
+			}
 		}
 
-		stage('Commit') {
-			sh('''
-				git config user.name 'Docker Library Bot'
-				git config user.email 'github+dockerlibrarybot@infosiftr.com'
-
-				git add . || :
-				git commit -m 'Run update.sh' || :
-			''')
-		}
-
-		sshagent(['docker-library-bot']) {
-			stage('Push') {
+		// TODO decide whether to push the multiarch docs to a branch-per-arch
+		if (isLibrary) {
+			stage('Commit') {
 				sh('''
-					git push origin HEAD:master
+					git config user.name 'Docker Library Bot'
+					git config user.email 'github+dockerlibrarybot@infosiftr.com'
+
+					git add . || :
+					git commit -m 'Run update.sh' || :
 				''')
+			}
+
+			sshagent(['docker-library-bot']) {
+				stage('Push') {
+					sh('''
+						git push origin HEAD:master
+					''')
+				}
 			}
 		}
 
 		withCredentials([[
 			$class: 'UsernamePasswordMultiBinding',
-			credentialsId: 'docker-hub-stackbrew',
+			credentialsId: 'docker-hub-' + (isLibrary ? 'stackbrew' : env.ACT_ON_ARCH.replaceAll(/^[^-]+-/, '')),
 			usernameVariable: 'USERNAME',
 			passwordVariable: 'PASSWORD',
 		]]) {
 			stage('Deploy') {
 				sh('''
-					docker build --pull -t docker-library-docs -q .
-					test -t 1 && it='-it' || it='-i'
+					docker build --pull -t "$ACT_ON_IMAGE" -q .
+					test -t 1 && it='-it -e TERM' || it='-i'
 					set +x
-					docker run "$it" --rm -e TERM \
+					docker run "$it" --rm \
 						--entrypoint './push.pl' \
 						docker-library-docs \
 						--username "$USERNAME" \
 						--password "$PASSWORD" \
+						--namespace "$TARGET_NAMESPACE" \
 						--batchmode */
 				''')
 			}
