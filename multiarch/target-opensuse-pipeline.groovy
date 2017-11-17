@@ -145,9 +145,5 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 		vars.createFakeBashbrew(this)
 		vars.bashbrewBuildAndPush(this)
-
-		vars.stashBashbrewBits(this)
 	}
 }
-
-vars.docsBuildAndPush(this)

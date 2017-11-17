@@ -66,12 +66,6 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					)
 				}
 			}
-
-			vars.stashBashbrewBits(this)
 		}
 	}
-}
-
-if (env.BAP_RESULT != 'skip') {
-	vars.docsBuildAndPush(this)
 }
