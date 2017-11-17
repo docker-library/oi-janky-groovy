@@ -135,7 +135,7 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 					set +x
 					docker run "$it" --rm \
 						--entrypoint './push.pl' \
-						docker-library-docs \
+						"$ACT_ON_IMAGE" \
 						--username "$USERNAME" \
 						--password "$PASSWORD" \
 						--namespace "$TARGET_NAMESPACE" \
