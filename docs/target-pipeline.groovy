@@ -73,7 +73,7 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 						excludedRegions: '',
 						includedRegions: [
 							'library/.*',
-						],
+						].join('\n'),
 					],
 				],
 				doGenerateSubmoduleConfigurations: false,
