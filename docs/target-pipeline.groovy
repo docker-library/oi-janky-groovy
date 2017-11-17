@@ -27,6 +27,9 @@ env.ACT_ON_IMAGE = 'docker-library-docs:' + (isLibrary ? 'latest' : env.ACT_ON_A
 node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 	env.BASHBREW_ARCH_NAMESPACES = vars.archNamespaces()
+	if (!isLibrary) {
+		env.BASHBREW_ARCH = env.ACT_ON_ARCH
+	}
 
 	stage('Checkout') {
 		checkout(
