@@ -130,7 +130,7 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 		]]) {
 			stage('Deploy') {
 				sh('''
-					docker build --pull -t "$ACT_ON_IMAGE" -q .
+					docker build --pull -t "$ACT_ON_IMAGE" .
 					test -t 1 && it='-it -e TERM' || it='-i'
 					set +x
 					docker run "$it" --rm \
