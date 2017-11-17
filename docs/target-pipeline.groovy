@@ -91,18 +91,6 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 				sh './update.sh'
 			} else {
 				sh '''
-					# add a link to Jenkins build status
-					if false; then
-						cat >> .template-helpers/generate-dockerfile-links-partial.sh <<-'EOSH'
-
-							cat <<-EOBADGE
-								[![Build Status](${JOB_URL%/}/badge/icon) (\\`$TARGET_NAMESPACE/$1\\` build job)](${JOB_URL})
-							EOBADGE
-						EOSH
-						# TODO these are now no good since JOB_URL will point to the docs job, not the build job!
-						# need to embed this behavior directly in the docs repo now (with generated links instead)
-					fi
-
 					./update.sh --namespace "$TARGET_NAMESPACE"
 				'''
 			}
