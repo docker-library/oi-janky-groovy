@@ -108,23 +108,30 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 			}
 		}
 
-		// TODO decide whether to push the multiarch docs to a branch-per-arch
-		if (isLibrary) {
-			stage('Commit') {
-				sh('''
-					git config user.name 'Docker Library Bot'
-					git config user.email 'github+dockerlibrarybot@infosiftr.com'
+		stage('Commit') {
+			sh('''
+				git config user.name 'Docker Library Bot'
+				git config user.email 'github+dockerlibrarybot@infosiftr.com'
 
-					git add . || :
+				git add . || :
+				if [ "$TARGET_NAMESPACE" = 'library' ]; then
 					git commit -m 'Run update.sh' || :
-				''')
-			}
+				else
+					git commit -m "Run update.sh ($ACT_ON_ARCH -- https://hub.docker.com/u/$TARGET_NAMESPACE/)" || :
+				fi
+			''')
+		}
 
-			sshagent(['docker-library-bot']) {
-				stage('Push') {
-					sh('''
+		sshagent(['docker-library-bot']) {
+			stage('Push') {
+				if (isLibrary) {
+					sh '''
 						git push origin HEAD:master
-					''')
+					'''
+				} else {
+					sh '''
+						git push -f origin HEAD:$ACT_ON_ARCH
+					'''
 				}
 			}
 		}
