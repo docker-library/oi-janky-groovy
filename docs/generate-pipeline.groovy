@@ -21,6 +21,7 @@ node('master') {
 
 		for (arch in ['library'] + vars.arches) {
 			def namespace = vars.archNamespace(arch)
+			def cron = (arch == 'library' ? 'H * * * *' : 'H H/4 * * *')
 			dsl += """
 				pipelineJob('${arch}') {
 					description('''
@@ -35,7 +36,7 @@ node('master') {
 					}
 					concurrentBuild(false)
 					triggers {
-						cron('H * * * *')
+						cron('${cron}')
 					}
 					definition {
 						cpsScm {
