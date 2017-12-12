@@ -29,28 +29,6 @@ def defaultImageMeta = [
 
 imagesMeta = [:]
 
-imagesMeta['opensuse'] = [
-	// TODO https://github.com/openSUSE/docker-containers-build/issues/22#issuecomment-309163169
-	'arches': [
-		// see http://download.opensuse.org/repositories/Virtualization:/containers:/images:/openSUSE-Tumbleweed/images/
-		'amd64',
-		'arm32v7',
-		'arm64v8',
-		'ppc64le',
-		's390x',
-	] as Set,
-	'map': [
-		// our-arch-name: opensuse-arch-name
-		'amd64': 'x86_64',
-		'arm32v7': 'armv7l',
-		'arm64v8': 'aarch64',
-		'ppc64le': 'ppc64le',
-		's390x': 's390x',
-	],
-	'pipeline': 'multiarch/target-opensuse-pipeline.groovy',
-	'cron': '@weekly',
-]
-
 // list of arches
 arches = []
 // list of images
