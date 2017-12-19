@@ -59,7 +59,8 @@ node {
 			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
 				set -Eeuo pipefail
 				set -x
-				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all
+				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all \\
+					| sort -u
 			""").trim().tokenize()
 
 			def ns = vars.archNamespace(arch)
@@ -174,6 +175,8 @@ node {
 				}
 			}
 		'''
+
+		echo(dsl)
 
 		jobDsl(
 			lookupStrategy: 'SEED_JOB',
