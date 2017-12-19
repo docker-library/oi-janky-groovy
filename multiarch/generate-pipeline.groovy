@@ -86,15 +86,7 @@ node {
 				for (img in archImages[arch]) {
 					images += img
 
-					def triggers = []
-					if (arch == 'amd64') {
-						triggers << "scm('@hourly')"
-					}
-					else {
-						triggers << "scm('@daily')"
-					}
-
-					pipelineJob('${arch}/${img}') {
+					pipelineJob("${arch}/${img}") {
 						description("""
 							Useful links:
 							<ul>
@@ -105,7 +97,14 @@ node {
 						""")
 						logRotator { daysToKeep(14) }
 						concurrentBuild(false)
-						triggers { ${triggers.join('\\n')} }
+						triggers {
+							if (arch == 'amd64') {
+								"scm('@hourly')
+							}
+							else {
+								scm('@daily')
+							}
+						}
 						definition {
 							cpsScm {
 								scm {
