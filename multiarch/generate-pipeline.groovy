@@ -48,8 +48,13 @@ node {
 	}
 
 	stage('Generate') {
-		def images = []
+		def dsl = '''
+			def arches = []
+			def archImages = [:]
+			def archNamespaces = [:]
 
+			def images = []
+		'''
 		for (arch in vars.arches) {
 			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
 				set -Eeuo pipefail
@@ -57,34 +62,51 @@ node {
 				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all
 			""").trim().tokenize()
 
-			images += archImages
-
 			def ns = vars.archNamespace(arch)
-			def dsl = """
-				folder('${arch}')
+			dsl += """
+				def arch = '${arch}'
+				arches += arch
+				archImages[arch] = []
+				archNamespaces[arch] = '${ns}'
 			"""
 			for (img in archImages) {
-				def triggers = []
-				if (arch == 'amd64') {
-					triggers << "scm('@hourly')"
-				}
-				else {
-					triggers << "scm('@daily')"
-				}
-
 				dsl += """
+					def img = '${img}'
+					archImages[arch] += img
+					images += img
+				"""
+			}
+			dsl += '''
+				archImages[arch] = archImages[arch] as Set
+			'''
+		}
+		dsl += '''
+			images = images as Set
+
+			for (arch in arches) {
+				def ns = archNamespaces[arch]
+
+				for (img in archImages[arch]) {
+					def triggers = []
+					if (arch == 'amd64') {
+						triggers << "scm('@hourly')"
+					}
+					else {
+						triggers << "scm('@daily')"
+					}
+
 					pipelineJob('${arch}/${img}') {
-						description('''
+						description("""
 							Useful links:
 							<ul>
 								<li><a href="https://hub.docker.com/r/${ns}/${img}/"><code>docker.io/${ns}/${img}</code></a></li>
 								<li><a href="https://hub.docker.com/_/${img}/"><code>docker.io/library/${img}</code></a></li>
 								<li><a href="https://github.com/docker-library/official-images/blob/master/library/${img}"><code>official-images/library/${img}</code></a></li>
 							</ul>
-						''')
+						""")
 						logRotator { daysToKeep(14) }
 						concurrentBuild(false)
-						triggers { ${triggers.join('\n')} }
+						triggers { ${triggers.join('\\n')} }
 						definition {
 							cpsScm {
 								scm {
@@ -105,53 +127,36 @@ node {
 							it / definition / lightweight(true)
 						}
 					}
-				"""
+				}
 			}
 
-			jobDsl(
-				lookupStrategy: 'SEED_JOB',
-				removedJobAction: 'DISABLE',
-				removedViewAction: 'IGNORE',
-				scriptText: dsl,
-			)
-		}
-
-		images = images as Set
-
-		def dsl = """
 			nestedView('images') {
 				columns {
 					status()
 					weather()
 				}
 				views {
-		"""
-		for (image in images) {
-			dsl += """
-					listView('${image}') {
-						jobs {
-							regex('.*/${image}')
-						}
-						recurse()
-						columns {
-							status()
-							weather()
-							name()
-							lastSuccess()
-							lastFailure()
-							lastDuration()
-							nextLaunch()
-							buildButton()
+					for (image in images) {
+						listView(image) {
+							jobs {
+								regex(".*/${image}")
+							}
+							recurse()
+							columns {
+								status()
+								weather()
+								name()
+								lastSuccess()
+								lastFailure()
+								lastDuration()
+								nextLaunch()
+								buildButton()
+							}
 						}
 					}
-			"""
-		}
-		dsl += '''
 				}
 			}
-		'''
 
-		dsl += '''
 			listView('flat') {
 				jobs {
 					regex('.*')
@@ -172,8 +177,8 @@ node {
 
 		jobDsl(
 			lookupStrategy: 'SEED_JOB',
-			removedJobAction: 'DISABLE',
-			removedViewAction: 'IGNORE',
+			removedJobAction: 'DELETE',
+			removedViewAction: 'DELETE',
 			scriptText: dsl,
 		)
 	}
