@@ -47,13 +47,14 @@ node {
 		)
 	}
 
-	stage('Generate') {
-		def dsl = '''
-			def arches = []
-			def archNamespaces = [:]
-			def archImages = [:]
-		'''
-		for (arch in vars.arches) {
+	def dsl = '''
+		def arches = []
+		def archNamespaces = [:]
+		def archImages = [:]
+	'''
+
+	for (arch in vars.arches) {
+		stage(arch) {
 			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
 				set -Eeuo pipefail
 				set -x
@@ -77,6 +78,9 @@ node {
 				] as Set
 			'''
 		}
+	}
+
+	stage('Generate') {
 		dsl += '''
 			def images = []
 
@@ -177,13 +181,17 @@ node {
 			}
 		'''
 
-		echo(dsl)
+		stage('Echo') {
+			echo(dsl)
+		}
 
-		jobDsl(
-			lookupStrategy: 'SEED_JOB',
-			removedJobAction: 'DELETE',
-			removedViewAction: 'DELETE',
-			scriptText: dsl,
-		)
+		stage('DSL') {
+			jobDsl(
+				lookupStrategy: 'SEED_JOB',
+				removedJobAction: 'DELETE',
+				removedViewAction: 'DELETE',
+				scriptText: dsl,
+			)
+		}
 	}
 }
