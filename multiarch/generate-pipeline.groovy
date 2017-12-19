@@ -50,10 +50,8 @@ node {
 	stage('Generate') {
 		def dsl = '''
 			def arches = []
-			def archImages = [:]
 			def archNamespaces = [:]
-
-			def images = []
+			def archImages = [:]
 		'''
 		for (arch in vars.arches) {
 			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
@@ -67,27 +65,27 @@ node {
 			dsl += """
 				arch = '${arch}'
 				arches += arch
-				archImages[arch] = []
 				archNamespaces[arch] = '${ns}'
+				archImages[arch] = [
 			"""
 			for (img in archImages) {
 				dsl += """
-					img = '${img}'
-					archImages[arch] += img
-					images += img
+					'${img}',
 				"""
 			}
 			dsl += '''
-				archImages[arch] = archImages[arch] as Set
+				] as Set
 			'''
 		}
 		dsl += '''
-			images = images as Set
+			def images = []
 
 			for (arch in arches) {
 				def ns = archNamespaces[arch]
 
 				for (img in archImages[arch]) {
+					images += img
+
 					def triggers = []
 					if (arch == 'amd64') {
 						triggers << "scm('@hourly')"
@@ -130,6 +128,8 @@ node {
 					}
 				}
 			}
+
+			images = images as Set
 
 			nestedView('images') {
 				columns {
