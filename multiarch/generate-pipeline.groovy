@@ -81,6 +81,8 @@ node {
 			def images = []
 
 			for (arch in arches) {
+				folder(arch)
+
 				def ns = archNamespaces[arch]
 
 				for (img in archImages[arch]) {
