@@ -99,7 +99,7 @@ node {
 						concurrentBuild(false)
 						triggers {
 							if (arch == 'amd64') {
-								"scm('@hourly')
+								scm('@hourly')
 							}
 							else {
 								scm('@daily')
