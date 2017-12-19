@@ -48,8 +48,6 @@ node {
 	}
 
 	stage('Generate') {
-		def dsl = ''
-
 		def images = []
 
 		for (arch in vars.arches) {
@@ -62,7 +60,7 @@ node {
 			images += archImages
 
 			def ns = vars.archNamespace(arch)
-			dsl += """
+			def dsl = """
 				folder('${arch}')
 			"""
 			for (img in archImages) {
@@ -109,11 +107,18 @@ node {
 					}
 				"""
 			}
+
+			jobDsl(
+				lookupStrategy: 'SEED_JOB',
+				removedJobAction: 'DISABLE',
+				removedViewAction: 'IGNORE',
+				scriptText: dsl,
+			)
 		}
 
 		images = images as Set
 
-		dsl += """
+		def dsl = """
 			nestedView('images') {
 				columns {
 					status()
@@ -167,8 +172,8 @@ node {
 
 		jobDsl(
 			lookupStrategy: 'SEED_JOB',
-			removedJobAction: 'DELETE',
-			removedViewAction: 'DELETE',
+			removedJobAction: 'DISABLE',
+			removedViewAction: 'IGNORE',
 			scriptText: dsl,
 		)
 	}
