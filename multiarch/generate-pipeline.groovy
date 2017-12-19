@@ -64,14 +64,14 @@ node {
 
 			def ns = vars.archNamespace(arch)
 			dsl += """
-				def arch = '${arch}'
+				arch = '${arch}'
 				arches += arch
 				archImages[arch] = []
 				archNamespaces[arch] = '${ns}'
 			"""
 			for (img in archImages) {
 				dsl += """
-					def img = '${img}'
+					img = '${img}'
 					archImages[arch] += img
 					images += img
 				"""
