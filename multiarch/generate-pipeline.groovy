@@ -50,47 +50,28 @@ node {
 	stage('Generate') {
 		def dsl = ''
 
-		def fakedImages = []
 		def images = []
 
 		for (arch in vars.arches) {
-			def officialArchImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
+			def archImages = sh(returnStdout: true, script: """#!/usr/bin/env bash
 				set -Eeuo pipefail
 				set -x
 				bashbrew cat --format '{{ range .Entries }}{{ if .HasArchitecture "${arch}" }}{{ \$.RepoName }}{{ "\\n" }}{{ end }}{{ end }}' --all
 			""").trim().tokenize()
-			def fakedArchImages = vars.archImages(arch)
 
-			images += officialArchImages
-			fakedImages += fakedArchImages
-
-			def archImages = (officialArchImages + fakedArchImages) as Set
+			images += archImages
 
 			def ns = vars.archNamespace(arch)
 			dsl += """
 				folder('${arch}')
 			"""
 			for (img in archImages) {
-				def imageMeta = vars.imagesMeta[img] ?: [:]
-
-				def pipeline = imageMeta['pipeline'] ?: 'multiarch/target-generic-pipeline.groovy'
-				if (officialArchImages.contains(img)) {
-					// amd64 MUST always use the generic pipeline, regardless of any other hacks
-					// so, if "library/xxx" supports the current architecture, use the generic pipeline always
-					pipeline = 'multiarch/target-generic-pipeline.groovy'
-				}
-
 				def triggers = []
-				if (imageMeta['cron']) {
-					triggers << "cron('${imageMeta['cron']}')"
+				if (arch == 'amd64') {
+					triggers << "scm('@hourly')"
 				}
-				if (imageMeta['scmPolling'] ?: true) {
-					if (arch == 'amd64') {
-						triggers << "scm('@hourly')"
-					}
-					else {
-						triggers << "scm('@daily')"
-					}
+				else {
+					triggers << "scm('@daily')"
 				}
 
 				dsl += """
@@ -118,7 +99,7 @@ node {
 											cleanAfterCheckout()
 										}
 									}
-									scriptPath('${pipeline}')
+									scriptPath('multiarch/target-pipeline.groovy')
 								}
 							}
 						}
@@ -127,52 +108,43 @@ node {
 						}
 					}
 				"""
-				// "fileExists" throws annoying exceptions ("java.io.NotSerializableException: java.util.LinkedHashMap$LinkedKeyIterator")
 			}
 		}
 
-		fakedImages = fakedImages as Set
 		images = images as Set
 
-		for (imageList in [
-			['faked-images', fakedImages],
-			['images', images],
-		]) {
-			name = imageList[0]
-			images = imageList[1]
-			dsl += """
-				nestedView('${name}') {
-					columns {
-						status()
-						weather()
-					}
-					views {
-			"""
-			for (image in images) {
-				dsl += """
-						listView('${image}') {
-							jobs {
-								regex('.*/${image}')
-							}
-							recurse()
-							columns {
-								status()
-								weather()
-								name()
-								lastSuccess()
-								lastFailure()
-								lastDuration()
-								nextLaunch()
-								buildButton()
-							}
-						}
-				"""
-			}
-			dsl += '''
-					}
+		dsl += """
+			nestedView('images') {
+				columns {
+					status()
+					weather()
 				}
-			'''
+				views {
+		"""
+		for (image in images) {
+			dsl += """
+					listView('${image}') {
+						jobs {
+							regex('.*/${image}')
+						}
+						recurse()
+						columns {
+							status()
+							weather()
+							name()
+							lastSuccess()
+							lastFailure()
+							lastDuration()
+							nextLaunch()
+							buildButton()
+						}
+					}
+			"""
 		}
+		dsl += '''
+				}
+			}
+		'''
 
 		dsl += '''
 			listView('flat') {
