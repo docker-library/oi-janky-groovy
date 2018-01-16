@@ -61,7 +61,7 @@ node {
 						) continue ;;
 					esac
 
-					if ! bashbrew list --apply-constraints "$from" > /dev/null; then
+					if ! listOutput="$(bashbrew list --apply-constraints "$from")" || [ -z "$listOutput" ]; then
 						naughtyArches+=( "$BASHBREW_ARCH" )
 					fi
 				done
