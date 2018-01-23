@@ -71,19 +71,13 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				parents="$(
 					awk 'toupper($1) == "FROM" { print $2 }' */Dockerfile* \\
 						| sort -u \\
-						| grep -vE '/|^scratch$|^'"$ACT_ON_IMAGE"'(:|$)'
+						| grep -vE '^scratch$|^'"$ACT_ON_IMAGE"'(:|$)'
 				)"
 
 				# pull the ones appropriate for our target architecture
 				echo "$parents" \\
-					| awk -v ns="$TARGET_NAMESPACE" '{ print ns "/" $0 }' \\
+					| grep -vE "^$TARGET_NAMESPACE/" \
 					| xargs -rtn1 docker pull \\
-					|| true
-
-				# ... and then tag them without the namespace (so "./build.sh" can "just work" as-is)
-				echo "$parents" \\
-					| awk -v ns="$TARGET_NAMESPACE" '{ print ns "/" $0; print }' \\
-					| xargs -rtn2 docker tag \\
 					|| true
 			'''
 		}
