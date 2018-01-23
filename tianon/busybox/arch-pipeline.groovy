@@ -59,6 +59,9 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			sh '''
 				git branch -D "$ARCH_BRANCH" || :
 				git checkout -b "$ARCH_BRANCH" origin/master
+
+				# convert "FROM debian:..." into "FROM arm32v7/debian:..." etc
+				sed -ri -e "s!^FROM !FROM $TARGET_NAMESPACE/!" */Dockerfile.builder
 			'''
 		}
 
