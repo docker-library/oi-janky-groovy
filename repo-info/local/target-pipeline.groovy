@@ -57,9 +57,20 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 	stage('Gather') {
 		def tagGroups = sh(
 			returnStdout: true,
-			script: """
+			script: '''#!/usr/bin/env bash
+				set -Eeuo pipefail
+			''' + """
 				repo='${repo}'
 			""" + '''
+				args=( "$repo" )
+
+				case "$repo" in
+					neo4j) # https://github.com/docker-library/official-images/issues/1864 (tag sprawl of ancient, unsupported versions)
+						args=( $(bashbrew list "$repo" | grep -E ':[0-9]+[.][0-9]+(-|$)' | xargs bashbrew list --uniq | uniq) )
+						# this will narrow down the list to only include "X.Y" and "X.Y-enterprise" tags
+						;;
+				esac
+
 				bashbrew cat -f '
 					{{- range $.Entries -}}
 						{{- if not ($.SkipConstraints .) -}}
@@ -67,7 +78,7 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 							{{- "\\n" -}}
 						{{- end -}}
 					{{- end -}}
-				' "$repo"
+				' "${args[@]}"
 			''',
 		).trim().tokenize('\n')
 		for (tagGroup in tagGroups) {
