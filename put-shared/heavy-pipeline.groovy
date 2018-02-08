@@ -76,9 +76,11 @@ for (repo in repos) {
 			''').trim()
 
 			if (env.DRY_RUN != '') {
-				sh '''
+				if (0 != sh(returnStatus: true, script: '''
 					bashbrew put-shared --namespace "$PUSH_TO_NAMESPACE" "$REPO"
-				'''
+				''')) {
+					currentBuild.result = 'UNSTABLE'
+				}
 			}
 		}
 	}
