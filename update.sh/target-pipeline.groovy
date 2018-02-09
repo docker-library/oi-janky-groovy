@@ -15,6 +15,9 @@ node {
 	env.BASHBREW_CACHE = env.WORKSPACE + '/bashbrew-cache'
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
+	env.BRANCH_BASE = repoMeta['branch-base']
+	env.BRANCH_PUSH = repoMeta['branch-push']
+
 	stage('Checkout') {
 		sh 'mkdir -p "$BASHBREW_CACHE"'
 		checkout(
@@ -46,7 +49,7 @@ node {
 				url: repoMeta['url'],
 				credentialsId: 'docker-library-bot',
 			]],
-			branches: [[name: '*/master']],
+			branches: [[name: '*/' + repoMeta['branch-push']]],
 			extensions: [
 				[
 					$class: 'CleanCheckout',
@@ -64,6 +67,10 @@ node {
 
 			git config user.name 'Docker Library Bot'
 			git config user.email 'github+dockerlibrarybot@infosiftr.com'
+
+			if [ "$BRANCH_BASE" != "$BRANCH_PUSH" ]; then
+				git pull --rebase origin "$BRANCH_BASE"
+			fi
 
 			# prefill the bashbrew cache
 			./generate-stackbrew-library.sh \\
@@ -152,12 +159,12 @@ node {
 		}
 
 		stage('Log') {
-			sh 'git log -p origin/master...HEAD'
+			sh 'git log -p "origin/$BRANCH_BASE...HEAD"'
 		}
 
 		def numCommits = sh(
 			returnStdout: true,
-			script: 'git rev-list --count origin/master...HEAD',
+			script: 'git rev-list --count "origin/$BRANCH_BASE...HEAD"',
 		).trim().toInteger()
 		def hasChanges = (numCommits > 0)
 
@@ -186,7 +193,7 @@ node {
 		stage('Push') {
 			if (hasChanges) {
 				sshagent(['docker-library-bot']) {
-					sh 'git push origin HEAD:master'
+					sh 'git push $([ "$BRANCH_BASE" = "$BRANCH_PUSH" ] || echo '--force') origin "HEAD:$BRANCH_PUSH"'
 				}
 			} else {
 				echo("No changes in ${repo}!  Skipping.")

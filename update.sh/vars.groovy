@@ -4,6 +4,8 @@ def defaultRepoMeta = [
 	['url', 'git@github.com:docker-library/%%REPO%%.git'],
 	['env', '.+_VERSION'], // awk regex, anchored
 	['otherEnvs', []],
+	['branch-base', 'master'], // branch to check out from
+	['branch-push', 'master'], // branch to push to
 ]
 def rawReposData = [
 	// TODO busybox (BUSYBOX_VERSION) -- looong builds
@@ -147,6 +149,13 @@ def rawReposData = [
 	['irssi', [
 		'url': 'git@github.com:jessfraz/irssi.git',
 		'env': 'IRSSI_VERSION',
+	]],
+
+	// TimWolla
+	['adminer', [
+		'url': 'git@github.com:TimWolla/docker-adminer.git',
+		'env': 'ADMINER_VERSION',
+		'branch-push': 'docker-library-bot',
 	]],
 
 	// pierreozoux
