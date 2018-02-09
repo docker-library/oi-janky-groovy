@@ -68,15 +68,18 @@ node {
 			git config user.name 'Docker Library Bot'
 			git config user.email 'github+dockerlibrarybot@infosiftr.com'
 
-			if [ "$BRANCH_BASE" != "$BRANCH_PUSH" ]; then
-				git pull --rebase origin "$BRANCH_BASE"
-			fi
-
 			# prefill the bashbrew cache
 			./generate-stackbrew-library.sh \\
 				| bashbrew from --apply-constraints /dev/stdin > /dev/null
 		'''
 
+		if (repoMeta['branch-base'] != repoMeta['branch-push']) {
+			sshagent(['docker-library-bot']) {
+				sh '''
+					git pull --rebase origin "$BRANCH_BASE"
+				'''
+			}
+		}
 	}
 
 	def testRun = workspace + '/oi/test/run.sh'
