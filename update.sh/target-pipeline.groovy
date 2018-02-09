@@ -76,7 +76,7 @@ node {
 		if (repoMeta['branch-base'] != repoMeta['branch-push']) {
 			sshagent(['docker-library-bot']) {
 				sh '''
-					git pull --rebase origin "$BRANCH_BASE"
+					git -C repo pull --rebase origin "$BRANCH_BASE"
 				'''
 			}
 		}
