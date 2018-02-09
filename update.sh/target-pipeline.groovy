@@ -193,7 +193,7 @@ node {
 		stage('Push') {
 			if (hasChanges) {
 				sshagent(['docker-library-bot']) {
-					sh 'git push $([ "$BRANCH_BASE" = "$BRANCH_PUSH" ] || echo '--force') origin "HEAD:$BRANCH_PUSH"'
+					sh 'git push $([ "$BRANCH_BASE" = "$BRANCH_PUSH" ] || echo --force) origin "HEAD:$BRANCH_PUSH"'
 				}
 			} else {
 				echo("No changes in ${repo}!  Skipping.")
