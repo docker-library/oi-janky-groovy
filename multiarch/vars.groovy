@@ -45,8 +45,6 @@ def node(arch, image) {
 		if ([
 			// https://github.com/docker-library/memcached/issues/25
 			'memcached',
-			// https://github.com/docker-library/golang/issues/196
-			'golang',
 			// gpg: keyserver receive failed: End of file
 			'vault',
 		].contains(image)) {
