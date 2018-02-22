@@ -41,18 +41,16 @@ def archNamespaces() {
 
 // given an arch/image combo, returns a target node expression
 def node(arch, image) {
-	if (arch.startsWith('arm32')) {
-		if ([
-			// https://github.com/docker-library/memcached/issues/25
-			'memcached',
-			// gpg: keyserver receive failed: End of file
-			'vault',
-		].contains(image)) {
-			return 'multiarch-rpi2'
-		}
+	if (arch.startsWith('arm32') && [
+		'memcached', // https://github.com/docker-library/memcached/issues/25
+	].contains(image)) {
+		return 'multiarch-rpi2'
 	}
-	if (arch == 'arm32v6' && image == 'busybox') {
-		// https://github.com/docker-library/busybox/pull/41
+	if (arch == 'arm32v6' && [
+		'busybox', // https://github.com/docker-library/busybox/pull/41
+		'golang', // https://github.com/docker-library/golang/issues/196
+		'vault', // gpg: keyserver receive failed: End of file (same as "busybox")
+	]) {
 		return 'multiarch-rpi2'
 	}
 	return 'multiarch-' + arch
