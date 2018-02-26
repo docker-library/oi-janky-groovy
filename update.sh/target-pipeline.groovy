@@ -171,8 +171,8 @@ node {
 		).trim().toInteger()
 		def hasChanges = (numCommits > 0)
 
-		stage('Test') {
-			if (hasChanges) {
+		if (hasChanges) {
+			stage('Pull') {
 				retry(3) {
 					sh '#!/bin/bash -ex' + """
 						bashbrew cat -f '{{ range .Entries }}{{ \$.DockerFrom . }}{{ "\\n" }}{{ end }}' '${repo}' \\
@@ -180,6 +180,13 @@ node {
 							| grep -vE '^(scratch|microsoft/(nanoserver|windowsservercore):.*)\$' \\
 							| xargs -rtn1 docker pull \\
 							|| :
+					"""
+				}
+			}
+
+			stage('Test') {
+				retry(3) {
+					sh '#!/bin/bash -ex' + """
 						bashbrew build '${repo}'
 						bashbrew tag --namespace '${testBuildNamespace}' '${repo}'
 						# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
@@ -188,19 +195,15 @@ node {
 							| xargs '${testRun}'
 					"""
 				}
-			} else {
-				echo("No changes in ${repo}!  Skipping.")
 			}
-		}
 
-		stage('Push') {
-			if (hasChanges) {
+			stage('Push') {
 				sshagent(['docker-library-bot']) {
 					sh 'git push $([ "$BRANCH_BASE" = "$BRANCH_PUSH" ] || echo --force) origin "HEAD:$BRANCH_PUSH"'
 				}
-			} else {
-				echo("No changes in ${repo}!  Skipping.")
 			}
+		} else {
+			echo("No changes in ${repo}!  Skipping.")
 		}
 	} }
 }
