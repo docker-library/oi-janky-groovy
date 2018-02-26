@@ -184,11 +184,18 @@ node {
 				}
 			}
 
-			stage('Test') {
+			stage('Build') {
 				retry(3) {
 					sh '#!/bin/bash -ex' + """
 						bashbrew build '${repo}'
 						bashbrew tag --namespace '${testBuildNamespace}' '${repo}'
+					"""
+				}
+			}
+
+			stage('Test') {
+				retry(3) {
+					sh '#!/bin/bash -ex' + """
 						# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
 						bashbrew list --apply-constraints --uniq '${repo}' \\
 							| sed 's!^!${testBuildNamespace}/!' \\
