@@ -13,7 +13,9 @@ node {
 			scm: [
 				$class: 'GitSCM',
 				userRemoteConfigs: [[
-					url: 'https://github.com/docker-library/official-images.git',
+					url: 'git@github.com:docker-library/official-images.git',
+					credentialsId: 'docker-library-bot',
+					name: 'origin',
 				]],
 				branches: [[name: '*/master']],
 				extensions: [
