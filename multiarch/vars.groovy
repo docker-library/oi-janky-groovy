@@ -50,7 +50,7 @@ def node(arch, image) {
 		'busybox', // https://github.com/docker-library/busybox/pull/41
 		'golang', // https://github.com/docker-library/golang/issues/196
 		'vault', // gpg: keyserver receive failed: End of file (same as "busybox")
-	]) {
+	].contains(image)) {
 		return 'multiarch-rpi2'
 	}
 	return 'multiarch-' + arch
