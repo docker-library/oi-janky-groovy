@@ -17,7 +17,7 @@ def vars = fileLoader.fromGit(
 )
 
 env.ACT_ON_ARCH = env.JOB_BASE_NAME // "amd64", "arm64v8", etc.
-env.ACT_ON_IMAGE = 'debian'
+env.ACT_ON_IMAGE = 'debuerreotype'
 env.TARGET_NAMESPACE = multiarchVars.archNamespace(env.ACT_ON_ARCH)
 env.BUILD_ARCH = vars.buildArch[env.ACT_ON_ARCH] ?: env.ACT_ON_ARCH
 
