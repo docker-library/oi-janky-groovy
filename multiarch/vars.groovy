@@ -152,33 +152,52 @@ def bashbrewBuildAndPush(context) {
 	}
 
 	def dryRun = false
-	context.stage('Push') { withEnv(['TAGS=' + success.join(' ')]) {
-		sh '''
-			bashbrew tag --namespace "$TARGET_NAMESPACE" $TAGS
-		'''
-
-		dryRun = sh(returnStdout: true, script: '''
-			bashbrew push --dry-run --namespace "$TARGET_NAMESPACE" $TAGS
-
-			if [ -n "$BASHBREW_ARCH" ]; then
-				bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --dry-run --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-			fi
-		''').trim()
-
-		if (dryRun != '') {
-			retry(3) {
-				sh '''
-					bashbrew push --namespace "$TARGET_NAMESPACE" $TAGS
-
-					if [ -n "$BASHBREW_ARCH" ]; then
-						bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-					fi
-				'''
-			}
-		} else {
-			echo('Skipping unnecessary push!')
+	withEnv(['TAGS=' + success.join(' ')]) {
+		context.stage('Tag') {
+			sh '''
+				bashbrew tag --namespace "$TARGET_NAMESPACE" $TAGS
+			'''
 		}
-	} }
+
+		context.stage('Build-Info') {
+			sh '''
+				rm -rf build-info
+				mkdir build-info
+				git -C "$BASHBREW_LIBRARY" rev-parse HEAD | tee build-info/commit.txt
+				mkdir build-info/image-ids
+				for tag in $TAGS; do
+					for alias in $(bashbrew list "$tag"); do
+						docker image inspect --format '{{ .Id }}' "$TARGET_NAMESPACE/$tag" | tee "build-info/image-ids/$alias.txt"
+					done
+				done
+			'''
+			archiveArtifacts 'build-info/**'
+		}
+
+		context.stage('Push') {
+			dryRun = sh(returnStdout: true, script: '''
+				bashbrew push --dry-run --namespace "$TARGET_NAMESPACE" $TAGS
+
+				if [ -n "$BASHBREW_ARCH" ]; then
+					bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --dry-run --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+				fi
+			''').trim()
+
+			if (dryRun != '') {
+				retry(3) {
+					sh '''
+						bashbrew push --namespace "$TARGET_NAMESPACE" $TAGS
+
+						if [ -n "$BASHBREW_ARCH" ]; then
+							bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+						fi
+					'''
+				}
+			} else {
+				echo('Skipping unnecessary push!')
+			}
+		}
+	}
 	if (dryRun == '') {
 		// if we didn't need to push anything let's tell whoever invoked us that we didn't, so they scan skip other things too (triggering children, for example)
 		return 'skip'

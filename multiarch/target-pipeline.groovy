@@ -74,15 +74,48 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					)"
 					# all parents might be "scratch", in which case "$parents" will be empty
 
-					if [ -n "$parents" ]; then
+					# filter the above list via build-info/image-ids/xxx from the build jobs to see if our image on-disk is already fresh (since even a no-op "docker pull" takes a long time to come back with a result)
+					parentsToPull=()
+					for parent in $parents; do
+						if [[ "$parent" == microsoft/* ]]; then
+							# Windows image?  pull it
+							parentsToPull+=( "$parent" )
+							continue
+						fi
+
+						parentImageIdLocal="$(docker image inspect --format '{{ .Id }}' "$parent" 2>/dev/null || :)"
+						if [ -z "$parentImageIdLocal" ]; then
+							# we don't have it at all; pull it
+							parentsToPull+=( "$parent" )
+							continue
+						fi
+
+						parentRepo="${parent%%:*}"
+						parentImageId="$(wget -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$ACT_ON_ARCH/job/$parentRepo/lastSuccessfulBuild/artifact/build-info/image-ids/$parent.txt" 2>/dev/null || :)"
+						if [ -z "$parentImageId" ]; then
+							# we can't tell if it's fresh; pull it
+							parentsToPull+=( "$parent" )
+							continue
+						fi
+
+						if [ "$parentImageId" != "$parentImageIdLocal" ]; then
+							# what we have locally doesn't match what was built; pull it
+							parentsToPull+=( "$parent" )
+							continue
+						fi
+
+						echo "YAY, skipping pull of '$parent' (local copy determined to be fresh!)"
+					done
+
+					if [ "${#parentsToPull[@]}" -gt 0 ]; then
 						# pull the ones appropriate for our target architecture
-						echo "$parents" \\
+						echo "${parentsToPull[@]}" \\
 							| awk -v ns="$TARGET_NAMESPACE" '{ if (/\\//) { print $0 } else { print ns "/" $0 } }' \\
 							| xargs -rtn1 docker pull \\
 							|| true
 
 						# ... and then tag them without the namespace (so "bashbrew build" can "just work" as-is)
-						echo "$parents" \\
+						echo "${parentsToPull[@]}" \\
 							| awk -v ns="$TARGET_NAMESPACE" '!/\\// { print ns "/" $0; print }' \\
 							| xargs -rtn2 docker tag \\
 							|| true
