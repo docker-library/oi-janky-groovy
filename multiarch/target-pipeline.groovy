@@ -110,13 +110,13 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					if [ "${#parentsToPull[@]}" -gt 0 ]; then
 						# pull the ones appropriate for our target architecture
 						echo "${parentsToPull[@]}" \\
-							| awk -v ns="$TARGET_NAMESPACE" '{ if (/\\//) { print $0 } else { print ns "/" $0 } }' \\
+							| awk -v RS='[[:space:]]+' -v ns="$TARGET_NAMESPACE" '{ if (/\\//) { print $0 } else { print ns "/" $0 } }' \\
 							| xargs -rtn1 docker pull \\
 							|| true
 
 						# ... and then tag them without the namespace (so "bashbrew build" can "just work" as-is)
 						echo "${parentsToPull[@]}" \\
-							| awk -v ns="$TARGET_NAMESPACE" '!/\\// { print ns "/" $0; print }' \\
+							| awk -v RS='[[:space:]]+' -v ns="$TARGET_NAMESPACE" '!/\\// { print ns "/" $0; print }' \\
 							| xargs -rtn2 docker tag \\
 							|| true
 					fi
