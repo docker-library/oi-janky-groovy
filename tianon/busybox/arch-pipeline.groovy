@@ -76,7 +76,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 				# pull the ones appropriate for our target architecture
 				echo "$parents" \\
-					| grep -vE "^$TARGET_NAMESPACE/" \
+					| grep -E "^$TARGET_NAMESPACE/" \
 					| xargs -rtn1 docker pull \\
 					|| true
 			'''
