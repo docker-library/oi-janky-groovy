@@ -52,7 +52,9 @@ def node(arch, image) {
 			return 'multiarch-rpi2'
 
 		case [
+			'amd64 busybox-builder',
 			'amd64 debuerreotype',
+			'i386 busybox-builder',
 			'i386 debuerreotype',
 		]:
 			return ''

@@ -10,7 +10,7 @@ def vars = fileLoader.fromGit(
 )
 
 env.ACT_ON_ARCH = env.JOB_BASE_NAME // "amd64", "arm64v8", etc.
-env.ACT_ON_IMAGE = 'busybox'
+env.ACT_ON_IMAGE = 'busybox-builder'
 env.TARGET_NAMESPACE = vars.archNamespace(env.ACT_ON_ARCH)
 
 env.ARCH_BRANCH = 'dist-' + env.ACT_ON_ARCH
