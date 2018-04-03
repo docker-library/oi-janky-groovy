@@ -44,7 +44,7 @@ def node(arch, image) {
 	switch (arch + ' ' + image) {
 		case ~/arm32v[567] memcached/: // https://github.com/docker-library/memcached/issues/25
 		case [
-			'arm32v6 busybox', // https://github.com/docker-library/busybox/pull/41
+			'arm32v6 busybox-builder', // https://github.com/docker-library/busybox/pull/41
 			'arm32v6 golang', // https://github.com/docker-library/golang/issues/196
 			'arm32v6 postgres', // https://github.com/docker-library/postgres/issues/420
 			'arm32v6 vault', // gpg: keyserver receive failed: End of file (same as "busybox")
