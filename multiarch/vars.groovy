@@ -154,7 +154,7 @@ def bashbrewBuildAndPush(context) {
 	}
 
 	def dryRun = false
-	withEnv(['TAGS=' + success.join(' ')]) {
+	withEnv(['TAGS=' + success.join(' '), 'FAILED=' + failed.join(' ')]) {
 		context.stage('Tag') {
 			sh '''
 				bashbrew tag --namespace "$TARGET_NAMESPACE" $TAGS
@@ -172,6 +172,8 @@ def bashbrewBuildAndPush(context) {
 						docker image inspect --format '{{ .Id }}' "$TARGET_NAMESPACE/$tag" | tee "build-info/image-ids/$alias.txt"
 					done
 				done
+				echo "$TAGS" | xargs -rn1 > build-info/success.txt
+				echo "$FAILED" | xargs -rn1 > build-info/failed.txt
 			'''
 			archiveArtifacts 'build-info/**'
 		}
