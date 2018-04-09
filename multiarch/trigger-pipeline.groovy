@@ -56,6 +56,9 @@ node {
 					wait: false,
 				)
 			"""
+
+			// also mark the build as unstable so it's obvious which trigger jobs actually triggered builds
+			currentBuild.result = 'UNSTABLE'
 		}
 	} } }
 }
