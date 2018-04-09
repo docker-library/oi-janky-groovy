@@ -95,7 +95,7 @@ node {
 
 					if (img == '_trigger') {
 						desc = 'Trigger all the things! (Jenkins SCM triggering does not work well for our use case)'
-						script = 'multiarch/trigger-pipeline.groovy'
+						groovyScript = 'multiarch/trigger-pipeline.groovy'
 					} else {
 						desc = """
 							Useful links:
@@ -105,7 +105,7 @@ node {
 								<li><a href="https://github.com/docker-library/official-images/blob/master/library/${img}"><code>official-images/library/${img}</code></a></li>
 							</ul>
 						"""
-						script = 'multiarch/target-pipeline.groovy'
+						groovyScript = 'multiarch/target-pipeline.groovy'
 					}
 
 					pipelineJob("${arch}/${img}") {
@@ -134,7 +134,7 @@ node {
 											cleanAfterCheckout()
 										}
 									}
-									scriptPath(script)
+									scriptPath(groovyScript)
 								}
 							}
 						}
