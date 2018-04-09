@@ -192,8 +192,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 		env.BAP_RESULT = vars.bashbrewBuildAndPush(this)
 
-		// TODO remove this "true ||" once we get everything rebuilt properly
-		if (true || env.BAP_RESULT != 'skip') {
+		if (env.BAP_RESULT != 'skip') {
 			stage('Trigger Children') {
 				children = sh(returnStdout: true, script: '''
 					bashbrew children --apply-constraints --depth 1 "$ACT_ON_IMAGE" \\
