@@ -49,13 +49,11 @@ node {
 			touchingCommits="$(git -C "$BASHBREW_LIBRARY" log --oneline "$commit...HEAD" -- "library/$REPO")"
 			[ -z "$touchingCommits" ]
 		''')) {
-			echo """
-				build(
-					job: ${repo},
-					quietPeriod: 15 * 60, // 15 minutes
-					wait: false,
-				)
-			"""
+			build(
+				job: repo,
+				quietPeriod: 15 * 60, // 15 minutes
+				wait: false,
+			)
 
 			// also mark the build as unstable so it's obvious which trigger jobs actually triggered builds
 			currentBuild.result = 'UNSTABLE'
