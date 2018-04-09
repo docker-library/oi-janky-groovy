@@ -74,7 +74,7 @@ node {
 					bashbrew from --apply-constraints https://github.com/docker-library/official-images/raw/master/library/hello-world > /dev/null
 
 					# do the thing
-					./all-bad.sh
+					./push-all.sh
 				''')
 			}
 		}
