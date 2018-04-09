@@ -82,6 +82,8 @@ def bashbrewBuildAndPush(context) {
 
 	// list of tag alias lists which failed ([['latest', '1', '1.0', ...], ['0', '0.1', ...]])
 	def failed = []
+	// flat list of unique tags that failed
+	def failedFlatList = []
 	// flat list of unique tags that succeeded
 	def success = []
 
@@ -110,6 +112,7 @@ def bashbrewBuildAndPush(context) {
 			failed << sh(returnStdout: true, script: '''
 				bashbrew list "$tag"
 			''').tokenize()
+			failedFlatList << failed[-1][0]
 		} else {
 			// otherwise, onwards and upwards!
 			success << tag
@@ -154,7 +157,7 @@ def bashbrewBuildAndPush(context) {
 	}
 
 	def dryRun = false
-	withEnv(['TAGS=' + success.join(' '), 'FAILED=' + failed.join(' ')]) {
+	withEnv(['TAGS=' + success.join(' '), 'FAILED=' + failedFlatList.join(' ')]) {
 		context.stage('Tag') {
 			sh '''
 				bashbrew tag --namespace "$TARGET_NAMESPACE" $TAGS
