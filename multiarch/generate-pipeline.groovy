@@ -68,6 +68,7 @@ node {
 				arches += arch
 				archNamespaces[arch] = '${ns}'
 				archImages[arch] = [
+					'_trigger',
 			"""
 			for (img in archImages) {
 				dsl += """
@@ -92,23 +93,33 @@ node {
 				for (img in archImages[arch]) {
 					images += img
 
-					pipelineJob("${arch}/${img}") {
-						description("""
+					if (img == '_trigger') {
+						desc = 'Trigger all the things! (Jenkins SCM triggering does not work well for our use case)'
+						script = 'multiarch/trigger-pipeline.groovy'
+					} else {
+						desc = """
 							Useful links:
 							<ul>
 								<li><a href="https://hub.docker.com/r/${ns}/${img}/"><code>docker.io/${ns}/${img}</code></a></li>
 								<li><a href="https://hub.docker.com/_/${img}/"><code>docker.io/library/${img}</code></a></li>
 								<li><a href="https://github.com/docker-library/official-images/blob/master/library/${img}"><code>official-images/library/${img}</code></a></li>
 							</ul>
-						""")
+						"""
+						script = 'multiarch/target-pipeline.groovy'
+					}
+
+					pipelineJob("${arch}/${img}") {
+						description(desc)
 						logRotator { daysToKeep(14) }
 						concurrentBuild(false)
 						triggers {
-							if (arch == 'amd64') {
-								//scm('@hourly')
-							}
-							else {
-								//scm('@daily')
+							if (img == '_trigger') {
+								if (arch == 'amd64') {
+									cron('@hourly')
+								}
+								else {
+									cron('@daily')
+								}
 							}
 						}
 						definition {
@@ -123,7 +134,7 @@ node {
 											cleanAfterCheckout()
 										}
 									}
-									scriptPath('multiarch/target-pipeline.groovy')
+									scriptPath(script)
 								}
 							}
 						}
