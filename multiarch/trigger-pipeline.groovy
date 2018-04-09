@@ -49,7 +49,13 @@ node {
 			touchingCommits="$(git -C "$BASHBREW_LIBRARY" log --oneline "$commit...HEAD" -- "library/$REPO")"
 			[ -z "$touchingCommits" ]
 		''')) {
-			echo "build job: ${repo}, wait: false"
+			echo """
+				build(
+					job: ${repo},
+					quietPeriod: 15 * 60, // 15 minutes
+					wait: false,
+				)
+			"""
 		}
 	} } }
 }
