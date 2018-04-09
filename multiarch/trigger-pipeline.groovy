@@ -46,7 +46,7 @@ node {
 			set -x
 			commit="$(wget -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$ACT_ON_ARCH/job/$REPO/lastSuccessfulBuild/artifact/build-info/commit.txt")"
 			[ -n "$commit" ]
-			touchingCommits="$(git -C "$BASHBREW_LIBRARY" log --oneline "$commit...HEAD" -- "library/$REPO")"
+			touchingCommits="$(git -C "$BASHBREW_LIBRARY" log --oneline "$commit...HEAD" -- "$REPO")"
 			[ -z "$touchingCommits" ]
 		''')) {
 			build(
