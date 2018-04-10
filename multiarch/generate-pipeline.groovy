@@ -118,7 +118,7 @@ node {
 									cron('@hourly')
 								}
 								else {
-									cron('@daily')
+									cron('H H(0-5) * * *')
 								}
 							}
 						}
