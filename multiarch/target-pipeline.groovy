@@ -121,7 +121,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 							|| true
 					fi
 
-					# if we can't fetch the tags from their real locations, let's try Tianon's "bad-ideas"
+					# if we can't fetch the tags from their real locations, let's try the warehouse
 					if ! bashbrew from --uniq --apply-constraints "$ACT_ON_IMAGE"; then
 						refsList="$(
 							bashbrew list --uniq --apply-constraints "$ACT_ON_IMAGE" \\
@@ -133,7 +133,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						[ -n "$refsList" ]
 						git -C "${BASHBREW_CACHE:-$HOME/.cache/bashbrew}/git" \\
 							fetch --no-tags \\
-							https://github.com/tianon/bad-ideas.git \\
+							https://github.com/docker-library/commit-warehouse.git \\
 							$refsList
 
 						bashbrew from --uniq --apply-constraints "$ACT_ON_IMAGE"

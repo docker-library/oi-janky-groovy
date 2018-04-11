@@ -15,7 +15,7 @@ node {
 			scm: [
 				$class: 'GitSCM',
 				userRemoteConfigs: [[
-					url: 'https://github.com/tianon/bad-ideas.git',
+					url: 'https://github.com/docker-library/commit-warehouse.git',
 					name: 'origin',
 					refspec: '+refs/heads/master:refs/remotes/origin/master',
 				]],
