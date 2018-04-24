@@ -191,18 +191,18 @@ node {
 				}
 			}
 		'''
+	}
 
-		stage('Echo') {
-			echo(dsl)
-		}
+	stage('Echo') {
+		echo(dsl)
+	}
 
-		stage('DSL') {
-			jobDsl(
-				lookupStrategy: 'SEED_JOB',
-				removedJobAction: 'DELETE',
-				removedViewAction: 'DELETE',
-				scriptText: dsl,
-			)
-		}
+	stage('DSL') {
+		jobDsl(
+			lookupStrategy: 'SEED_JOB',
+			removedJobAction: 'DELETE',
+			removedViewAction: 'DELETE',
+			scriptText: dsl,
+		)
 	}
 }
