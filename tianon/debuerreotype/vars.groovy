@@ -11,7 +11,8 @@ arches = [
 ] as Set
 
 // https://github.com/debuerreotype/debuerreotype/releases
-debuerreotypeVersion = '0.5'
+//debuerreotypeVersion = '0.6'
+debuerreotypeVersion = 'deeb73d48e3f6b6a98b36308789170c4fc8067d9' // https://github.com/debuerreotype/debuerreotype/commit/dc4b7a412bac05d12dcbc3c370f39bcc226fa29c ("iputils-ping")
 
 // build some arches explicitly elsewhere for speed/reliability
 buildArch = [
