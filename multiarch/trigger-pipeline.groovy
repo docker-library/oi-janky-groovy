@@ -31,6 +31,7 @@ node {
 		)
 	}
 
+	// TODO consider piping this to "bashbrew list --repos --build-order" too
 	repos = sh(returnStdout: true, script: '''
 		bashbrew cat --all --format '
 			{{- range .Entries -}}
