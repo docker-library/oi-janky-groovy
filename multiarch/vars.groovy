@@ -48,6 +48,7 @@ def node(arch, image) {
 			'arm32v6 golang', // https://github.com/docker-library/golang/issues/196
 			'arm32v6 nginx', // gpg: keyserver receive failed: End of file (same as "busybox")
 			'arm32v6 postgres', // https://github.com/docker-library/postgres/issues/420
+			'arm32v6 redis', // https://github.com/docker-library/redis/issues/137 (same as "busybox")
 			'arm32v6 spiped', // https://github.com/Tarsnap/spiped/issues/166
 			'arm32v6 vault', // gpg: keyserver receive failed: End of file (same as "busybox")
 		]:
