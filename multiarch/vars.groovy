@@ -168,7 +168,9 @@ def bashbrewBuildAndPush(context) {
 		}
 
 		context.stage('Build-Info') {
-			sh '''
+			sh '''#!/usr/bin/env bash
+				set -Eeuo pipefail
+
 				rm -rf build-info
 				mkdir build-info
 				git -C "$BASHBREW_LIBRARY" rev-parse HEAD | tee build-info/commit.txt
