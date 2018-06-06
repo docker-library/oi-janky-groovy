@@ -69,7 +69,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			sh '''
 				# gather a list of expected parents
 				parents="$(
-					awk 'toupper($1) == "FROM" { print $2 }' */Dockerfile* \\
+					gawk 'toupper($1) == "FROM" { print $2 }' */Dockerfile* \\
 						| sort -u \\
 						| grep -vE '^scratch$|^'"$ACT_ON_IMAGE"'(:|$)'
 				)"
@@ -91,7 +91,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		for (variant in variants) {
 			withEnv(['variant=' + variant]) { stage(variant) {
 				sh '''
-					from="$(awk 'toupper($1) == "FROM" { print $2 }' "$variant/Dockerfile.builder")"
+					from="$(gawk 'toupper($1) == "FROM" { print $2 }' "$variant/Dockerfile.builder")"
 
 					if ! docker inspect --type image "$from" > /dev/null 2>&1; then
 						# skip anything we couldn't successfully pull/tag above

@@ -69,7 +69,7 @@ node {
 	stage('Push') {
 		sh '''
 			docker images 'healthcheck/*' \
-				| awk -F '  +' 'NR > 1 && $1 != "<none>" && $2 != "<none>" { print $1 ":" $2 }' \
+				| gawk -F '  +' 'NR > 1 && $1 != "<none>" && $2 != "<none>" { print $1 ":" $2 }' \
 				| xargs -rtn1 docker push
 		'''
 	}

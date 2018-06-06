@@ -94,7 +94,7 @@ node {
 						done
 
 						latestSerial="$(
-							awk -F '=' '$1 == "SERIAL" { print $2 }' */build-info.txt \\
+							gawk -F '=' '$1 == "SERIAL" { print $2 }' */build-info.txt \\
 								| sort -un \\
 								| tail -1
 						)"

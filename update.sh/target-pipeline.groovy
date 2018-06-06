@@ -122,7 +122,7 @@ node {
 							{{- end -}}
 						' /dev/stdin
 				); do
-					version="$(awk '
+					version="$(gawk '
 						$1 == "ENV" && $2 ~ /^'"$repoMetaEnv"'$/ {
 							print $3;
 							exit;
@@ -130,7 +130,7 @@ node {
 					' "$dir/Dockerfile"*)"
 					for otherEnvName in "${!repoMetaOtherEnvs[@]}"; do
 						otherEnv="${repoMetaOtherEnvs[$otherEnvName]}"
-						version+="$(awk '
+						version+="$(gawk '
 							$1 == "ENV" && $2 ~ /^'"$otherEnv"'$/ {
 								print ", '"$otherEnvName"' " $3;
 								exit;

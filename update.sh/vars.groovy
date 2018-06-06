@@ -2,7 +2,7 @@
 // tl;dr, iterating over Maps in pipeline groovy is pretty broken in real-world use
 def defaultRepoMeta = [
 	['url', 'git@github.com:docker-library/%%REPO%%.git'],
-	['env', '.+_VERSION'], // awk regex, anchored
+	['env', '.+_VERSION'], // gawk regex, anchored
 	['otherEnvs', []],
 	['branch-base', 'master'], // branch to check out from
 	['branch-push', 'master'], // branch to push to

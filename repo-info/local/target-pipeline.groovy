@@ -89,7 +89,7 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 	ansiColor('xterm') { dir('ri') {
 		stage('Prepare') {
 			sh '''
-				docker pull $(awk '$1 == "FROM" { print $2; exit }' Dockerfile.local)
+				docker pull $(gawk '$1 == "FROM" { print $2; exit }' Dockerfile.local)
 				sed -i 's/ --pull / /g' scan-local.sh
 				! grep -q -- '--pull' scan-local.sh
 			'''

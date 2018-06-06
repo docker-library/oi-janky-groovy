@@ -59,9 +59,9 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 	dir('tianon-dockerfiles/sbuild') {
 		stage('Pull') {
 			sh '''
-				awk -v arch="$BUILD_ARCH" 'toupper($1) == "FROM" { $2 = arch "/" $2 } { print }' Dockerfile > Dockerfile.new
+				gawk -v arch="$BUILD_ARCH" 'toupper($1) == "FROM" { $2 = arch "/" $2 } { print }' Dockerfile > Dockerfile.new
 				mv Dockerfile.new Dockerfile
-				awk 'toupper($1) == "FROM" { print $2 }' Dockerfile \\
+				gawk 'toupper($1) == "FROM" { print $2 }' Dockerfile \\
 					| xargs -rtn1 docker pull \\
 					|| true
 			'''
@@ -118,7 +118,7 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 
 		// "readFile" causes "java.io.NotSerializableException: java.util.AbstractList$Itr" (intermittently)
 		suite = sh(returnStdout: true, script: """
-			awk -F ': ' '\$1 == "Distribution" { print \$2; exit }' 'sources/${changesFile}'
+			gawk -F ': ' '\$1 == "Distribution" { print \$2; exit }' 'sources/${changesFile}'
 		""").trim()
 		if (!suite) {
 			error("Failed to determine suite for '${changesFile}'!")
