@@ -60,16 +60,14 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 			deleteDir()
 
 			stage('Build') {
-				retry(3) {
-					sh '''
-						mkdir -p "$artifactsDir"
-						echo "$debuerreotypeVersion" > "$artifactsDir/debuerreotype-version"
-						echo "$serial" > "$artifactsDir/serial"
-						echo "$DPKG_ARCH" > "$artifactsDir/dpkg-arch"
+				sh '''
+					mkdir -p "$artifactsDir"
+					echo "$debuerreotypeVersion" > "$artifactsDir/debuerreotype-version"
+					echo "$serial" > "$artifactsDir/serial"
+					echo "$DPKG_ARCH" > "$artifactsDir/dpkg-arch"
 
-						"$debuerreotypeDir/build-all.sh" . "@$epoch"
-					'''
-				}
+					"$debuerreotypeDir/build-all.sh" . "@$epoch"
+				'''
 			}
 		}
 		dir(env.artifactsDir) {
