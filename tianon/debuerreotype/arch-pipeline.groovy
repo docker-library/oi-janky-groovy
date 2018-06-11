@@ -49,6 +49,10 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 
 		env.epoch = sh(returnStdout: true, script: 'date --date "$timestamp" +%s').trim()
 		env.serial = sh(returnStdout: true, script: 'date --date "@$epoch" +%Y%m%d').trim()
+		iso8601 = sh(returnStdout: true, script: 'date --date "@$epoch" --iso-8601=seconds').trim()
+
+		currentBuild.displayName = env.serial + ' (#' + currentBuild.number + ')'
+		currentBuild.description = '<code>@' + env.epoch + '</code><br /><code>' + iso8601 + '</code>'
 
 		env.targetDir = env.WORKSPACE + '/debian'
 		env.artifactsDir = env.targetDir + '/' + env.serial + '/' + env.DPKG_ARCH
