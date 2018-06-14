@@ -171,6 +171,12 @@ def rawReposData = [
 		'url': 'git@github.com:RocketChat/Docker.Official.Image.git',
 		'env': 'RC_VERSION',
 	]],
+
+	// mbabker
+	['joomla', [
+		'url': 'git@github.com:joomla/docker-joomla.git',
+		'env': 'JOOMLA_VERSION',
+	]],
 ]
 
 // list of repos: ["celery", "wordpress", ...]
