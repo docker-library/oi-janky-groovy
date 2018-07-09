@@ -27,7 +27,9 @@ node('master') {
 						numToKeep(10)
 						artifactNumToKeep(3)
 					}
-					concurrentBuild(false)
+					// TODO concurrentBuild(false)
+					// see https://issues.jenkins-ci.org/browse/JENKINS-31832?focusedCommentId=343307&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-343307
+					configure { it / 'properties' << 'org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty' { } }
 					parameters {
 						stringParam('timestamp', 'today 00:00:00', 'A string that "date(1)" can parse.')
 					}
@@ -57,7 +59,9 @@ node('master') {
 		dsl += '''
 			pipelineJob('_trigger') {
 				logRotator { numToKeep(10) }
-				concurrentBuild(false)
+				// TODO concurrentBuild(false)
+				// see https://issues.jenkins-ci.org/browse/JENKINS-31832?focusedCommentId=343307&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-343307
+				configure { it / 'properties' << 'org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty' { } }
 				parameters {
 					stringParam('timestamp', 'today 00:00:00', 'A string that "date(1)" can parse.')
 				}
@@ -87,7 +91,9 @@ node('master') {
 
 			pipelineJob('_collector') {
 				logRotator { numToKeep(10) }
-				concurrentBuild(false)
+				// TODO concurrentBuild(false)
+				// see https://issues.jenkins-ci.org/browse/JENKINS-31832?focusedCommentId=343307&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-343307
+				configure { it / 'properties' << 'org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty' { } }
 				definition {
 					cpsScm {
 						scm {

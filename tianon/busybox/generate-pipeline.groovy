@@ -28,7 +28,9 @@ node('master') {
 				pipelineJob('${arch}') {
 					description('<a href="https://github.com/docker-library/busybox/tree/dist-${arch}"><code>docker-library/busybox</code> @ <code>dist-${arch}</code></a>')
 					logRotator { numToKeep(10) }
-					concurrentBuild(false)
+					// TODO concurrentBuild(false)
+					// see https://issues.jenkins-ci.org/browse/JENKINS-31832?focusedCommentId=343307&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-343307
+					configure { it / 'properties' << 'org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty' { } }
 					definition {
 						cpsScm {
 							scm {
@@ -55,7 +57,9 @@ node('master') {
 		dsl += '''
 			pipelineJob('_trigger') {
 				logRotator { numToKeep(10) }
-				concurrentBuild(false)
+				// TODO concurrentBuild(false)
+				// see https://issues.jenkins-ci.org/browse/JENKINS-31832?focusedCommentId=343307&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-343307
+				configure { it / 'properties' << 'org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty' { } }
 				definition {
 					cps {
 						script("""

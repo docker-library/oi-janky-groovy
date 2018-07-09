@@ -3,7 +3,9 @@ def vars = (new GroovyShell()).evaluate(readFileFromWorkspace('oi-janky-groovy/u
 for (repo in vars.repos) {
 	pipelineJob(repo) {
 		logRotator { daysToKeep(4) }
-		concurrentBuild(false)
+		// TODO concurrentBuild(false)
+		// see https://issues.jenkins-ci.org/browse/JENKINS-31832?focusedCommentId=343307&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-343307
+		configure { it / 'properties' << 'org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty' { } }
 		triggers {
 			cron('H H/6 * * *')
 		}
