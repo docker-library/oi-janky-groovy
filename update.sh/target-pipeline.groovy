@@ -147,7 +147,7 @@ node {
 
 					git reset HEAD # just to be extra safe/careful
 					for dir in $dirs; do
-						git add "$dir/Dockerfile"* || true
+						git add "$dir" || true
 					done
 					git commit -m "Update to $version" || true
 				done
