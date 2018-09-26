@@ -89,7 +89,7 @@ node {
 				echo(str)
 			}
 
-			currentBuild.result = 'FAILURE'
+			currentBuild.result = 'UNSTABLE'
 		}
 	} }
 }
