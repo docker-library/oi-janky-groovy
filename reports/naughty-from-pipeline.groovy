@@ -50,7 +50,24 @@ node {
 				for BASHBREW_ARCH in $(bashbrew cat --format '{{ join " " .TagEntry.Architectures }}' "$img"); do
 					export BASHBREW_ARCH
 
-					from="$(bashbrew cat --format '{{ $.DockerFrom .TagEntry }}' "$img")"
+					if ! from="$(bashbrew cat --format '{{ $.DockerFrom .TagEntry }}' "$img")"; then
+						# if we can't fetch the tags from their real locations, let's try the warehouse
+						refsList="$(
+							bashbrew list --uniq "$img" \\
+								| sed \\
+									-e 's!:!/!' \\
+									-e "s!^!refs/tags/$BASHBREW_ARCH/!" \\
+									-e 's!$!:!'
+						)"
+						[ -n "$refsList" ]
+						git -C "${BASHBREW_CACHE:-$HOME/.cache/bashbrew}/git" \\
+							fetch --no-tags \\
+							https://github.com/docker-library/commit-warehouse.git \\
+							$refsList
+
+						from="$(bashbrew cat --format '{{ $.DockerFrom .TagEntry }}' "$img")"
+					fi
+
 					case "$from" in
 						# a few explicitly permissible exceptions to Santa's naughty list
 						scratch \
