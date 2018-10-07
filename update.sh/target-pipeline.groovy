@@ -160,6 +160,10 @@ node {
 					git commit -m "Update to $version" || true
 				done
 
+				if git add .travis.yml; then
+					git commit -m 'Update travis.yml' || true
+				fi
+
 				# get our new commits into bashbrew
 				(
 					./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo"
