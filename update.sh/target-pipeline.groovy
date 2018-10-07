@@ -164,6 +164,9 @@ node {
 					git commit -m 'Update travis.yml' || true
 				fi
 
+				git add -A
+				git commit -m 'Remove old versions' || true
+
 				# get our new commits into bashbrew
 				(
 					./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo"
