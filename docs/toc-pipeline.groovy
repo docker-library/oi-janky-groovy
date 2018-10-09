@@ -69,6 +69,36 @@ node {
 				submoduleCfg: [],
 			],
 		)
+		checkout(
+			poll: true,
+			scm: [
+				$class: 'GitSCM',
+				userRemoteConfigs: [[
+					url: 'git@github.com:docker-library/faq.git',
+					credentialsId: 'docker-library-bot',
+					name: 'origin',
+				]],
+				branches: [[name: '*/master']],
+				extensions: [
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'faq',
+					],
+					[
+						$class: 'PathRestriction',
+						excludedRegions: '',
+						includedRegions: [
+							'README.md',
+						].join('\n'),
+					],
+				],
+				doGenerateSubmoduleConfigurations: false,
+				submoduleCfg: [],
+			],
+		)
 	}
 
 	ansiColor('xterm') {
@@ -82,10 +112,15 @@ node {
 				oi/toc.sh d/README.md
 			'''
 		}
+		stage('faq TOC') {
+			sh '''
+				oi/toc.sh faq/README.md
+			'''
+		}
 
 		stage('Commit') {
 			sh('''
-				for dir in oi d; do
+				for dir in oi d faq; do
 					git -C "$dir" config user.name 'Docker Library Bot'
 					git -C "$dir" config user.email 'github+dockerlibrarybot@infosiftr.com'
 
@@ -98,7 +133,7 @@ node {
 		sshagent(['docker-library-bot']) {
 			stage('Push') {
 				sh '''
-					for dir in oi d; do
+					for dir in oi d faq; do
 						git -C "$dir" push origin HEAD:refs/heads/master
 					done
 				'''
