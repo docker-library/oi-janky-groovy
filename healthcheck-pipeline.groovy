@@ -39,7 +39,7 @@ node {
 				for image in */; do
 					image="${image%/}"
 
-					if ! grep -q "^FROM $image\$" "$image/Dockerfile"; then
+					if ! grep -qE "^FROM $image(\$|:)" "$image/Dockerfile"; then
 						echo >&2 "error: '$image/Dockerfile' is not 'FROM $image'"
 						exit 1
 					fi
