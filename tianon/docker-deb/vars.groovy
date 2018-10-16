@@ -13,8 +13,7 @@ suites = [
 	'stretch',
 
 	'xenial',
-	'zesty',
-	'artful',
+	'bionic',
 ] as Set
 
 exclusions = [
