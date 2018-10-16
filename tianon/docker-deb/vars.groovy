@@ -9,7 +9,6 @@ arches = [
 ] as Set
 
 suites = [
-	'jessie',
 	'stretch',
 
 	'xenial',
@@ -18,8 +17,8 @@ suites = [
 
 exclusions = [
 	'arm32v5': (suites - 'stretch'), // arm32v5 is slooooow, so save time by only building stretch
-	'ppc64le': ['jessie'] as Set,
-	's390x': ['jessie'] as Set,
+	//'ppc64le': ['jessie'] as Set,
+	//'s390x': ['jessie'] as Set,
 ]
 
 // some arches need to sbuild their packages in a different environment than the final target
