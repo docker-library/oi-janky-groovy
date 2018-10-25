@@ -113,21 +113,24 @@ node {
 				declare -A repoMetaOtherEnvs=( ${otherEnvsBash} )
 			""" + '''
 				declare -A versions=()
-				for dir in $(
+				for dfdir in $(
 					./generate-stackbrew-library.sh \\
 						| bashbrew cat -f '
 							{{- range .Entries -}}
-								{{- .Directory -}}
+								{{- .File -}} = {{- .Directory -}}
 								{{- "\\n" -}}
 							{{- end -}}
 						' /dev/stdin
 				); do
+					df="${dfdir%%=*}" # "Dockerfile", etc
+					dir="${dfdir#$df=}" # "2.4/alpine", etc
+					[ "$df" = 'Dockerfile' ] && dfs=( "$dir/$df"* ) || dfs=( "$dir/$df" )
 					version="$(gawk '
 						$1 == "ENV" && $2 ~ /^'"$repoMetaEnv"'$/ {
 							print $3;
 							exit;
 						}
-					' "$dir/Dockerfile"*)"
+					' "${dfs[@]}")"
 					for otherEnvName in "${!repoMetaOtherEnvs[@]}"; do
 						otherEnv="${repoMetaOtherEnvs[$otherEnvName]}"
 						version+="$(gawk '
@@ -135,26 +138,29 @@ node {
 								print ", '"$otherEnvName"' " $3;
 								exit;
 							}
-						' "$dir/Dockerfile"*)"
+						' "${dfs[@]}")"
 					done
 					version="${version#, }"
-					[ "$version" ] || continue
-					versions["$version"]+=" $dir"
+					[ -n "$version" ] || continue
+					versions["$version"]+=" $dfdir"
 				done
 
 				for version in "${!versions[@]}"; do
 					dirs="${versions["$version"]}"
 
 					git reset HEAD # just to be extra safe/careful
-					for dir in $dirs; do
-						git add "$dir/Dockerfile"* || true
+					for dfdir in $dirs; do
+						df="${dfdir%%=*}" # "Dockerfile", etc
+						dir="${dfdir#$df=}" # "2.4/alpine", etc
+						[ "$df" = 'Dockerfile' ] && dfs=( "$dir/$df"* ) || dfs=( "$dir/$df" )
+						git add "${dfs[@]}" || true
 						copiedFiles="$(awk '
 							toupper($1) == "COPY" {
 								for (i = 2; i < NF; i++) {
 									print $i
 								}
 							}
-						' "$dir/Dockerfile"*)"
+						' "${dfs[@]}")"
 						xargs --delimiter='\\n' -rt git -C "$dir" add <<<"$copiedFiles"
 					done
 					git commit -m "Update to $version" || true
