@@ -18,9 +18,6 @@ def rawReposData = [
 	['drupal', [
 		'env': 'DRUPAL_VERSION',
 	]],
-	['elasticsearch', [
-		'env': 'ELASTICSEARCH_VERSION',
-	]],
 	['gcc', [
 		'env': 'GCC_VERSION',
 	]],
@@ -45,12 +42,6 @@ def rawReposData = [
 	]],
 	['julia', [
 		'env': 'JULIA_VERSION',
-	]],
-	['kibana', [
-		'env': 'KIBANA_VERSION',
-	]],
-	['logstash', [
-		'env': 'LOGSTASH_VERSION',
 	]],
 	['mariadb', [
 		'env': 'MARIADB_VERSION',
@@ -132,6 +123,20 @@ def rawReposData = [
 		'otherEnvs': [
 			['cli', 'WORDPRESS_CLI_VERSION'],
 		],
+	]],
+
+	// Elastic images (specialized FROM tags)
+	['elasticsearch', [
+		'env': 'ELASTICSEARCH_VERSION',
+		'from': 'docker.elastic.co/elasticsearch/elasticsearch',
+	]],
+	['logstash', [
+		'env': 'LOGSTASH_VERSION',
+		'from': 'docker.elastic.co/logstash/logstash',
+	]],
+	['kibana', [
+		'env': 'KIBANA_VERSION',
+		'from': 'docker.elastic.co/kibana/kibana',
 	]],
 
 	// versionless

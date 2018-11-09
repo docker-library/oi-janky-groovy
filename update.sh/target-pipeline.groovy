@@ -111,6 +111,7 @@ node {
 				repo='${repo}'
 				repoMetaEnv='${repoMeta['env']}'
 				declare -A repoMetaOtherEnvs=( ${otherEnvsBash} )
+				repoMetaFrom='${repoMeta['from']}'
 			""" + '''
 				declare -A versions=()
 				for dfdir in $(
@@ -131,6 +132,14 @@ node {
 							exit;
 						}
 					' "${dfs[@]}")"
+					if [ -z "$version" ] && [ -n "$repoMetaFrom" ]; then
+						version="$(gawk -F '[ :@]+' -v from="$repoMetaFrom" '
+							$1 == "FROM" && $2 == from {
+								print $3;
+								exit;
+							}
+						' "${dfs[@]}")"
+					fi
 					for otherEnvName in "${!repoMetaOtherEnvs[@]}"; do
 						otherEnv="${repoMetaOtherEnvs[$otherEnvName]}"
 						version+="$(gawk '
