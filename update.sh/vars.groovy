@@ -67,9 +67,6 @@ def rawReposData = [
 	['owncloud', [
 		'env': 'OWNCLOUD_VERSION',
 	]],
-	['percona', [
-		'env': 'PERCONA_VERSION',
-	]],
 	['php', [
 		'env': 'PHP_VERSION',
 	]],
