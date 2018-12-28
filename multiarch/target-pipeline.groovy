@@ -77,7 +77,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					# filter the above list via build-info/image-ids/xxx from the build jobs to see if our image on-disk is already fresh (since even a no-op "docker pull" takes a long time to come back with a result)
 					parentsToPull=()
 					for parent in $parents; do
-						if [[ "$parent" == microsoft/* ]]; then
+						if [[ "$parent" == mcr.microsoft.com/windows/* ]] || [[ "$parent" == microsoft/* ]]; then
 							# Windows image?  pull it
 							parentsToPull+=( "$parent" )
 							continue
