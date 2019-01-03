@@ -64,9 +64,6 @@ def rawReposData = [
 			['windows ojdkbuild', 'JAVA_OJDKBUILD_VERSION'],
 		],
 	]],
-	['owncloud', [
-		'env': 'OWNCLOUD_VERSION',
-	]],
 	['php', [
 		'env': 'PHP_VERSION',
 	]],
