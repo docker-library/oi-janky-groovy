@@ -60,7 +60,7 @@ node {
 	ansiColor('xterm') { dir('ri') {
 		stage('Update') {
 			sh('''
-				./update-remote.sh
+				PARALLELISM=1 ./update-remote.sh
 			''')
 		}
 
