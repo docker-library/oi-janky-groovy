@@ -162,6 +162,7 @@ node {
 						df="${dfdir%%=*}" # "Dockerfile", etc
 						dir="${dfdir#$df=}" # "2.4/alpine", etc
 						[ "$df" = 'Dockerfile' ] && dfs=( "$dir/$df"* ) || dfs=( "$dir/$df" )
+						[ "${#dfs[@]}" -gt 0 ] || continue
 						git add "${dfs[@]}" || true
 						copiedFiles="$(awk '
 							toupper($1) == "COPY" {
@@ -170,6 +171,7 @@ node {
 								}
 							}
 						' "${dfs[@]}")"
+						[ -n "$copiedFiles" ] || continue
 						xargs --delimiter='\\n' -rt git -C "$dir" add <<<"$copiedFiles"
 					done
 					git commit -m "Update to $version" || true
