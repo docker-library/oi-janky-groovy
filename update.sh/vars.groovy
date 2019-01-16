@@ -176,6 +176,12 @@ def rawReposData = [
 		'url': 'git@github.com:joomla/docker-joomla.git',
 		'env': 'JOOMLA_VERSION',
 	]],
+
+ 	// LeoColomb
+	['yourls', [
+		'url': 'git@github.com:YOURLS/docker-yourls.git',
+		'env': 'YOURLS_VERSION',
+	]],
 ]
 
 // list of repos: ["celery", "wordpress", ...]
