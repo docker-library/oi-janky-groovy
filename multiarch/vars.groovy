@@ -42,16 +42,7 @@ def archNamespaces() {
 // given an arch/image combo, returns a target node expression
 def node(arch, image) {
 	switch (arch + ' ' + image) {
-		case ~/arm32v[567] memcached/: // https://github.com/docker-library/memcached/issues/25
-		case [
-			'arm32v6 busybox-builder', // https://github.com/docker-library/busybox/pull/41
-			'arm32v6 golang', // https://github.com/docker-library/golang/issues/196
-			'arm32v6 nginx', // gpg: keyserver receive failed: End of file (same as "busybox")
-			'arm32v6 postgres', // https://github.com/docker-library/postgres/issues/420
-			'arm32v6 redis', // https://github.com/docker-library/redis/issues/137 (same as "busybox")
-			'arm32v6 spiped', // https://github.com/Tarsnap/spiped/issues/166
-			'arm32v6 vault', // gpg: keyserver receive failed: End of file (same as "busybox")
-		]:
+		case ~/arm32v[57] memcached/: // https://github.com/docker-library/memcached/issues/25
 			return 'multiarch-rpi2'
 
 		case [
