@@ -87,7 +87,8 @@ def rawReposData = [
 	['rabbitmq', [
 		'env': 'RABBITMQ_VERSION',
 		'otherEnvs': [
-			['debian', 'RABBITMQ_DEBIAN_VERSION'],
+			['OpenSSL', 'OPENSSL_VERSION'],
+			['Erlang/OTP', 'OTP_VERSION'],
 		],
 	]],
 	['redis', [
