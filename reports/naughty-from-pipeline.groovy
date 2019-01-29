@@ -41,7 +41,7 @@ node {
 	''').tokenize()
 
 	for (repo in repos) { withEnv(['repo=' + repo]) {
-		naughtyTags = sh(returnStdout: true, script: 'oi/naughty-from.sh "$repo"')
+		naughtyTags = sh(returnStdout: true, script: 'oi/naughty-from.sh "$repo" 2>&1')
 
 		if (naughtyTags) {
 			stage(repo) {
