@@ -57,7 +57,8 @@ node {
 
 			if [ "$d" -gt "$OUTDATED_CUTOFF" ]; then
 				echo "$repo: $d $OUTDATED_SCALE_HUMAN since last update! ($(date -d "@$t" +%Y-%m-%d))"
-				echo "       https://github.com/docker-library/official-images/commit/$commit"
+				echo "- https://github.com/docker-library/official-images/commit/$commit"
+				echo "- https://github.com/docker-library/official-images/pulls?q=label%3Alibrary%2F$repo"
 			fi
 		''').trim()
 
