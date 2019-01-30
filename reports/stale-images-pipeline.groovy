@@ -48,13 +48,16 @@ node {
 		badNews = sh(returnStdout: true, script: '''#!/usr/bin/env bash
 			set -Eeuo pipefail
 
-			t="$(git -C "$BASHBREW_LIBRARY" log -1 --format=format:%ct "./$repo")"
+			commit="$(git -C "$BASHBREW_LIBRARY" log -1 --format=format:%H -- "./$repo")"
+
+			t="$(git -C "$BASHBREW_LIBRARY" log -1 --format=format:%ct "$commit" --)"
 			n="$(date +%s)"
 
 			d="$(( (n - t) / OUTDATED_SCALE ))"
 
 			if [ "$d" -gt "$OUTDATED_CUTOFF" ]; then
-				echo "$repo: $d $OUTDATED_SCALE_HUMAN since last update!"
+				echo "$repo: $d $OUTDATED_SCALE_HUMAN since last update! ($(date -d "@$t" +%Y-%m-%d))"
+				echo "       https://github.com/docker-library/official-images/commit/$commit"
 			fi
 		''').trim()
 
