@@ -69,8 +69,11 @@ node {
 				git config user.name 'Docker Library Bot'
 				git config user.email 'github+dockerlibrarybot@infosiftr.com'
 
-				git add repos || :
-				git commit -m 'Run update-remote.sh' || :
+				for repoDir in repos/*; do
+					repo="$(basename "$repoDir")"
+					git add "$repoDir" || :
+					git commit -m "Run update-remote.sh on $repo" || :
+				done
 			''')
 		}
 
