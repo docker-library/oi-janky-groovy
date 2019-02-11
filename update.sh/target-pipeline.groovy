@@ -114,7 +114,12 @@ node {
 				repoMetaFrom='${repoMeta['from']}'
 			""" + '''
 				declare -A versions=()
-				for dfdir in $(
+
+				# commit all changes so "generate-stackbrew-library.sh" includes everything for sure
+				beforeTempCommit="$(git rev-parse HEAD)"
+				git add -A .
+				git commit -m 'Temporary commit (just for "generate-stackbrew-library.sh")'
+				dfdirs="$(
 					./generate-stackbrew-library.sh \\
 						| bashbrew cat -f '
 							{{- range .Entries -}}
@@ -122,7 +127,11 @@ node {
 								{{- "\\n" -}}
 							{{- end -}}
 						' /dev/stdin
-				); do
+				)"
+				# then revert the temp commit so we can make real commits
+				git reset --mixed "$beforeTempCommit"
+
+				for dfdir in $dfdirs; do
 					df="${dfdir%%=*}" # "Dockerfile", etc
 					dir="${dfdir#$df=}" # "2.4/alpine", etc
 					[ "$df" = 'Dockerfile' ] && dfs=( "$dir/$df"* ) || dfs=( "$dir/$df" )
