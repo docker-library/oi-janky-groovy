@@ -117,8 +117,8 @@ node {
 
 				# commit all changes so "generate-stackbrew-library.sh" includes everything for sure
 				beforeTempCommit="$(git rev-parse HEAD)"
-				git add -A .
-				git commit -m 'Temporary commit (just for "generate-stackbrew-library.sh")'
+				git add -A . || :
+				git commit -m 'Temporary commit (just for "generate-stackbrew-library.sh")' || :
 				dfdirs="$(
 					./generate-stackbrew-library.sh \\
 						| bashbrew cat -f '
