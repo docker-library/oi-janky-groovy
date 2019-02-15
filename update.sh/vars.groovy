@@ -183,6 +183,12 @@ def rawReposData = [
 		'url': 'git@github.com:YOURLS/docker-yourls.git',
 		'env': 'YOURLS_VERSION',
 	]],
+	
+	// keeganwitt
+	['gradle', [
+		'url': 'git@github.com:keeganwitt/docker-gradle.git',
+		'env': 'GRADLE_VERSION',
+	]],
 ]
 
 // list of repos: ["celery", "wordpress", ...]
