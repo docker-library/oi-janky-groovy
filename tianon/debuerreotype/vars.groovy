@@ -11,7 +11,8 @@ arches = [
 ] as Set
 
 // https://github.com/debuerreotype/debuerreotype/releases
-debuerreotypeVersion = '0.9'
+//debuerreotypeVersion = '0.10' // TODO https://github.com/debuerreotype/debuerreotype/pull/57 O:)
+debuerreotypeVersion = '0f059df25b201c77f963fa322c0f782aaf881142'
 
 // build some arches explicitly elsewhere for speed/reliability
 buildArch = [
