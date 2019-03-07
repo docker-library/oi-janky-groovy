@@ -211,7 +211,7 @@ node {
 					sh '#!/bin/bash -ex' + """
 						bashbrew cat -f '{{ range .Entries }}{{ \$.DockerFrom . }}{{ "\\n" }}{{ end }}' '${repo}' \\
 							| sort -u \\
-							| grep -vE '^(scratch|mcr.microsoft.com/windows/(nanoserver|servercore)|microsoft/(nanoserver|windowsservercore):.*)\$' \\
+							| grep -vE '^(scratch|mcr.microsoft.com/windows/(nanoserver|servercore)|microsoft/(nanoserver|windowsservercore):.*|${repo}:.*)\$' \\
 							| xargs -rtn1 docker pull \\
 							|| :
 					"""
