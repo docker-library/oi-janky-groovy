@@ -63,12 +63,13 @@ node {
 			submoduleCfg: [],
 		])
 		sh '''
-			cd repo
-
-			git config user.name 'Docker Library Bot'
-			git config user.email 'github+dockerlibrarybot@infosiftr.com'
+			git -C oi config user.name 'Docker Library Bot'
+			git -C oi config user.email 'github+dockerlibrarybot@infosiftr.com'
+			git -C repo config user.name 'Docker Library Bot'
+			git -C repo config user.email 'github+dockerlibrarybot@infosiftr.com'
 
 			# prefill the bashbrew cache
+			cd repo
 			./generate-stackbrew-library.sh \\
 				| bashbrew from --apply-constraints /dev/stdin > /dev/null
 		'''
@@ -247,4 +248,44 @@ node {
 			echo("No changes in ${repo}!  Skipping.")
 		}
 	} }
+
+	stage('Stage PR') {
+		sshagent(['docker-library-bot']) {
+			sh '''#!/usr/bin/env bash
+				set -Eeuo pipefail
+				set -x
+			''' + """
+				repo='${repo}'
+				url='${repoMeta['url'].replaceFirst(':', '/').replaceFirst('git@', 'https://').replaceFirst('[.]git$', '')}'
+			""" + '''
+				git -C oi reset HEAD
+				git -C oi clean -dfx
+				git -C oi checkout -- .
+
+				prevDate="$(git -C oi log -1 --format='format:%aD' "$BASHBREW_LIBRARY/$repo")"
+				changesFormat='- %h: %s'
+				case "$url" in
+					*github.com*) changesFormat="- $url/commit/%h: %s" ;;
+				esac
+				changes="$(git -C repo log --after="$prevDate" --format="$changesFormat" || :)"
+
+				commitArgs=( -m "Update $repo" )
+				if [ -n "$changes" ]; then
+					# might be something like just "Architectures:" changes for which there's no commits
+					commitArgs+=( -m 'Changes:' -m "$changes" )
+
+					# TODO look for "#NNN" so we can explicitly link to any PRs too
+				fi
+
+				( cd repo && ./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo" )
+				export GIT_AUTHOR_DATE="$(git -C repo log -1 --format='format:%aD')"
+				export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"
+				if git -C oi add "$BASHBREW_LIBRARY/$repo" && git -C oi commit "${commitArgs[@]}"; then
+					git -C oi push -f git@github.com:docker-library-bot/official-images.git "HEAD:refs/heads/$repo"
+				else
+					git -C oi push git@github.com:docker-library-bot/official-images.git --delete "refs/heads/$repo"
+				fi
+			'''
+		}
+	}
 }
