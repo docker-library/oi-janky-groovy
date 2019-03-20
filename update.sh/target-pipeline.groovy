@@ -282,7 +282,7 @@ node {
 				( cd repo && ./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo" )
 				date="$(git -C repo log -1 --format='format:%aD')"
 				export GIT_AUTHOR_DATE="$date" GIT_COMMITTER_DATE="$date"
-				if oi/naughty-from.sh "$repo" && git -C oi add "$BASHBREW_LIBRARY/$repo" && git -C oi commit "${commitArgs[@]}"; then
+				if [ "$BRANCH_BASE" = "$BRANCH_PUSH" ] && oi/naughty-from.sh "$repo" && git -C oi add "$BASHBREW_LIBRARY/$repo" && git -C oi commit "${commitArgs[@]}"; then
 					git -C oi push -f git@github.com:docker-library-bot/official-images.git "HEAD:refs/heads/$repo"
 				else
 					git -C oi push git@github.com:docker-library-bot/official-images.git --delete "refs/heads/$repo"
