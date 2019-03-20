@@ -262,7 +262,9 @@ node {
 				git -C oi clean -dfx
 				git -C oi checkout -- .
 
-				prevDate="$(git -C oi log -1 --format='format:%aD' "$BASHBREW_LIBRARY/$repo")"
+				prevDate="$(git -C oi log -1 --format='format:%at' "$BASHBREW_LIBRARY/$repo")"
+				(( prevDate++ )) || :
+				prevDate="$(date --date "@$prevDate" --rfc-2822)"
 				changesFormat='- %h: %s'
 				case "$url" in
 					*github.com*) changesFormat="- $url/commit/%h: %s" ;;
@@ -278,8 +280,8 @@ node {
 				fi
 
 				( cd repo && ./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo" )
-				export GIT_AUTHOR_DATE="$(git -C repo log -1 --format='format:%aD')"
-				export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"
+				date="$(git -C repo log -1 --format='format:%aD')"
+				export GIT_AUTHOR_DATE="$date" GIT_COMMITTER_DATE="$date"
 				if git -C oi add "$BASHBREW_LIBRARY/$repo" && git -C oi commit "${commitArgs[@]}"; then
 					git -C oi push -f git@github.com:docker-library-bot/official-images.git "HEAD:refs/heads/$repo"
 				else
