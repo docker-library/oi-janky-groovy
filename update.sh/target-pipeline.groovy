@@ -266,17 +266,23 @@ node {
 				(( prevDate++ )) || :
 				prevDate="$(date --date "@$prevDate" --rfc-2822)"
 				changesFormat='- %h: %s'
+				prSed=''
 				case "$url" in
-					*github.com*) changesFormat="- $url/commit/%h: %s" ;;
+					*github.com*)
+						changesFormat="- $url/commit/%h: %s"
+						# look for "#NNN" so we can explicitly link to any PRs too
+						prSed="s!#([0-9]+)!$url/pull/\\\\1!g"
+						;;
 				esac
 				changes="$(git -C repo log --after="$prevDate" --format="$changesFormat" || :)"
+				if [ -n "$prSed" ]; then
+					changes="$(sed -r "$prSed" <<<"$changes")"
+				fi
 
 				commitArgs=( -m "Update $repo" )
 				if [ -n "$changes" ]; then
 					# might be something like just "Architectures:" changes for which there's no commits
 					commitArgs+=( -m 'Changes:' -m "$changes" )
-
-					# TODO look for "#NNN" so we can explicitly link to any PRs too
 				fi
 
 				( cd repo && ./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo" )
