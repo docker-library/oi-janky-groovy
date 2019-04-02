@@ -89,7 +89,7 @@ node {
 	ansiColor('xterm') { dir('repo') {
 		stage('update.sh') {
 			retry(3) {
-				sh './update.sh'
+				sh repoMeta['update-script']
 			}
 		}
 
@@ -118,8 +118,16 @@ node {
 
 				# commit all changes so "generate-stackbrew-library.sh" includes everything for sure
 				beforeTempCommit="$(git rev-parse HEAD)"
-				git add -A . || :
-				git commit -m 'Temporary commit (just for "generate-stackbrew-library.sh")' || :
+				if ! {
+					git add -A . \
+						&& git commit -m 'Temporary commit (just for "generate-stackbrew-library.sh")'
+				}; then
+					# nothing to do, break early
+					exit 0
+				fi
+					# nothing to do, break early
+					exit 0
+				fi
 				dfdirs="$(
 					./generate-stackbrew-library.sh \\
 						| bashbrew cat -f '

@@ -6,9 +6,13 @@ def defaultRepoMeta = [
 	['otherEnvs', []],
 	['branch-base', 'master'], // branch to check out from
 	['branch-push', 'master'], // branch to push to
+	['update-script', './update.sh'],
 ]
 def rawReposData = [
-	// TODO busybox (BUSYBOX_VERSION) -- looong builds
+	['busybox', [
+		'env': 'BUSYBOX_VERSION',
+		'update-script': 'true', // TODO determine if more can/should be done here
+	]],
 	['cassandra', [
 		'env': 'CASSANDRA_VERSION',
 	]],
