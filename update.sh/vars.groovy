@@ -139,8 +139,12 @@ def rawReposData = [
 	]],
 
 	// versionless
-	// TODO buildpack-deps
-	// TODO hello-world
+	['buildpack-deps', [
+		'update-script': 'true', // TODO determine if there's more we could do here (auto add/remove of suites?)
+	]],
+	['hello-world', [
+		'update-script': 'true',
+	]],
 
 	// tianon
 	['bash', [
