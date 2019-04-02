@@ -125,9 +125,6 @@ node {
 					# nothing to do, break early
 					exit 0
 				fi
-					# nothing to do, break early
-					exit 0
-				fi
 				dfdirs="$(
 					./generate-stackbrew-library.sh \\
 						| bashbrew cat -f '
