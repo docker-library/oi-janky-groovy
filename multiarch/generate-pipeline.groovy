@@ -123,6 +123,10 @@ node {
 									cron('H H(0-5) * * *')
 								}
 							}
+							else if (arch =~ /^windows-/) {
+								// Windows images often update on Tuesdays (so-called "Patch Tuesday"), so let's try rebuilding Windows-based images every Wednesday morning (whether they need it or not!)
+								cron('H H(5-6) * * 3')
+							}
 						}
 						definition {
 							cpsScm {
