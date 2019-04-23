@@ -16,8 +16,7 @@ def vars = fileLoader.fromGit(
 	'master', // node/label
 )
 
-// TODO env.debuerreotypeVersion = vars.debuerreotypeVersion (need debuerreotype 0.10 release)
-env.debuerreotypeVersion = 'e6a747175d4b251036611e90696bb286dc2f1175'
+env.debuerreotypeVersion = vars.debuerreotypeVersion
 env.TZ = 'UTC'
 
 node() {
