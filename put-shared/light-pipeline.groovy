@@ -18,9 +18,10 @@ def vars = fileLoader.fromGit(
 def arches = vars.arches
 env.PUSH_TO_NAMESPACE = 'library'
 
+env.BASHBREW_ARCH_NAMESPACES = vars.archNamespaces()
+
 node {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
-	env.BASHBREW_ARCH_NAMESPACES = vars.archNamespaces()
 
 	stage('Checkout') {
 		checkout(
@@ -51,12 +52,15 @@ node {
 		)
 	}
 
-	stage('Put Shared') {
-		sh '''
-			bashbrew list --all --repos \\
-				| grep -vE "^($(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|'))(:|\\$)" \\
-				| xargs -P "$(( $(nproc) * 2 ))" -n1 \\
-					bashbrew put-shared --namespace "$PUSH_TO_NAMESPACE"
-		'''
+	withCredentials([string(credentialsId: 'dockerhub-public-proxy', variable: 'DOCKERHUB_PUBLIC_PROXY')]) {
+		stage('Put Shared') {
+			sh '''
+				excludeRegex="$(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|')"
+				bashbrew list --all --repos \\
+					| grep -vE "^($excludeRegex)(:|\\$)" \\
+					| sed -r -e "s%^%$PUSH_TO_NAMESPACE/%" \\
+					| xargs -rt oi/bashbrew/put-multiarch/put-multiarch.sh
+			'''
+		}
 	}
 }
