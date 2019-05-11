@@ -52,13 +52,17 @@ node {
 
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 	env.REPOS = sh(returnStdout: true, script: '''
+		heavyRegex="$(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|')"
 		bashbrew list --all --repos \\
-			| grep -E "^($(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|'))(:|\\$)"
+			| grep -E "^($heavyRegex)(:|\\$)"
 	''').trim()
 
 	stash(
 		name: 'library',
-		includes: 'oi/library/**',
+		includes: [
+			'oi/library/**',
+			'oi/bashbrew/put-multiarch/**',
+		].join(','),
 	)
 }
 
@@ -70,16 +74,18 @@ for (repo in repos) {
 		unstash 'library'
 		env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
-		stage(repo) {
-			env.DRY_RUN = sh(returnStdout: true, script: '''
-				bashbrew put-shared --dry-run --namespace "$PUSH_TO_NAMESPACE" "$REPO"
-			''').trim()
+		withCredentials([string(credentialsId: 'dockerhub-public-proxy', variable: 'DOCKERHUB_PUBLIC_PROXY')]) {
+			stage(repo) {
+				env.DRY_RUN = sh(returnStdout: true, script: '''
+					oi/bashbrew/put-multiarch/put-multiarch.sh --dry-run "$PUSH_TO_NAMESPACE/$REPO"
+				''').trim()
 
-			if (env.DRY_RUN != '') {
-				if (0 != sh(returnStatus: true, script: '''
-					bashbrew put-shared --namespace "$PUSH_TO_NAMESPACE" "$REPO"
-				''')) {
-					currentBuild.result = 'UNSTABLE'
+				if (env.DRY_RUN != '') {
+					if (0 != sh(returnStatus: true, script: '''
+						oi/bashbrew/put-multiarch/put-multiarch.sh "$PUSH_TO_NAMESPACE/$REPO"
+					''')) {
+						currentBuild.result = 'UNSTABLE'
+					}
 				}
 			}
 		}

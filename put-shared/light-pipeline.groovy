@@ -55,9 +55,9 @@ node {
 	withCredentials([string(credentialsId: 'dockerhub-public-proxy', variable: 'DOCKERHUB_PUBLIC_PROXY')]) {
 		stage('Put Shared') {
 			sh '''
-				excludeRegex="$(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|')"
+				heavyRegex="$(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|')"
 				bashbrew list --all --repos \\
-					| grep -vE "^($excludeRegex)(:|\\$)" \\
+					| grep -vE "^($heavyRegex)(:|\\$)" \\
 					| sed -r -e "s%^%$PUSH_TO_NAMESPACE/%" \\
 					| xargs -rt oi/bashbrew/put-multiarch/put-multiarch.sh
 			'''
