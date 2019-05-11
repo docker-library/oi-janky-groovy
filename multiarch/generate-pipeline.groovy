@@ -116,12 +116,7 @@ node {
 						configure { it / 'properties' << 'org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty' { } }
 						triggers {
 							if (img == '_trigger') {
-								if (arch == 'amd64') {
-									cron('@hourly')
-								}
-								else {
-									cron('H H(0-5) * * *')
-								}
+								cron('@hourly')
 							}
 							else if (arch =~ /^windows-/) {
 								// Windows images often update on Tuesdays (so-called "Patch Tuesday"), so let's try rebuilding Windows-based images every Wednesday morning (whether they need it or not!)
