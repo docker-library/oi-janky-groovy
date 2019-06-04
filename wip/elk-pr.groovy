@@ -100,7 +100,7 @@ node {
 
 					pushed=
 
-					if [ "$timestamp" -gt 0 ] && [ -n "$changes" ]; then
+					if [ "$timestamp" -gt 0 ] && [ -n "${changes:-}" ]; then
 						commitArgs=( -m "Update ELK images" -m "$changes" )
 
 						date="$(date --rfc-2822 --date "@$timestamp")"
