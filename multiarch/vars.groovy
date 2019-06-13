@@ -82,18 +82,21 @@ def bashbrewBuildAndPush(context) {
 	def success = []
 
 	for (tag in tags) { context.stage(tag) { withEnv(['tag=' + tag]) {
-		def tagFrom = sh(returnStdout: true, script: '''
-			bashbrew cat --format '{{- .DockerFrom .TagEntry -}}' "$tag"
+		def tagFroms = sh(returnStdout: true, script: '''
+			bashbrew cat --format '{{- .DockerFroms .TagEntry | join "\\n" -}}' "$tag" \\
+				| sort -u
 		''').trim()
 
 		def tagFailed = false
 		if (failed.flatten().contains(tagFrom)) {
 			tagFailed = true
 		} else {
-			withEnv(['tagFrom=' + tagFrom]) {
+			withEnv(['tagFroms=' + tagFroms]) {
 				tagFailed = (0 != sh(returnStatus: true, script: '''
 					# pre-build sanity check
-					[ "$tagFrom" = 'scratch' ] || docker inspect --type image "$tagFrom" > /dev/null
+					for tagFrom in $tagFroms; do
+						[ "$tagFrom" = 'scratch' ] || docker inspect --type image "$tagFrom" > /dev/null
+					done
 
 					# retry building each tag up to three times
 					bashbrew build "$tag" || bashbrew build "$tag" || bashbrew build "$tag"
