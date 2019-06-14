@@ -88,7 +88,9 @@ def bashbrewBuildAndPush(context) {
 		''').trim()
 
 		def tagFailed = false
-		if (failed.flatten().contains(tagFrom)) {
+		// https://stackoverflow.com/a/18534853
+		if (failed.flatten().intersect(tagFroms)) {
+			// if any of our "FROM" images failed, we fail too
 			tagFailed = true
 		} else {
 			withEnv(['tagFroms=' + tagFroms]) {
