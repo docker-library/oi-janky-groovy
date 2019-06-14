@@ -89,7 +89,7 @@ def bashbrewBuildAndPush(context) {
 
 		def tagFailed = false
 		// https://stackoverflow.com/a/18534853
-		if (failed.flatten().intersect(tagFroms)) {
+		if (failed.flatten().intersect(tagFroms.tokenize())) {
 			// if any of our "FROM" images failed, we fail too
 			tagFailed = true
 		} else {
