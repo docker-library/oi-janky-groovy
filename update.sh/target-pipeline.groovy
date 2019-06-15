@@ -228,7 +228,7 @@ node {
 				retry(3) {
 					sh '#!/bin/bash -ex' + """
 						bashbrew build '${repo}'
-						bashbrew tag --namespace '${testBuildNamespace}' '${repo}'
+						bashbrew tag --target-namespace '${testBuildNamespace}' '${repo}'
 					"""
 				}
 			}

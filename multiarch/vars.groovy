@@ -159,7 +159,7 @@ def bashbrewBuildAndPush(context) {
 	withEnv(['TAGS=' + success.join(' '), 'FAILED=' + failedFlatList.join(' ')]) {
 		context.stage('Tag') {
 			sh '''
-				bashbrew tag --namespace "$TARGET_NAMESPACE" $TAGS
+				bashbrew tag --target-namespace "$TARGET_NAMESPACE" $TAGS
 			'''
 		}
 
@@ -184,20 +184,20 @@ def bashbrewBuildAndPush(context) {
 
 		context.stage('Push') {
 			dryRun = sh(returnStdout: true, script: '''
-				bashbrew push --dry-run --namespace "$TARGET_NAMESPACE" $TAGS
+				bashbrew push --dry-run --target-namespace "$TARGET_NAMESPACE" $TAGS
 
 				if [ -n "$BASHBREW_ARCH" ]; then
-					bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --dry-run --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+					bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --dry-run --single-arch --target-namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
 				fi
 			''').trim()
 
 			if (dryRun != '') {
 				retry(3) {
 					sh '''
-						bashbrew push --namespace "$TARGET_NAMESPACE" $TAGS
+						bashbrew push --target-namespace "$TARGET_NAMESPACE" $TAGS
 
 						if [ -n "$BASHBREW_ARCH" ]; then
-							bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+							bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --target-namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
 						fi
 					'''
 				}
