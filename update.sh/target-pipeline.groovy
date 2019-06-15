@@ -294,7 +294,7 @@ node {
 
 				date="$(git -C repo log -1 --format='format:%aD')"
 				export GIT_AUTHOR_DATE="$date" GIT_COMMITTER_DATE="$date"
-				if [ "$BRANCH_BASE" = "$BRANCH_PUSH" ] && oi/naughty-from.sh "$repo" && git -C oi add "$BASHBREW_LIBRARY/$repo" && git -C oi commit "${commitArgs[@]}"; then
+				if [ "$BRANCH_BASE" = "$BRANCH_PUSH" ] && oi/naughty-from.sh "$repo" && oi/naughty-constraints.sh "$repo" && git -C oi add "$BASHBREW_LIBRARY/$repo" && git -C oi commit "${commitArgs[@]}"; then
 					if diff "$BASHBREW_LIBRARY/$repo" <(wget -qO- "https://github.com/docker-library-bot/official-images/raw/$repo/library/$repo") &> /dev/null; then
 						# if this exact file content is already pushed to a bot branch, don't force push it again
 						exit
