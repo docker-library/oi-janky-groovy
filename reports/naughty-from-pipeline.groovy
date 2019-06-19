@@ -41,14 +41,16 @@ node {
 	''').tokenize()
 
 	for (repo in repos) { withEnv(['repo=' + repo]) {
-		naughtyTags = sh(returnStdout: true, script: '''
+		naughtyTags = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+			set -Eeuo pipefail
+
 			oi/naughty-from.sh "$repo" 2>&1 || :
 			oi/naughty-constraints.sh "$repo" 2>&1 || :
 		''')
 
 		if (naughtyTags) {
 			stage(repo) {
-				echo("Naughty tags in the '${repo}' repo:\n\n" + naughtyTags)
+				echo("Naughty tags in the '${repo}' repo:\n\n" + naughtyTags + "\n\n- https://github.com/docker-library/official-images/pulls?q=label%3Alibrary%2F${repo}")
 			}
 
 			currentBuild.result = 'UNSTABLE'
