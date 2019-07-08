@@ -50,6 +50,10 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 
 					sed -ri "s!^FROM debian!FROM $TARGET_NAMESPACE/debian!" Dockerfile
 					sed -ri "s!^dockerImage=.*\\$!dockerImage='debuerreotype/debuerreotype:${debuerreotypeVersion}-${ACT_ON_ARCH}'!" build*.sh
+
+					# temporarily resolve chicken and egg (https://lists.debian.org/debian-stable-announce/2019/07/msg00000.html)
+					echo 'RUN apt-get update -qq && apt-get install -yqq debian-archive-keyring && rm -rf /var/lib/apt/lists/*' >> Dockerfile
+					# TODO find a better solution for this in debuerreotype's scripts (https://github.com/debuerreotype/debuerreotype/issues/64)
 				'''
 			}
 		}
