@@ -152,6 +152,7 @@ def rawReposData = [
 		'env': '_BASH_VERSION',
 		'otherEnvs': [
 			['patch level', '_BASH_LATEST_PATCH'],
+			['commit', '_BASH_COMMIT'],
 		],
 	]],
 	['irssi', [
