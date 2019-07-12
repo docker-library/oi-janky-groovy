@@ -237,8 +237,7 @@ node {
 				retry(3) {
 					sh '#!/bin/bash -ex' + """
 						# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
-						bashbrew list --apply-constraints --uniq '${repo}' \\
-							| sed 's!^!${testBuildNamespace}/!' \\
+						bashbrew --namespace '${testBuildNamespace}' list --apply-constraints --uniq '${repo}' \\
 							| xargs '${testRun}'
 					"""
 				}
