@@ -93,16 +93,23 @@ def bashbrewBuildAndPush(context) {
 			// if any of our "FROM" images failed, we fail too
 			tagFailed = true
 		} else {
-			withEnv(['tagFroms=' + tagFroms]) {
-				tagFailed = (0 != sh(returnStatus: true, script: '''
-					# pre-build sanity check
-					for tagFrom in $tagFroms; do
-						[ "$tagFrom" = 'scratch' ] || docker inspect --type image "$tagFrom" > /dev/null
-					done
+			try {
+				timeout(time: 6, unit: 'HOURS') {
+					withEnv(['tagFroms=' + tagFroms]) {
+						tagFailed = (0 != sh(returnStatus: true, script: '''
+							# pre-build sanity check
+							for tagFrom in $tagFroms; do
+								[ "$tagFrom" = 'scratch' ] || docker inspect --type image "$tagFrom" > /dev/null
+							done
 
-					# retry building each tag up to three times
-					bashbrew build "$tag" || bashbrew build "$tag" || bashbrew build "$tag"
-				'''))
+							# retry building each tag up to three times
+							bashbrew build "$tag" || bashbrew build "$tag" || bashbrew build "$tag"
+						'''))
+					}
+				}
+			} catch (err) {
+				echo('Build of "' + tag + '" aborted by: ' + err)
+				tagFailed = true
 			}
 		}
 
