@@ -58,10 +58,12 @@ node {
 	}
 
 	ansiColor('xterm') { dir('ri') {
-		stage('Update') {
-			sh('''
-				./update-remote.sh
-			''')
+		withCredentials([string(credentialsId: 'dockerhub-public-proxy', variable: 'DOCKERHUB_PUBLIC_PROXY')]) {
+			stage('Update') {
+				sh('''
+					./update-remote.sh
+				''')
+			}
 		}
 
 		stage('Commit') {
