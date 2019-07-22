@@ -50,6 +50,26 @@ node {
 				submoduleCfg: [],
 			],
 		)
+		checkout(
+			scm: [
+				$class: 'GitSCM',
+				userRemoteConfigs: [[
+					url: 'https://github.com/docker-library/perl-bashbrew.git',
+				]],
+				branches: [[name: '*/master']],
+				extensions: [
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'perl',
+					],
+				],
+				doGenerateSubmoduleConfigurations: false,
+				submoduleCfg: [],
+			],
+		)
 	}
 
 	withCredentials([string(credentialsId: 'dockerhub-public-proxy', variable: 'DOCKERHUB_PUBLIC_PROXY')]) {
@@ -59,7 +79,7 @@ node {
 				bashbrew list --all --repos \\
 					| grep -vE "^($heavyRegex)(:|\\$)" \\
 					| sed -r -e "s%^%$PUSH_TO_NAMESPACE/%" \\
-					| xargs -rt oi/bashbrew/put-multiarch/put-multiarch.sh
+					| xargs -rt perl/put-multiarch.sh
 			'''
 		}
 	}

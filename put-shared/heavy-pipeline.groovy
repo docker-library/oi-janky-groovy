@@ -48,6 +48,26 @@ node {
 				submoduleCfg: [],
 			],
 		)
+		checkout(
+			scm: [
+				$class: 'GitSCM',
+				userRemoteConfigs: [[
+					url: 'https://github.com/docker-library/perl-bashbrew.git',
+				]],
+				branches: [[name: '*/master']],
+				extensions: [
+					[
+						$class: 'CleanCheckout',
+					],
+					[
+						$class: 'RelativeTargetDirectory',
+						relativeTargetDir: 'perl',
+					],
+				],
+				doGenerateSubmoduleConfigurations: false,
+				submoduleCfg: [],
+			],
+		)
 	}
 
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
@@ -77,12 +97,12 @@ for (repo in repos) {
 		withCredentials([string(credentialsId: 'dockerhub-public-proxy', variable: 'DOCKERHUB_PUBLIC_PROXY')]) {
 			stage(repo) {
 				env.DRY_RUN = sh(returnStdout: true, script: '''
-					oi/bashbrew/put-multiarch/put-multiarch.sh --dry-run "$PUSH_TO_NAMESPACE/$REPO"
+					perl/put-multiarch.sh --dry-run "$PUSH_TO_NAMESPACE/$REPO"
 				''').trim()
 
 				if (env.DRY_RUN != '') {
 					if (0 != sh(returnStatus: true, script: '''
-						oi/bashbrew/put-multiarch/put-multiarch.sh "$PUSH_TO_NAMESPACE/$REPO"
+						perl/put-multiarch.sh "$PUSH_TO_NAMESPACE/$REPO"
 					''')) {
 						currentBuild.result = 'UNSTABLE'
 					}
