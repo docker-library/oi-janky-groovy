@@ -81,7 +81,7 @@ node {
 		name: 'library',
 		includes: [
 			'oi/library/**',
-			'oi/bashbrew/put-multiarch/**',
+			'perl/**',
 		].join(','),
 	)
 }
