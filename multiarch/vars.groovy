@@ -89,14 +89,19 @@ def bashbrewBuildAndPush(context) {
 
 		def tagFailed = false
 		// https://stackoverflow.com/a/18534853
-		if (failed.flatten().intersect(tagFroms.tokenize())) {
+		def failedFroms = failed.flatten().intersect(tagFroms.tokenize())
+		if (failedFroms) {
 			// if any of our "FROM" images failed, we fail too
 			tagFailed = true
+			// "catchError" is the only way to set "stageResult" :(
+			catchError(message: 'Build of "' + tag + '" failed: FROM failed: ' + failedFroms.join(', '), buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+				error()
+			}
 		} else {
 			try {
 				timeout(time: 6, unit: 'HOURS') {
 					withEnv(['tagFroms=' + tagFroms]) {
-						tagFailed = (0 != sh(returnStatus: true, script: '''
+						sh '''
 							# pre-build sanity check
 							for tagFrom in $tagFroms; do
 								[ "$tagFrom" = 'scratch' ] || docker inspect --type image "$tagFrom" > /dev/null
@@ -104,12 +109,15 @@ def bashbrewBuildAndPush(context) {
 
 							# retry building each tag up to three times
 							bashbrew build "$tag" || bashbrew build "$tag" || bashbrew build "$tag"
-						'''))
+						'''
 					}
 				}
 			} catch (err) {
-				echo('Build of "' + tag + '" aborted by: ' + err)
 				tagFailed = true
+				// "catchError" is the only way to set "stageResult" :(
+				catchError(message: 'Build of "' + tag + '" failed: ' + err, buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+					error()
+				}
 			}
 		}
 
@@ -150,16 +158,14 @@ def bashbrewBuildAndPush(context) {
 		}
 
 		summary = summary.join('\n\n')
-		if (failed && !success) {
-			// if nothing succeeded, mark the build as a failure and abort
-			error(summary)
-		} else {
-			if (failed) {
-				// if we had partial success (not full), mark the build as unstable
-				currentBuild.result = 'UNSTABLE'
-			}
-			echo(summary)
-		}
+		echo(summary)
+	}
+	if (failed && !success) {
+		// if nothing succeeded, mark the build as a failure and abort
+		error()
+	} else if (failed) {
+		// if we had partial success (not full), mark the build as unstable
+		currentBuild.result = 'UNSTABLE'
 	}
 
 	def dryRun = false
