@@ -225,7 +225,7 @@ node {
 			}
 
 			stage('Build') {
-				timeout(time: 3, unit: 'HOURS') {
+				timeout(time: 6, unit: 'HOURS') {
 					retry(3) {
 						sh '#!/bin/bash -ex' + """
 							bashbrew build '${repo}'
