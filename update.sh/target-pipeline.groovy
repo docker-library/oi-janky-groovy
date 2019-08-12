@@ -225,11 +225,13 @@ node {
 			}
 
 			stage('Build') {
-				retry(3) {
-					sh '#!/bin/bash -ex' + """
-						bashbrew build '${repo}'
-						bashbrew tag --target-namespace '${testBuildNamespace}' '${repo}'
-					"""
+				timeout(time: 3, unit: 'HOURS') {
+					retry(3) {
+						sh '#!/bin/bash -ex' + """
+							bashbrew build '${repo}'
+							bashbrew tag --target-namespace '${testBuildNamespace}' '${repo}'
+						"""
+					}
 				}
 			}
 
