@@ -99,17 +99,17 @@ def bashbrewBuildAndPush(context) {
 			}
 		} else {
 			try {
-				timeout(time: 6, unit: 'HOURS') {
-					withEnv(['tagFroms=' + tagFroms]) {
-						sh '''
-							# pre-build sanity check
-							for tagFrom in $tagFroms; do
-								[ "$tagFrom" = 'scratch' ] || docker inspect --type image "$tagFrom" > /dev/null
-							done
-
-							# retry building each tag up to three times
-							bashbrew build "$tag" || bashbrew build "$tag" || bashbrew build "$tag"
-						'''
+				withEnv(['tagFroms=' + tagFroms]) {
+					sh '''
+						# pre-build sanity check
+						for tagFrom in $tagFroms; do
+							[ "$tagFrom" = 'scratch' ] || docker inspect --type image "$tagFrom" > /dev/null
+						done
+					'''
+				}
+				timeout(time: 3, unit: 'HOURS') {
+					retry(3) { // retry building each tag up to three times (but still within the same shared timeout)
+						sh 'bashbrew build "$tag"'
 					}
 				}
 			} catch (err) {
