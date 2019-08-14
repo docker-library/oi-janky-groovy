@@ -182,6 +182,9 @@ node {
 						copiedFiles="$(awk '
 							toupper($1) == "COPY" {
 								for (i = 2; i < NF; i++) {
+									if ($i ~ /^--from=/) {
+										next
+									}
 									print $i
 								}
 							}
