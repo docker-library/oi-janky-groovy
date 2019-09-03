@@ -68,9 +68,11 @@ node {
 
 	withCredentials([string(credentialsId: 'dockerhub-public-proxy', variable: 'DOCKERHUB_PUBLIC_PROXY')]) {
 		stage('Put Shared') {
-			sh '''
-				perl/put-multiarch.sh "$PUSH_TO_NAMESPACE/$ACT_ON_IMAGE"
-			'''
+			retry(3) {
+				sh '''
+					perl/put-multiarch.sh "$PUSH_TO_NAMESPACE/$ACT_ON_IMAGE"
+				'''
+			}
 		}
 	}
 }
