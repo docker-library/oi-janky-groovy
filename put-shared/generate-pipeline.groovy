@@ -58,6 +58,7 @@ node {
 			]
 
 			for (image in images) {
+				folder('light')
 				pipelineJob("light/${image}") {
 					logRotator { daysToKeep(14) }
 					// TODO concurrentBuild(false)
