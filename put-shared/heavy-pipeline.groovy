@@ -101,10 +101,12 @@ for (repo in repos) {
 				''').trim()
 
 				if (env.DRY_RUN != '') {
-					if (0 != sh(returnStatus: true, script: '''
-						perl/put-multiarch.sh "$PUSH_TO_NAMESPACE/$REPO"
-					''')) {
-						currentBuild.result = 'UNSTABLE'
+					catchError(message: '"' + repo + '" failed', buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+						retry(3) {
+							sh '''
+								perl/put-multiarch.sh "$PUSH_TO_NAMESPACE/$REPO"
+							'''
+						}
 					}
 				}
 			}
