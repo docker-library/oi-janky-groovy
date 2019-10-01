@@ -172,10 +172,6 @@ def rawReposData = [
 		'url': 'git@github.com:matomo-org/docker.git',
 		'env': 'MATOMO_VERSION',
 	]],
-	['rocket.chat', [
-		'url': 'git@github.com:RocketChat/Docker.Official.Image.git',
-		'env': 'RC_VERSION',
-	]],
 
 	// mbabker
 	['joomla', [
