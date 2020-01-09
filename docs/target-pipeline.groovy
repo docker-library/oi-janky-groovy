@@ -141,6 +141,7 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 						--username "$USERNAME" \
 						--password "$PASSWORD" \
 						--namespace "$TARGET_NAMESPACE" \
+						--logos \
 						--batchmode */
 				''')
 			}
