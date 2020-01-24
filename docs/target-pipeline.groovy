@@ -88,10 +88,10 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 	ansiColor('xterm') { dir('d') {
 		stage('Update') {
 			if (isLibrary) {
-				sh './update.sh'
+				sh './parallel-update.sh'
 			} else {
 				sh '''
-					./update.sh --namespace "$TARGET_NAMESPACE"
+					./parallel-update.sh --namespace "$TARGET_NAMESPACE"
 				'''
 			}
 		}
