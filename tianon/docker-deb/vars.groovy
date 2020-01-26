@@ -9,10 +9,11 @@ arches = [
 ] as Set
 
 suites = [
+	'buster',
 	'stretch',
 
-	'xenial',
 	'bionic',
+	'xenial',
 ] as Set
 
 exclusions = [
