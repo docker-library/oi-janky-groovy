@@ -156,6 +156,11 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 						docker export -o "$TARGET_TARBALL" "$targetContainer"
 						docker rm -vf "$targetContainer"
 						trap - EXIT
+
+						# sbuild needs "/dev/null" and our goofy tarball might not have it, so we need to "fake" it (which we do by adding Docker's intentionally minimal version to the end of the generated tarball)
+						user="$(id -u):$(id -g)"
+						tar="$(readlink -f "$TARGET_TARBALL")"
+						docker run -i --rm -u "$user" --mount "type=bind,source=$tar,destination=/tar.tar" "$targetImage" tar --append --file=/tar.tar --directory=/ dev
 					fi
 
 					docker run -i --rm ${DOCKER_FLAGS:-} \\
