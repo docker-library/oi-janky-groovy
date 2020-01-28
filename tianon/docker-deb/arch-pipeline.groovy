@@ -213,6 +213,7 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 								--arch-any
 								--no-arch-all
 								--resolve-alternatives
+								--no-run-lintian
 							)
 							# TODO figure out an OK way to handle arch:all packages (no need yet)
 							# (need to go into "output/pool/$SUITE/$COMP/all/")
