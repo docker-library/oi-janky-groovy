@@ -67,6 +67,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 				sh '''
 					mkdir -p "$artifactsDir"
 					echo "$debuerreotypeVersion" > "$artifactsDir/debuerreotype-version"
+					echo "$epoch" > "$artifactsDir/debuerreotype-epoch"
 					echo "$serial" > "$artifactsDir/serial"
 					echo "$DPKG_ARCH" > "$artifactsDir/dpkg-arch"
 
