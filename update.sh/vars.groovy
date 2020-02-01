@@ -190,6 +190,12 @@ def rawReposData = [
 		'url': 'git@github.com:hylang/docker-hylang.git',
 		'env': 'HY_VERSION',
 	]],
+
+	// knickers
+	['mongo-express', [
+		'url': 'git@github.com:mongo-express/mongo-express-docker.git',
+		'env': 'MONGO_EXPRESS',
+	]],
 ]
 
 // list of repos: ["celery", "wordpress", ...]
