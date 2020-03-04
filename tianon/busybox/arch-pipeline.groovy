@@ -102,16 +102,14 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					fi
 
 					if ! ./build.sh "$variant"; then
-						if [ "$variant" = 'uclibc' ]; then
-							case "$ACT_ON_ARCH" in
-								# expected failures
-								ppc64le|s390x)
-									echo >&2 "warning: $variant failed to build (expected) -- skipping"
-									rm -rf "$variant"
-									exit
-									;;
-							esac
-						fi
+						case "$ACT_ON_ARCH/$variant" in
+							# expected failures (missing toolchain support, etc)
+							ppc64le/uclibc | s390x/uclibc)
+								echo >&2 "warning: $variant failed to build (expected) -- skipping"
+								rm -rf "$variant"
+								exit
+								;;
+						esac
 
 						echo >&2 "error: $variant failed to build"
 						exit 1
