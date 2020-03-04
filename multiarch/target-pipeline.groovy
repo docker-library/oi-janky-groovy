@@ -91,7 +91,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						fi
 
 						parentRepo="${parent%%:*}"
-						parentImageId="$(wget -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$ACT_ON_ARCH/job/$parentRepo/lastSuccessfulBuild/artifact/build-info/image-ids/$parent.txt" 2>/dev/null || :)"
+						parentImageId="$(wget -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$ACT_ON_ARCH/job/$parentRepo/lastSuccessfulBuild/artifact/build-info/image-ids/${parent//:/_}.txt" 2>/dev/null || :)"
 						if [ -z "$parentImageId" ]; then
 							# we can't tell if it's fresh; pull it
 							parentsToPull+=( "$parent" )

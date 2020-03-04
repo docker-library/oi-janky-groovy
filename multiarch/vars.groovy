@@ -186,7 +186,7 @@ def bashbrewBuildAndPush(context) {
 				mkdir build-info/image-ids
 				for tag in ${TAGS:-}; do
 					for alias in $(bashbrew list "$tag"); do
-						docker image inspect --format '{{ .Id }}' "$TARGET_NAMESPACE/$tag" > "build-info/image-ids/$alias.txt"
+						docker image inspect --format '{{ .Id }}' "$TARGET_NAMESPACE/$tag" > "build-info/image-ids/${alias//:/_}.txt"
 					done
 				done
 				echo "${TAGS:-}" | xargs -rn1 > build-info/success.txt
