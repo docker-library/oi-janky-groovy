@@ -112,7 +112,7 @@ node {
 				repo='${repo}'
 				repoMetaEnv='${repoMeta['env']}'
 				declare -A repoMetaOtherEnvs=( ${otherEnvsBash} )
-				repoMetaFrom='${repoMeta['from']}'
+				repoMetaFrom='${repoMeta['from'] ?: ''}'
 			""" + '''
 				declare -A versions=()
 
@@ -137,6 +137,7 @@ node {
 				# then revert the temp commit so we can make real commits
 				git reset --mixed "$beforeTempCommit"
 
+				declare -A dirVersions=()
 				for dfdir in $dfdirs; do
 					df="${dfdir%%=*}" # "Dockerfile", etc
 					dir="${dfdir#$df=}" # "2.4/alpine", etc
@@ -165,7 +166,12 @@ node {
 						' "${dfs[@]}")"
 					done
 					version="${version#, }"
+					if [ -z "$version" ] && parentDir="$(dirname "$dir")" && [ -n "${dirVersions[$parentDir]:-}" ]; then
+						# if we don't have a version, but our parent directory does, let's assume it's something like "rabbitmq:management" (where the version number is technically the version number of the parent directory)
+						version="${dirVersions[$parentDir]}"
+					fi
 					[ -n "$version" ] || continue
+					dirVersions["$dir"]="$version"
 					versions["$version"]+=" $dfdir"
 				done
 
