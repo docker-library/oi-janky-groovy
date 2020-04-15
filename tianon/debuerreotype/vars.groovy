@@ -6,6 +6,7 @@ arches = [
 	'arm32v7',
 	'arm64v8',
 	'i386',
+	'mips64le',
 	'ppc64le',
 	's390x',
 ] as Set
