@@ -4,20 +4,25 @@ arches = [
 	'arm32v7',
 	'arm64v8',
 	'i386',
+	'mips64le',
 	'ppc64le',
 	's390x',
 ] as Set
 
-suites = [
+debianSuites = [
 	'buster',
 	'stretch',
-
+] as Set
+ubuntuSuites = [
 	'bionic',
 	'xenial',
 ] as Set
 
+suites = debianSuites + ubuntuSuites
+
 exclusions = [
-	'arm32v5': (suites - ['buster', 'stretch']), // arm32v5 is slooooow, so save time by only building Debian
+	'arm32v5': ubuntuSuites, // arm32v5 is slooooow, so save time by only building Debian
+	'mips64le': ubuntuSuites, // our mips64le box is not especially speedy, so only build Debian there as well
 	//'ppc64le': ['jessie'] as Set,
 	//'s390x': ['jessie'] as Set,
 ]
