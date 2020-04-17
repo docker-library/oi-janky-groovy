@@ -22,7 +22,7 @@ suites = debianSuites + ubuntuSuites
 
 exclusions = [
 	'arm32v5': ubuntuSuites, // arm32v5 is slooooow, so save time by only building Debian
-	'mips64le': ubuntuSuites, // our mips64le box is not especially speedy, so only build Debian there as well
+	'mips64le': suites - ['buster'], // Debian Buster is the only thing that can build successfully on mips64le right now
 	//'ppc64le': ['jessie'] as Set,
 	//'s390x': ['jessie'] as Set,
 ]
