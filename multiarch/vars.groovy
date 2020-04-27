@@ -44,9 +44,6 @@ def archNamespaces() {
 // given an arch/image combo, returns a target node expression
 def node(arch, image) {
 	switch (arch + ' ' + image) {
-		case ~/arm32v[57] memcached/: // https://github.com/docker-library/memcached/issues/25
-			return 'multiarch-rpi2'
-
 		case [
 			'amd64 busybox-builder',
 			'amd64 debuerreotype',
