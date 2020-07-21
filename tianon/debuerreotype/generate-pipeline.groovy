@@ -68,6 +68,14 @@ node('master') {
 				definition {
 					cps {
 						script("""
+							def vars = fileLoader.fromGit(
+								'tianon/debuerreotype/vars.groovy', // script
+								'https://github.com/docker-library/oi-janky-groovy.git', // repo
+								'master', // branch
+								null, // credentialsId
+								'master', // node/label
+							)
+							node('master') { vars.parseTimestamp(this) }
 		'''
 		for (arch in vars.arches) {
 			dsl += """
@@ -75,7 +83,7 @@ node('master') {
 					build(
 						job: '${arch}',
 						parameters: [
-							string(name: 'timestamp', value: params.timestamp),
+							string(name: 'timestamp', value: env.timestamp),
 						],
 						wait: false,
 					)
