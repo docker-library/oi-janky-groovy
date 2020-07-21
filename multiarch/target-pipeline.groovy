@@ -189,6 +189,18 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 					)
 				}
 			}
+
+			stage('Trigger "put-shared"') {
+				try {
+					build(
+						job: '/put-shared/light/' + env.ACT_ON_IMAGE,
+						quietPeriod: 15 * 60, // 15 minutes
+						wait: false,
+					)
+				} catch (err) {
+					echo "Failed to trigger 'put-shared' job (${err.getMessage()}); this likely means we're part of the 'heavy-hitters' set."
+				}
+			}
 		}
 	}
 }
