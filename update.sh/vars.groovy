@@ -173,6 +173,12 @@ def rawReposData = [
 		'env': 'MATOMO_VERSION',
 	]],
 
+	// hleithner
+	['joomla', [
+		'url': 'git@github.com:joomla-docker/docker-joomla.git',
+		'env': 'JOOMLA_VERSION',
+	]],
+
 	// LeoColomb
 	['yourls', [
 		'url': 'git@github.com:YOURLS/docker-yourls.git',
