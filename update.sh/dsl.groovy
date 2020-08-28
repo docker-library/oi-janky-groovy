@@ -1,6 +1,8 @@
 def vars = (new GroovyShell()).evaluate(readFileFromWorkspace('oi-janky-groovy/update.sh/vars.groovy'))
 
 for (repo in vars.repos) {
+	def repoMeta = vars.repoMeta(repo)
+
 	pipelineJob(repo) {
 		logRotator { daysToKeep(4) }
 		// TODO concurrentBuild(false)
@@ -21,7 +23,7 @@ for (repo in vars.repos) {
 							cleanAfterCheckout()
 						}
 					}
-					scriptPath('update.sh/target-pipeline.groovy')
+					scriptPath(repoMeta['pipeline-script'])
 				}
 			}
 		}
