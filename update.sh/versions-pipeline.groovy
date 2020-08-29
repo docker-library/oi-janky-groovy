@@ -205,7 +205,7 @@ node {
 			sh '''
 				./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo"
 				git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
-				bashbrew from --all --uniq "$repo"
+				bashbrew from --uniq "$repo"
 
 				../oi/naughty-from.sh "$repo"
 				../oi/naughty-constraints.sh "$repo"
