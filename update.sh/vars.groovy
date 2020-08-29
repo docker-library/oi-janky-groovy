@@ -33,7 +33,7 @@ def rawReposData = [
 		],
 	]],
 	['golang', [
-		'env': 'GOLANG_VERSION',
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['haproxy', [
 		'env': 'HAPROXY_VERSION',
@@ -70,7 +70,7 @@ def rawReposData = [
 		],
 	]],
 	['php', [
-		'env': 'PHP_VERSION',
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['postgres', [
 		'env': 'PG_VERSION',
@@ -141,7 +141,7 @@ def rawReposData = [
 
 	// versionless
 	['buildpack-deps', [
-		'update-script': 'true', // TODO determine if there's more we could do here (auto add/remove of suites?)
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['hello-world', [
 		'update-script': 'true',
