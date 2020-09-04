@@ -15,7 +15,7 @@ def rawReposData = [
 		'update-script': 'true', // TODO determine if more can/should be done here
 	]],
 	['cassandra', [
-		'env': 'CASSANDRA_VERSION',
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['docker', [
 		'env': 'DOCKER_VERSION',
