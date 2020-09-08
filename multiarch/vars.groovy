@@ -48,7 +48,7 @@ def node(arch, image) {
 			'amd64 busybox-builder',
 			'amd64 debuerreotype',
 			'i386 busybox-builder',
-			'i386 debuerreotype',
+			//'i386 debuerreotype', // this fails on many of our builders thanks to https://github.com/debuerreotype/docker-debian-artifacts/issues/97
 		]:
 			return ''
 	}
