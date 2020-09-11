@@ -149,12 +149,8 @@ def rawReposData = [
 
 	// tianon
 	['bash', [
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 		'url': 'git@github.com:tianon/docker-bash.git',
-		'env': '_BASH_VERSION',
-		'otherEnvs': [
-			['patch level', '_BASH_LATEST_PATCH'],
-			['commit', '_BASH_COMMIT'],
-		],
 	]],
 	['irssi', [
 		'url': 'git@github.com:jessfraz/irssi.git',
