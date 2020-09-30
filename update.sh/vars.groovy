@@ -193,6 +193,12 @@ def rawReposData = [
 		'url': 'git@github.com:mongo-express/mongo-express-docker.git',
 		'env': 'MONGO_EXPRESS',
 	]],
+
+	// tilosp
+	['nextcloud', [
+		'url': 'https://github.com/nextcloud/docker.git',
+		'update-script': 'true', // "update.sh" is handled via GitHub Actions
+	]],
 ]
 
 // list of repos: ["celery", "wordpress", ...]
