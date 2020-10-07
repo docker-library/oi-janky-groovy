@@ -2,6 +2,7 @@
 // tl;dr, iterating over Maps in pipeline groovy is pretty broken in real-world use
 def defaultRepoMeta = [
 	['url', 'git@github.com:docker-library/%%REPO%%.git'],
+	['oi-fork', 'git@github.com:docker-library-bot/official-images.git'],
 	['pipeline-script', 'update.sh/target-pipeline.groovy'],
 	['env', '.+_VERSION'], // gawk regex, anchored
 	['otherEnvs', []],
@@ -173,6 +174,7 @@ def rawReposData = [
 	// hleithner
 	['joomla', [
 		'url': 'git@github.com:joomla-docker/docker-joomla.git',
+		'oi-fork': 'git@github.com:joomla-docker/official-images.git',
 		'env': 'JOOMLA_VERSION',
 	]],
 
