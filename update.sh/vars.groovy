@@ -19,7 +19,7 @@ def rawReposData = [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['docker', [
-		'env': 'DOCKER_VERSION',
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['drupal', [
 		'env': 'DRUPAL_VERSION',
