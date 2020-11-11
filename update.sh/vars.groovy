@@ -181,6 +181,7 @@ def rawReposData = [
 	// LeoColomb
 	['yourls', [
 		'url': 'git@github.com:YOURLS/docker-yourls.git',
+		'oi-fork': 'git@github.com:LeoColomb/official-images.git',
 		'env': 'YOURLS_VERSION',
 	]],
 
