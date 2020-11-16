@@ -45,7 +45,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 					wget -O 'debuerreotype-examples.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeExamplesCommit}.tar.gz"
 					tar -xf debuerreotype.tgz --strip-components=1
 					rm -rf examples
-					tar -xf debuerreotype-examples.tgz --strip-components=1 examples
+					tar -xf debuerreotype-examples.tgz --strip-components=1 "debuerreotype-${debuerreotypeExamplesCommit}/examples"
 					rm -f debuerreotype*.tgz
 					./scripts/debuerreotype-version
 
