@@ -86,7 +86,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 						--tmpfs /tmp:dev,exec,suid,noatime
 						--workdir /tmp
 
-						--mount "type=bind,src=$PWD/examples,dst=/examples,ro"
+						--mount "type=bind,src=$debuerreotypeDir/examples,dst=/examples,ro"
 					)
 
 					if [ -T 0 ] && [ -T 1 ]; then
