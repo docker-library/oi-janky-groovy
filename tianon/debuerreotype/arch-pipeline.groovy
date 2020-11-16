@@ -27,7 +27,10 @@ if (!env.DPKG_ARCH) {
 }
 
 env.debuerreotypeVersion = vars.debuerreotypeVersion
+env.debuerreotypeExamplesCommit = vars.debuerreotypeExamplesCommit
 env.TZ = 'UTC'
+
+env.DOCKER_IMAGE = "debuerreotype/debuerreotype:${vars.debuerreotypeVersion}-${env.ACT_ON_ARCH}"
 
 node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 	ansiColor('xterm') {
@@ -39,12 +42,14 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 			stage('Download') {
 				sh '''
 					wget -O 'debuerreotype.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeVersion}.tar.gz"
+					wget -O 'debuerreotype-examples.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeExamplesCommit}.tar.gz"
 					tar -xf debuerreotype.tgz --strip-components=1
-					rm -f debuerreotype.tgz
+					rm -rf examples
+					tar -xf debuerreotype-examples.tgz --strip-components=1 examples
+					rm -f debuerreotype*.tgz
 					./scripts/debuerreotype-version
 
 					sed -ri "s!^FROM debian!FROM $TARGET_NAMESPACE/debian!" Dockerfile
-					sed -ri "s!^dockerImage=.*\\$!dockerImage='debuerreotype/debuerreotype:${debuerreotypeVersion}-${ACT_ON_ARCH}'!" build*.sh
 
 					# temporarily resolve chicken and egg (https://lists.debian.org/debian-stable-announce/2019/07/msg00000.html)
 					echo 'RUN apt-get update -qq && apt-get install -yqq debian-archive-keyring && rm -rf /var/lib/apt/lists/*' >> Dockerfile
@@ -59,14 +64,42 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 			deleteDir()
 
 			stage('Build') {
-				sh '''
+				sh '''#!/usr/bin/env bash
+					set -Eeuo pipefail -x
+
+					docker build --pull --tag "$DOCKER_IMAGE" .
+
+					args=(
+						--interactive
+						--rm
+
+						--cap-add SYS_ADMIN
+						--cap-drop SETFCAP
+
+						# --debian-eol potato wants to run "chroot ... mount ... /proc" which gets blocked (i386, ancient binaries, blah blah blah)
+						--security-opt seccomp=unconfined
+						# (other arches see this occasionally too)
+
+						# AppArmor blocks mount :)
+						--security-opt apparmor=unconfined
+
+						--tmpfs /tmp:dev,exec,suid,noatime
+						--workdir /tmp
+
+						--mount "type=bind,src=$PWD/examples,dst=/examples,ro"
+					)
+
+					if [ -T 0 ] && [ -T 1 ]; then
+						args+=( --tty )
+					fi
+
 					mkdir -p "$artifactsDir"
 					echo "$debuerreotypeVersion" > "$artifactsDir/debuerreotype-version"
 					echo "$epoch" > "$artifactsDir/debuerreotype-epoch"
 					echo "$serial" > "$artifactsDir/serial"
 					echo "$DPKG_ARCH" > "$artifactsDir/dpkg-arch"
 
-					"$debuerreotypeDir/build-all.sh" . "@$epoch"
+					docker run "${args[@]}" "$DOCKER_IMAGE" /examples/debian-all.sh --arch="$DPKG_ARCH" . "@$epoch"
 				'''
 			}
 		}

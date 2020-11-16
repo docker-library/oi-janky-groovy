@@ -14,6 +14,9 @@ arches = [
 // https://github.com/debuerreotype/debuerreotype/releases
 debuerreotypeVersion = '0.11'
 
+// TODO https://github.com/debuerreotype/debuerreotype/compare/master...tianon:examples
+debuerreotypeExamplesCommit = 'ce7f51430afa8298f2a58dbb63e069fe54e442c6'
+
 // build some arches explicitly elsewhere for speed/reliability
 buildArch = [
 	//'arm32v5': 'arm64v8',
