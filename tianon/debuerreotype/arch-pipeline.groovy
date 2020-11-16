@@ -67,7 +67,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail -x
 
-					docker build --pull --tag "$DOCKER_IMAGE" .
+					docker build --pull --tag "$DOCKER_IMAGE" "$debuerreotypeDir"
 
 					args=(
 						--interactive
