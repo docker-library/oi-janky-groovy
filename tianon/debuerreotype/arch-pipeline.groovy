@@ -69,6 +69,8 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 
 					docker build --pull --tag "$DOCKER_IMAGE" "$debuerreotypeDir"
 
+					mkdir -p "$targetDir"
+
 					args=(
 						--init
 						--interactive
@@ -89,6 +91,8 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 						--env TMPDIR=/tmp
 
 						--mount "type=bind,src=$debuerreotypeDir/examples,dst=/examples,ro"
+
+						--mount "type=bind,src=$targetDir,dst=/output"
 					)
 
 					if [ -T 0 ] && [ -T 1 ]; then
@@ -101,7 +105,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 					echo "$serial" > "$artifactsDir/serial"
 					echo "$DPKG_ARCH" > "$artifactsDir/dpkg-arch"
 
-					docker run "${args[@]}" "$DOCKER_IMAGE" /examples/debian-all.sh --arch="$DPKG_ARCH" . "@$epoch"
+					docker run "${args[@]}" "$DOCKER_IMAGE" /examples/debian-all.sh --arch="$DPKG_ARCH" /output "@$epoch"
 				'''
 			}
 		}
