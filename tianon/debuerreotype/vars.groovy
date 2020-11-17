@@ -24,10 +24,12 @@ buildArch = [
 ]
 
 def parseTimestamp(context) {
-	context.env.epoch = context.sh(returnStdout: true, script: 'TZ=UTC date --date "$timestamp" +%s').trim()
+	context.env.TZ = 'UTC'
+
+	context.env.epoch = context.sh(returnStdout: true, script: 'date --date "$timestamp" +%s').trim()
 	context.env.timestamp = '@' + context.env.epoch // now normalized!
-	context.env.serial = context.sh(returnStdout: true, script: 'TZ=UTC date --date "$timestamp" +%Y%m%d').trim()
-	iso8601 = context.sh(returnStdout: true, script: 'TZ=UTC date --date "$timestamp" --iso-8601=seconds').trim()
+	context.env.serial = context.sh(returnStdout: true, script: 'date --date "$timestamp" +%Y%m%d').trim()
+	iso8601 = context.sh(returnStdout: true, script: 'date --date "$timestamp" --iso-8601=seconds').trim()
 
 	context.currentBuild.displayName = context.env.serial + ' (#' + context.currentBuild.number + ')'
 	context.currentBuild.description = '<code>' + context.env.timestamp + '</code><br /><code>' + iso8601 + '</code>'
