@@ -84,7 +84,8 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 						--security-opt apparmor=unconfined
 
 						--tmpfs /tmp:dev,exec,suid,noatime
-						--workdir /tmp
+						--workdir /tmp/workdir
+						--env TMPDIR=/tmp
 
 						--mount "type=bind,src=$debuerreotypeDir/examples,dst=/examples,ro"
 					)
