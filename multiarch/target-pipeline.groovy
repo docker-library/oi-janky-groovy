@@ -198,7 +198,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						wait: false,
 					)
 				} catch (err) {
-					echo "Failed to trigger 'put-shared' job (${err.getMessage()}); this likely means we're part of the 'heavy-hitters' set."
+					echo "Failed to trigger 'put-shared' job (${err.getMessage()})."
 				}
 			}
 		}

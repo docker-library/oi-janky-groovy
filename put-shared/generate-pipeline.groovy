@@ -42,8 +42,7 @@ node {
 
 	stage('Generate') {
 		def images = sh(returnStdout: true, script: '''
-			heavyRegex="$(grep -vE '^$|^#' oi/heavy-hitters.txt | paste -sd '|')"
-			bashbrew list --all --repos | grep -vE "^($heavyRegex)(:|\\$)"
+			bashbrew list --all --repos
 		''').trim().tokenize()
 
 		dsl += '''
