@@ -70,6 +70,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 					docker build --pull --tag "$DOCKER_IMAGE" "$debuerreotypeDir"
 
 					args=(
+						--init
 						--interactive
 						--rm
 
