@@ -59,7 +59,7 @@ def rawReposData = [
 		'env': 'MONGO_VERSION',
 	]],
 	['mysql', [
-		'env': 'MYSQL_VERSION',
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['openjdk', [
 		'env': 'JAVA_VERSION',
