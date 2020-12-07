@@ -110,7 +110,7 @@ node {
 
 					pipelineJob("${arch}/${img}") {
 						description(desc)
-						logRotator { daysToKeep(14) }
+						logRotator { daysToKeep(4) }
 						// TODO concurrentBuild(false)
 						// see https://issues.jenkins-ci.org/browse/JENKINS-31832?focusedCommentId=343307&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-343307
 						configure { it / 'properties' << 'org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty' { } }
