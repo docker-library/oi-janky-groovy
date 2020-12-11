@@ -194,27 +194,29 @@ def bashbrewBuildAndPush(context) {
 			archiveArtifacts 'build-info/**'
 		}
 
-		context.stage('Push') {
-			dryRun = sh(returnStdout: true, script: '''
-				bashbrew push --dry-run --target-namespace "$TARGET_NAMESPACE" $TAGS
+		context.withCredentials([string(credentialsId: 'dockerhub-public-proxy', variable: 'DOCKERHUB_PUBLIC_PROXY')]) {
+			stage('Push') {
+				dryRun = sh(returnStdout: true, script: '''
+					bashbrew push --dry-run --target-namespace "$TARGET_NAMESPACE" $TAGS
 
-				if [ -n "$BASHBREW_ARCH" ]; then
-					bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --dry-run --single-arch --target-namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-				fi
-			''').trim()
+					if [ -n "$BASHBREW_ARCH" ]; then
+						bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --dry-run --single-arch --target-namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+					fi
+				''').trim()
 
-			if (dryRun != '') {
-				retry(3) {
-					sh '''
-						bashbrew push --target-namespace "$TARGET_NAMESPACE" $TAGS
+				if (dryRun != '') {
+					retry(3) {
+						sh '''
+							bashbrew push --target-namespace "$TARGET_NAMESPACE" $TAGS
 
-						if [ -n "$BASHBREW_ARCH" ]; then
-							bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --target-namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
-						fi
-					'''
+							if [ -n "$BASHBREW_ARCH" ]; then
+								bashbrew --arch-namespace "$ACT_ON_ARCH = $TARGET_NAMESPACE" put-shared --single-arch --target-namespace "$TARGET_NAMESPACE" "$ACT_ON_IMAGE"
+							fi
+						'''
+					}
+				} else {
+					echo('Skipping unnecessary push!')
 				}
-			} else {
-				echo('Skipping unnecessary push!')
 			}
 		}
 	}
