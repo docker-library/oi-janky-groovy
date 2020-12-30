@@ -91,11 +91,7 @@ def rawReposData = [
 		],
 	]],
 	['rabbitmq', [
-		'env': 'RABBITMQ_VERSION',
-		'otherEnvs': [
-			['OpenSSL', 'OPENSSL_VERSION'],
-			['Erlang/OTP', 'OTP_VERSION'],
-		],
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['redis', [
 		'env': 'REDIS_VERSION',
