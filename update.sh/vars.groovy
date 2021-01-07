@@ -116,10 +116,7 @@ def rawReposData = [
 		],
 	]],
 	['wordpress', [
-		'env': 'WORDPRESS_VERSION',
-		'otherEnvs': [
-			['cli', 'WORDPRESS_CLI_VERSION'],
-		],
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 
 	// Elastic images (specialized FROM tags)
