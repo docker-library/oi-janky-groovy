@@ -91,7 +91,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 		variants = sh(returnStdout: true, script: '''
 			.github/workflows/fake-gsl.sh \\
-				| awk -F ': ' '$1 == "Directory" { print $2 }
+				| awk -F ': ' '$1 == "Directory" { print $2 }'
 		''').trim().tokenize()
 
 		for (variant in variants) {
