@@ -15,7 +15,7 @@ arches = [
 debuerreotypeVersion = '0.11'
 
 // TODO https://github.com/debuerreotype/debuerreotype/compare/master...tianon:examples
-debuerreotypeExamplesCommit = 'cfb84b90f5e35297596150b62935fdb23f96ab1b'
+debuerreotypeExamplesCommit = '5cf7949ecf1cec1afece267688bda64cd34a6817'
 
 // build some arches explicitly elsewhere for speed/reliability
 buildArch = [
