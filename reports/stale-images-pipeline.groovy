@@ -69,6 +69,8 @@ node {
 		badNews = sh(returnStdout: true, script: '''#!/usr/bin/env bash
 			set -Eeuo pipefail
 
+			count="$(bashbrew list --uniq "$repo" | wc -l)"
+
 			commit="$(git -C "$BASHBREW_LIBRARY" log -1 --format=format:%H -- "./$repo")"
 
 			t="$(git -C "$BASHBREW_LIBRARY" log -1 --format=format:%ct "$commit" --)"
@@ -76,7 +78,7 @@ node {
 
 			d="$(( (n - t) / OUTDATED_SCALE ))"
 
-			if [ "$d" -gt "$OUTDATED_CUTOFF" ]; then
+			if [ "$d" -gt "$OUTDATED_CUTOFF" ] || [ "$count" -eq 0 ]; then
 				echo "$repo: $d $OUTDATED_SCALE_HUMAN since last update! ($(date -d "@$t" +%Y-%m-%d))"
 				echo "- https://github.com/docker-library/official-images/commit/$commit"
 				echo "- https://github.com/docker-library/official-images/pulls?q=label%3Alibrary%2F$repo"
@@ -90,6 +92,10 @@ node {
 					if [ -f "docs/$repo/deprecated.md" ]; then
 						echo "- https://github.com/docker-library/docs/blob/$docsCommit/$repo/deprecated.md"
 					fi
+				fi
+
+				if [ "$count" -eq 0 ]; then
+					echo "($repo has $count tags, so this is expected)"
 				fi
 			fi
 		''').trim()
