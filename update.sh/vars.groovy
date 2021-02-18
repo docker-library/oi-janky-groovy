@@ -71,10 +71,7 @@ def rawReposData = [
 		'env': 'PG_VERSION',
 	]],
 	['pypy', [
-		'env': 'PYPY_VERSION',
-		'otherEnvs': [
-			['pip', 'PYTHON_PIP_VERSION'],
-		],
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['python', [
 		'env': 'PYTHON_VERSION',
