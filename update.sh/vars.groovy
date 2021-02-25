@@ -49,9 +49,6 @@ def rawReposData = [
 	['julia', [
 		'env': 'JULIA_VERSION',
 	]],
-	['mariadb', [
-		'env': 'MARIADB_VERSION',
-	]],
 	['memcached', [
 		'env': 'MEMCACHED_VERSION',
 	]],
