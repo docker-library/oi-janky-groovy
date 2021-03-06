@@ -134,6 +134,10 @@ def rawReposData = [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 		'url': 'git@github.com:tianon/docker-bash.git',
 	]],
+	['cirros', [
+		'url': 'git@github.com:tianon/docker-brew-cirros.git',
+		'update-script': 'true',
+	]],
 	['irssi', [
 		'url': 'git@github.com:jessfraz/irssi.git',
 		'env': 'IRSSI_VERSION',
