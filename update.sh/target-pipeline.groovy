@@ -68,9 +68,13 @@ node {
 			git -C repo config user.name 'Docker Library Bot'
 			git -C repo config user.email 'github+dockerlibrarybot@infosiftr.com'
 
+			docker build --pull --tag oisupport/update.sh 'https://github.com/docker-library/oi-janky-groovy.git#:update.sh'
+
 			# prefill the bashbrew cache
 			cd repo
-			./generate-stackbrew-library.sh \\
+			user="$(id -u):$(id -g)"
+			docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
+				./generate-stackbrew-library.sh \\
 				| bashbrew from --apply-constraints /dev/stdin > /dev/null
 		'''
 
@@ -87,9 +91,14 @@ node {
 	def testBuildNamespace = 'update.sh'
 
 	ansiColor('xterm') { dir('repo') {
+		env.UPDATE_SCRIPT = repoMeta['update-script']
 		stage('update.sh') {
 			retry(3) {
-				sh repoMeta['update-script']
+				sh '''
+					user="$(id -u):$(id -g)"
+					docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD" --workdir "$PWD" oisupport/update.sh \\
+						bash -Eeuo pipefail -xc "$UPDATE_SCRIPT"
+				'''
 			}
 		}
 
@@ -126,7 +135,9 @@ node {
 					exit 0
 				fi
 				dfdirs="$(
-					./generate-stackbrew-library.sh \\
+					user="$(id -u):$(id -g)"
+					docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
+						./generate-stackbrew-library.sh \\
 						| bashbrew cat -f '
 							{{- range .Entries -}}
 								{{- .File -}} = {{- .Directory -}}
@@ -203,7 +214,10 @@ node {
 
 				# get our new commits into bashbrew
 				(
-					./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo"
+					user="$(id -u):$(id -g)"
+					docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
+						./generate-stackbrew-library.sh \\
+						> "$BASHBREW_LIBRARY/$repo"
 
 					git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
 				)
@@ -302,7 +316,13 @@ node {
 					commitArgs+=( -m 'Changes:' -m "$changes" )
 				fi
 
-				( cd repo && ./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo" )
+				(
+					cd repo
+					user="$(id -u):$(id -g)"
+					docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
+						./generate-stackbrew-library.sh \\
+						> "$BASHBREW_LIBRARY/$repo"
+				)
 
 				oi/naughty-from.sh "$repo"
 				oi/naughty-constraints.sh "$repo"

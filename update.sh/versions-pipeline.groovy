@@ -88,9 +88,13 @@ node {
 		}
 
 		sh '''
+			docker build --pull --tag oisupport/update.sh 'https://github.com/docker-library/oi-janky-groovy.git#:update.sh'
+
 			# prefill the bashbrew cache
 			cd repo
-			./generate-stackbrew-library.sh \\
+			user="$(id -u):$(id -g)"
+			docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
+				./generate-stackbrew-library.sh \\
 				| bashbrew from --apply-constraints /dev/stdin > /dev/null
 		'''
 	}
@@ -128,7 +132,9 @@ node {
 						}
 						componentsBefore="$(version_components)"
 
-						./update.sh "$version"
+						user="$(id -u):$(id -g)"
+						docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD" --workdir "$PWD" oisupport/update.sh \\
+							./update.sh "$version"
 
 						componentsAfter="$(version_components)"
 						componentsChanged="$(comm -13 <(echo "$componentsBefore") <(echo "$componentsAfter"))"
@@ -163,7 +169,10 @@ node {
 						retry(3) {
 							sh '''
 								# force our new commits into bashbrew
-								./generate-stackbrew-library.sh "$version" > "$BASHBREW_LIBRARY/$repo"
+								user="$(id -u):$(id -g)"
+								docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
+									./generate-stackbrew-library.sh "$version" \\
+									> "$BASHBREW_LIBRARY/$repo"
 								git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
 
 								bashbrew cat -f '{{ range .Entries }}{{ $.DockerFroms . | join "\\n" }}{{ "\\n" }}{{ end }}' "$repo" \\
@@ -203,7 +212,10 @@ node {
 		// smoke test to ensure the final result is fully valid (and we didn't cause a glitch in "generate-stackbrew-library.sh" like causing two things to share the "buildpack-deps:stable" alias, for example)
 		stage('Validate') {
 			sh '''
-				./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo"
+				user="$(id -u):$(id -g)"
+				docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
+					./generate-stackbrew-library.sh \\
+					> "$BASHBREW_LIBRARY/$repo"
 				git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
 				bashbrew from --uniq "$repo"
 
@@ -258,7 +270,13 @@ node {
 					commitArgs+=( -m 'Changes:' -m "$changes" )
 				fi
 
-				( cd repo && ./generate-stackbrew-library.sh > "$BASHBREW_LIBRARY/$repo" )
+				(
+					cd repo
+					user="$(id -u):$(id -g)"
+					docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
+						./generate-stackbrew-library.sh \\
+						> "$BASHBREW_LIBRARY/$repo"
+				)
 
 				oi/naughty-from.sh "$repo"
 				oi/naughty-constraints.sh "$repo"
