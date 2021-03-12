@@ -29,6 +29,11 @@ node {
 						$class: 'RelativeTargetDirectory',
 						relativeTargetDir: 'ri',
 					],
+					[
+						// this repo is huge and takes a long time to pull 😬
+						$class: 'CloneOption',
+						timeout: 90,
+					],
 				],
 				doGenerateSubmoduleConfigurations: false,
 				submoduleCfg: [],
