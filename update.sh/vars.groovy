@@ -37,7 +37,7 @@ def rawReposData = [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['haproxy', [
-		'env': 'HAPROXY_VERSION',
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['httpd', [
 		'env': 'HTTPD_VERSION',
