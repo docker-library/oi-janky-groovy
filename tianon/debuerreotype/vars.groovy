@@ -12,10 +12,8 @@ arches = [
 ] as Set
 
 // https://github.com/debuerreotype/debuerreotype/releases
-debuerreotypeVersion = '0.11'
-
-// TODO https://github.com/debuerreotype/debuerreotype/compare/master...tianon:examples
-debuerreotypeExamplesCommit = '5cf7949ecf1cec1afece267688bda64cd34a6817'
+debuerreotypeVersion = '0.12'
+debuerreotypeExamplesCommit = '0.12' // in case we need to pull in a newer commit of examples/
 
 // build some arches explicitly elsewhere for speed/reliability
 buildArch = [
