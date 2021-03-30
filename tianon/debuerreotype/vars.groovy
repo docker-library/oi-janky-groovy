@@ -13,7 +13,7 @@ arches = [
 
 // https://github.com/debuerreotype/debuerreotype/releases
 debuerreotypeVersion = '0.12'
-debuerreotypeExamplesCommit = '0.12' // in case we need to pull in a newer commit of examples/
+debuerreotypeExamplesCommit = '1567a482a595965face57904adcd625abc16bc07' // to pull in a newer commit of examples/ (can be even with debuerreotypeVersion)
 
 // build some arches explicitly elsewhere for speed/reliability
 buildArch = [
