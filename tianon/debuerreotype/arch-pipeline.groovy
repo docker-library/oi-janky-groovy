@@ -97,7 +97,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 						--mount "type=bind,src=$targetDir,dst=/output"
 					)
 
-					if [ -T 0 ] && [ -T 1 ]; then
+					if [ -t 0 ] && [ -t 1 ]; then
 						args+=( --tty )
 					fi
 
