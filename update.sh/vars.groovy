@@ -25,7 +25,7 @@ def rawReposData = [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['gcc', [
-		'env': 'GCC_VERSION',
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['ghost', [
 		'env': 'GHOST_VERSION',
