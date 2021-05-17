@@ -1,4 +1,4 @@
-FROM buildpack-deps:buster-scm
+FROM buildpack-deps:bullseye-scm
 
 RUN set -eux; \
 	apt-get update; \
