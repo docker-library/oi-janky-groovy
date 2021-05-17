@@ -87,7 +87,9 @@ node {
 			}
 		}
 
-		sh '''
+		sh '''#!/usr/bin/env bash
+			set -Eeuo pipefail -x
+
 			docker build --pull --tag oisupport/update.sh 'https://github.com/docker-library/oi-janky-groovy.git#:update.sh'
 
 			# prefill the bashbrew cache

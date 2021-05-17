@@ -62,7 +62,9 @@ node {
 			doGenerateSubmoduleConfigurations: false,
 			submoduleCfg: [],
 		])
-		sh '''
+		sh '''#!/usr/bin/env bash
+			set -Eeuo pipefail -x
+
 			git -C oi config user.name 'Docker Library Bot'
 			git -C oi config user.email 'github+dockerlibrarybot@infosiftr.com'
 			git -C repo config user.name 'Docker Library Bot'
