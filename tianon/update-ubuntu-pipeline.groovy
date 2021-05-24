@@ -52,6 +52,8 @@ node {
 			cd ubuntu
 			git config user.name 'Docker Library Bot'
 			git config user.email 'github+dockerlibrarybot@infosiftr.com'
+
+			docker build --pull --tag oisupport/update.sh 'https://github.com/docker-library/oi-janky-groovy.git#:update.sh'
 		'''
 	}
 
@@ -76,7 +78,9 @@ node {
 
 				stage('Download ' + arch) {
 					sh '''
-						./update.sh
+						user="$(id -u):$(id -g)"
+						docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD" --workdir "$PWD" oisupport/update.sh \\
+							./update.sh
 					'''
 				}
 
@@ -104,7 +108,7 @@ node {
 						export GIT_AUTHOR_DATE="$rfc2822"
 						export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"
 
-						git commit --message "Update to $latestSerial for $ARCH ($DPKG_ARCH)" --message "$(./status.sh)"
+						git commit --message "Update to $latestSerial for $ARCH ($DPKG_ARCH)"
 					'''
 				}
 
