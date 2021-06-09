@@ -122,7 +122,7 @@ node {
 						# gather a list of this version's components first so we can diff it later and generate a useful commit message ("Update 1.2 to 1.2.4", "Update 3.4 to openssl 1.1.1g", etc)
 						version_components() {
 							jq -r '
-								.[env.version] | [
+								.[env.version] // {} | [
 									.version // empty,
 									(
 										to_entries[]
