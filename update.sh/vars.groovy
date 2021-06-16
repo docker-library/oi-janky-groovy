@@ -65,7 +65,7 @@ def rawReposData = [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['postgres', [
-		'env': 'PG_VERSION',
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['pypy', [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
