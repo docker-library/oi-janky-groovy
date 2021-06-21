@@ -66,6 +66,21 @@ node {
 		)
 	}
 
+	// make sure "docker login" is localized to this workspace
+	env.DOCKER_CONFIG = workspace + '/.docker'
+	dir(env.DOCKER_CONFIG) { deleteDir() }
+
+	withCredentials([usernamePassword(
+		credentialsId: 'docker-hub-stackbrew',
+		usernameVariable: 'DOCKER_USERNAME',
+		passwordVariable: 'DOCKER_PASSWORD',
+	)]) {
+		sh '''#!/usr/bin/env bash
+			set -Eeuo pipefail
+			docker login --username "$DOCKER_USERNAME" --password-stdin <<<"$DOCKER_PASSWORD"
+		'''
+	}
+
 	withCredentials([string(credentialsId: 'dockerhub-public-proxy', variable: 'DOCKERHUB_PUBLIC_PROXY')]) {
 		stage('Put Shared') {
 			retry(3) {
@@ -75,4 +90,7 @@ node {
 			}
 		}
 	}
+
+	// "docker logout"
+	dir(env.DOCKER_CONFIG) { deleteDir() }
 }
