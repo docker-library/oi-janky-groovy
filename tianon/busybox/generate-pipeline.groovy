@@ -17,6 +17,7 @@ arches = [
 	'i386',
 	'mips64le',
 	'ppc64le',
+	'riscv64',
 	's390x',
 ] as Set
 
