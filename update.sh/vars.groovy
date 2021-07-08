@@ -91,11 +91,7 @@ def rawReposData = [
 		],
 	]],
 	['ruby', [
-		'env': 'RUBY_VERSION',
-		'otherEnvs': [
-			['rubygems', 'RUBYGEMS_VERSION'],
-			['bundler', 'BUNDLER_VERSION'],
-		],
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['tomcat', [
 		'env': 'TOMCAT_VERSION',
