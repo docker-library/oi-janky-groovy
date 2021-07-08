@@ -101,9 +101,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 		for (variant in variants) {
 			withEnv(['variant=' + variant]) { stage(variant) {
-				sh '''#!/usr/bin/env bash
-					set -Eeuo pipefail -x
-
+				sh '''
 					from="$(gawk 'toupper($1) == "FROM" { print $2 }' "$variant/Dockerfile.builder")"
 
 					if ! docker inspect --type image "$from" > /dev/null 2>&1; then
@@ -114,15 +112,8 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						exit
 					fi
 
-					v="$(basename "$variant")" # "uclibc", "glibc", etc
-					if [ "$v" = 'glibc' ] && [[ "$from" == *unstable* ]]; then
-						# skip glibc + unstable -> this means Debian Ports, and we don't want glibc from unstable (riscv64 is supported by uclibc)
-						echo >&2 "warning: $variant is 'FROM $from', which is unstable -- skipping"
-						rm -rf "$variant"
-						exit
-					fi
-
 					if ! ./build.sh "$variant"; then
+						v="$(basename "$variant")" # "uclibc", "glibc", etc
 						case "$ACT_ON_ARCH/$v" in
 							# expected failures (missing toolchain support, etc)
 							ppc64le/uclibc | s390x/uclibc)
