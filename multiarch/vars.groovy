@@ -9,6 +9,7 @@ archesMeta = [
 	['i386', [:]],
 	['mips64le', [:]],
 	['ppc64le', [:]],
+	['riscv64', [:]],
 	['s390x', [:]],
 	['windows-amd64', [:]],
 ]
@@ -21,6 +22,7 @@ dpkgArches = [
 	'i386': 'i386',
 	'mips64le': 'mips64el',
 	'ppc64le': 'ppc64el',
+	'riscv64': 'riscv64',
 	's390x': 's390x',
 ]
 

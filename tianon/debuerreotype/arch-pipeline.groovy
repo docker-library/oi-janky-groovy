@@ -107,7 +107,17 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 					echo "$serial" > "$artifactsDir/serial"
 					echo "$DPKG_ARCH" > "$artifactsDir/dpkg-arch"
 
-					docker run "${args[@]}" "$DOCKER_IMAGE" /examples/debian-all.sh --arch="$DPKG_ARCH" /output "@$epoch"
+					args+=( "$DOCKER_IMAGE" )
+
+					case "$DPKG_ARCH" in
+						riscv64) # https://ports.debian.org/ (ports architectures only support unstable)
+							args+=( /examples/debian.sh --ports --arch="$DPKG_ARCH" --codename-copy /output unstable "@$epoch" )
+							;;
+						*)
+							args+=( /examples/debian-all.sh --arch="$DPKG_ARCH" /output "@$epoch" )
+							;;
+					esac
+					docker run "${args[@]}"
 				'''
 			}
 		}
