@@ -26,6 +26,19 @@ if (!env.DPKG_ARCH) {
 	error("Unknown 'dpkg' architecture for '${env.ACT_ON_ARCH}'.")
 }
 
+switch (env.DPKG_ARCH) {
+	case [
+		// https://ports.debian.org/ (ports architectures only support unstable)
+		'riscv64',
+	]:
+		env.DEBIAN_PORTS = '1'
+		break
+
+	default:
+		env.DEBIAN_PORTS = ''
+		break
+}
+
 env.debuerreotypeVersion = vars.debuerreotypeVersion
 env.debuerreotypeExamplesCommit = vars.debuerreotypeExamplesCommit
 env.TZ = 'UTC'
@@ -51,7 +64,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 					rm -f debuerreotype*.tgz
 					./scripts/debuerreotype-version
 
-					sed -ri "s!^FROM debian!FROM $TARGET_NAMESPACE/debian!" Dockerfile
+					sed -ri "s!^FROM debian${DEBIAN_PORTS:+:[^-]+}!FROM $TARGET_NAMESPACE/debian${DEBIAN_PORTS:+:unstable}!" Dockerfile
 
 					# temporarily resolve chicken and egg (https://lists.debian.org/debian-stable-announce/2019/07/msg00000.html)
 					echo 'RUN apt-get update -qq && apt-get install -yqq debian-archive-keyring && rm -rf /var/lib/apt/lists/*' >> Dockerfile
@@ -109,14 +122,11 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 
 					args+=( "$DOCKER_IMAGE" )
 
-					case "$DPKG_ARCH" in
-						riscv64) # https://ports.debian.org/ (ports architectures only support unstable)
-							args+=( /examples/debian.sh --ports --arch="$DPKG_ARCH" --codename-copy /output unstable "@$epoch" )
-							;;
-						*)
-							args+=( /examples/debian-all.sh --arch="$DPKG_ARCH" /output "@$epoch" )
-							;;
-					esac
+					if [ -n "${DEBIAN_PORTS:-}" ]; then
+						args+=( /examples/debian.sh --ports --arch="$DPKG_ARCH" --codename-copy /output unstable "@$epoch" )
+					else
+						args+=( /examples/debian-all.sh --arch="$DPKG_ARCH" /output "@$epoch" )
+					fi
 					docker run "${args[@]}"
 				'''
 			}
