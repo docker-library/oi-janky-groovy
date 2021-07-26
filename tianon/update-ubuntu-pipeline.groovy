@@ -4,12 +4,13 @@ properties([
 ])
 
 arches = [
-	// see https://partner-images.canonical.com/core/xenial/current/
+	// see https://partner-images.canonical.com/oci/focal/current/
 	['amd64', 'amd64'],
 	['arm32v7', 'armhf'],
 	['arm64v8', 'arm64'],
 	['i386', 'i386'],
 	['ppc64le', 'ppc64el'],
+	['riscv64', 'riscv64'],
 	['s390x', 's390x'],
 	// ['bashbrew-arch', 'dpkg-arch'],
 ]
