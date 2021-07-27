@@ -28,6 +28,8 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 					[
 						// this repo is huge and takes a long time to pull 😬
 						$class: 'CloneOption',
+						depth: 1,
+						shallow: true,
 						timeout: 90,
 					],
 				],

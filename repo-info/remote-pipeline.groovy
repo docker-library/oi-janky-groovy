@@ -32,6 +32,8 @@ node {
 					[
 						// this repo is huge and takes a long time to pull 😬
 						$class: 'CloneOption',
+						depth: 1,
+						shallow: true,
 						timeout: 90,
 					],
 				],
