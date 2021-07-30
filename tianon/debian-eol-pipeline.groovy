@@ -28,7 +28,12 @@ node() {
 			sh '''
 				wget -O 'debuerreotype.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeVersion}.tar.gz"
 				tar -xf debuerreotype.tgz --strip-components=1
-				rm -f debuerreotype.tgz
+				if [ "$debuerreotypeExamplesCommit" != "$debuerreotypeVersion" ]; then
+					wget -O 'debuerreotype-examples.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeExamplesCommit}.tar.gz"
+					rm -rf examples
+					tar -xf debuerreotype-examples.tgz --strip-components=1 "debuerreotype-${debuerreotypeExamplesCommit}/examples"
+				fi
+				rm -f debuerreotype*.tgz
 				./scripts/debuerreotype-version
 			'''
 		}
