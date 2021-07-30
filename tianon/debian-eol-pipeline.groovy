@@ -17,6 +17,7 @@ def vars = fileLoader.fromGit(
 )
 
 env.debuerreotypeVersion = vars.debuerreotypeVersion
+env.debuerreotypeExamplesCommit = vars.debuerreotypeExamplesCommit
 env.TZ = 'UTC'
 
 node() {
