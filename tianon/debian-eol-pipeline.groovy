@@ -42,10 +42,24 @@ node() {
 
 	dir('eol') {
 		stage('Checkout') {
-			git(
-				url: 'git@github.com:debuerreotype/docker-debian-eol-artifacts.git',
-				credentialsId: 'docker-library-bot',
-			)
+			checkout([
+				$class: 'GitSCM',
+				userRemoteConfigs: [[
+					url: 'git@github.com:debuerreotype/docker-debian-eol-artifacts.git',
+					credentialsId: 'docker-library-bot',
+					name: 'origin',
+					refspec: '+refs/heads/master:refs/remotes/origin/master',
+				]],
+				branches: [[name: '*/master']],
+				extensions: [
+					[
+						$class: 'CloneOption',
+						honorRefspec: true,
+						noTags: true,
+					],
+					[$class: 'CleanCheckout'],
+				],
+			])
 			sh '''
 				git config user.name 'Docker Library Bot'
 				git config user.email 'github+dockerlibrarybot@infosiftr.com'
