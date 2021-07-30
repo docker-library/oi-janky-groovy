@@ -32,7 +32,12 @@ node() {
 				if [ "$debuerreotypeExamplesCommit" != "$debuerreotypeVersion" ]; then
 					wget -O 'debuerreotype-examples.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeExamplesCommit}.tar.gz"
 					rm -rf examples
-					tar -xf debuerreotype-examples.tgz --strip-components=1 "debuerreotype-${debuerreotypeExamplesCommit}/examples"
+					tar -xf debuerreotype-examples.tgz --strip-components=1 \
+						"debuerreotype-${debuerreotypeExamplesCommit}/.docker-image.sh" \
+						"debuerreotype-${debuerreotypeExamplesCommit}/.dockerignore" \
+						"debuerreotype-${debuerreotypeExamplesCommit}/Dockerfile" \
+						"debuerreotype-${debuerreotypeExamplesCommit}/docker-run.sh" \
+						"debuerreotype-${debuerreotypeExamplesCommit}/examples"
 				fi
 				rm -f debuerreotype*.tgz
 				./scripts/debuerreotype-version
