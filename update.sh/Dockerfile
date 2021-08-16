@@ -10,7 +10,7 @@ RUN set -eux; \
 	rm -rf /var/lib/apt/lists/*
 
 # https://github.com/docker-library/bashbrew/releases
-ENV BASHBREW_VERSION 0.1.2
+ENV BASHBREW_VERSION 0.1.3
 RUN set -eux; \
 	git clone --quiet --depth 1 https://github.com/docker-library/bashbrew.git /tmp/bashbrew; \
 	bashbrewArch="$(/tmp/bashbrew/scripts/bashbrew-host-arch.sh)"; \
