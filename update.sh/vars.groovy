@@ -94,10 +94,7 @@ def rawReposData = [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['tomcat', [
-		'env': 'TOMCAT_VERSION',
-		'otherEnvs': [
-			['openssl', 'OPENSSL_VERSION'],
-		],
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['wordpress', [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
