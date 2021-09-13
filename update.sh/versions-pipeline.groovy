@@ -185,8 +185,8 @@ node {
 
 								images="$(bashbrew --namespace '' list --build-order --uniq "$repo")"
 								for image in $images; do
-									bashbrew build "$image"
-									bashbrew tag --target-namespace '' "$image" # in case we have interdependent images
+									bashbrew --namespace '' build "$image" # have to build/tag in the unprefixed namespace in case we have interdependent images
+									bashbrew build "$image" # (this will tag from the bashbrew/cache directly)
 								done
 							'''
 						}
