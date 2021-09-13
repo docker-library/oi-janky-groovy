@@ -183,7 +183,11 @@ node {
 									| xargs -rtn1 docker pull \\
 									|| :
 
-								bashbrew build "$repo"
+								images="$(bashbrew --namespace '' list --build-order --uniq "$repo")"
+								for image in $images; do
+									bashbrew build "$image"
+									bashbrew tag --target-namespace '' "$image" # in case we have interdependent images
+								done
 							'''
 						}
 					}
