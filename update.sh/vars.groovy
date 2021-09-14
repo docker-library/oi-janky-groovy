@@ -149,6 +149,13 @@ def rawReposData = [
 		'env': 'MATOMO_VERSION',
 	]],
 
+	// Llewellynvdm
+	['joomla', [
+		'url': 'git@github.com:joomla-docker/docker-joomla.git',
+		'oi-fork': 'git@github.com:joomla-docker/official-images.git',
+		'env': 'JOOMLA_VERSION',
+	]],
+
 	// paultag
 	['hylang', [
 		'url': 'git@github.com:hylang/docker-hylang.git',
