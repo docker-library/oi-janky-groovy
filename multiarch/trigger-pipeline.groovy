@@ -50,14 +50,16 @@ node {
 			touchingCommits="$(git -C "$BASHBREW_LIBRARY" log --oneline "$commit...HEAD" -- "$REPO")"
 			[ -z "$touchingCommits" ]
 		''')) {
-			build(
-				job: repo,
-				quietPeriod: 15 * 60, // 15 minutes
-				wait: false,
-			)
+			catchError(stageResult: 'FAILURE') {
+				build(
+					job: repo,
+					quietPeriod: 15 * 60, // 15 minutes
+					wait: false,
+				)
 
-			// also mark the build as unstable so it's obvious which trigger jobs actually triggered builds
-			currentBuild.result = 'UNSTABLE'
+				// also mark the build as unstable so it's obvious which trigger jobs actually triggered builds
+				currentBuild.result = 'UNSTABLE'
+			}
 		}
 	} } }
 }
