@@ -92,12 +92,8 @@ node {
 
 			docker build --pull --tag oisupport/update.sh 'https://github.com/docker-library/oi-janky-groovy.git#:update.sh'
 
-			# prefill the bashbrew cache
-			cd repo
-			user="$(id -u):$(id -g)"
-			docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
-				./generate-stackbrew-library.sh \\
-				| bashbrew from --apply-constraints /dev/stdin > /dev/null
+			# precreate the bashbrew cache (so we can get creative with "$BASHBREW_CACHE/git" later)
+			bashbrew --arch amd64 from --uniq --apply-constraints hello-world:linux > /dev/null
 		'''
 	}
 
