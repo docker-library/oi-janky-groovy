@@ -159,7 +159,7 @@ node {
 				// Jenkins is silly about stages, so we want to create all the same ones every time as often as we can (even if they end up being fully empty).
 
 				stage('Diff ' + version) { if (didChange) {
-					sh 'git log -1 --stat -p'
+					sh 'git log -1 --stat -p --irreversible-delete'
 				} }
 
 				stage('Build ' + version) { if (didChange) {

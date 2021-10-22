@@ -227,7 +227,7 @@ node {
 		}
 
 		stage('Log') {
-			sh 'git log -p "origin/$BRANCH_BASE...HEAD"'
+			sh 'git log -p --irreversible-delete "origin/$BRANCH_BASE...HEAD"'
 		}
 
 		def numCommits = sh(
