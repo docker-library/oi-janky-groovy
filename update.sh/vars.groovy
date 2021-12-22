@@ -47,7 +47,7 @@ def rawReposData = [
 		],
 	]],
 	['julia', [
-		'env': 'JULIA_VERSION',
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['memcached', [
 		'env': 'MEMCACHED_VERSION',
