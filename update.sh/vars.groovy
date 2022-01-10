@@ -153,6 +153,9 @@ def rawReposData = [
 	['hylang', [
 		'url': 'git@github.com:hylang/docker-hylang.git',
 		'env': 'HY_VERSION',
+		'otherEnvs': [
+			['hyrule', 'HYRULE_VERSION'],
+		],
 	]],
 
 	// knickers
