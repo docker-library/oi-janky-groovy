@@ -71,12 +71,7 @@ def rawReposData = [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['python', [
-		'env': 'PYTHON_VERSION',
-		'otherEnvs': [
-			['pip', 'PYTHON_PIP_VERSION'],
-			['setuptools', 'PYTHON_SETUPTOOLS_VERSION'],
-			['wheel', 'PYTHON_WHEEL_VERSION'],
-		],
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['rabbitmq', [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
