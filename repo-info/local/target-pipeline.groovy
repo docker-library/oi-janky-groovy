@@ -80,8 +80,11 @@ lock(label: 'repo-info-local', quantity: 1) { node('oracle-worker') { // TODO re
 
 				bashbrew cat -f '
 					{{- range $.Entries -}}
-						{{- join " " .Tags -}}
-						{{- "\\n" -}}
+						{{- $arch := .HasArchitecture arch | ternary arch (.Architectures | first) -}}
+						{{- if not (hasPrefix "windows-" $arch) -}}
+							{{- join " " .Tags -}}
+							{{- "\\n" -}}
+						{{- end -}}
 					{{- end -}}
 				' "${args[@]}"
 			''',
