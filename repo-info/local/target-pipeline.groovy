@@ -2,7 +2,7 @@
 
 def repo = env.JOB_BASE_NAME
 
-lock(label: 'repo-info-local', quantity: 1) { node {
+lock(label: 'repo-info-local', quantity: 1) { node('oracle-worker') { // TODO remove node restriction once worker-{01,02,03} are updated to 20.10.x 🤦
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {
@@ -80,10 +80,8 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 
 				bashbrew cat -f '
 					{{- range $.Entries -}}
-						{{- if not ($.SkipConstraints .) -}}
-							{{- join " " .Tags -}}
-							{{- "\\n" -}}
-						{{- end -}}
+						{{- join " " .Tags -}}
+						{{- "\\n" -}}
 					{{- end -}}
 				' "${args[@]}"
 			''',
@@ -96,7 +94,7 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 	ansiColor('xterm') { dir('ri') {
 		stage('Prepare') {
 			sh '''
-				docker pull $(gawk '$1 == "FROM" { print $2; exit }' Dockerfile.local)
+				gawk '$1 == "FROM" { print $2; exit }' Dockerfile.local* | xargs -rtn1 docker pull
 				sed -i 's/ --pull / /g' scan-local.sh
 				! grep -q -- '--pull' scan-local.sh
 			'''
@@ -115,9 +113,13 @@ lock(label: 'repo-info-local', quantity: 1) { node {
 				stage(firstTag) {
 					def shells = [
 						"""
-							docker pull '${firstTag}'
-							./scan-local.sh '${firstTag}' > '${firstTarget}'
-						""",
+							firstTag='${firstTag}'
+							firstTarget='${firstTarget}'
+						""" + '''
+							platform="$(bashbrew cat --format '{{ ociPlatform ($.TagEntry.HasArchitecture arch | ternary arch ($.TagEntry.Architectures | first)) }}' "$firstTag")"
+							docker pull --platform "$platform" "$firstTag"
+							./scan-local.sh "$firstTag" > "$firstTarget"
+						''',
 					]
 					for (int i = 1; i < tagGroup.size(); ++i) {
 						def nextTagName = tagGroup[i]
