@@ -94,7 +94,7 @@ lock(label: 'repo-info-local', quantity: 1) { node('oracle-worker') { // TODO re
 	ansiColor('xterm') { dir('ri') {
 		stage('Prepare') {
 			sh '''
-				gawk '$1 == "FROM" { print $2; exit }' Dockerfile.local* | xargs -rtn1 docker pull
+				gawk '$1 == "FROM" { print $2 }' Dockerfile.local* | xargs -rtn1 docker pull
 				sed -i 's/ --pull / /g' scan-local.sh
 				! grep -q -- '--pull' scan-local.sh
 			'''
