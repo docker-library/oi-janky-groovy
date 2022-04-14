@@ -105,6 +105,10 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 				if [ "$TARGET_NAMESPACE" = 'library' ]; then
 					git commit -m 'Run update.sh' || :
 				else
+					GIT_AUTHOR_DATE="$(git log -1 --format=format:%aD)"
+					GIT_COMMITTER_DATE="$(git log -1 --format=format:%cD)"
+					export GIT_AUTHOR_DATE GIT_COMMITTER_DATE
+
 					git commit -m "Run update.sh ($ACT_ON_ARCH -- https://hub.docker.com/u/$TARGET_NAMESPACE/)" || :
 				fi
 			''')
