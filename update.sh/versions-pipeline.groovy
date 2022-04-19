@@ -8,7 +8,7 @@ def vars = fileLoader.fromGit(
 	'https://github.com/docker-library/oi-janky-groovy.git', // repo
 	'master', // branch
 	null, // credentialsId
-	'master', // node/label
+	'', // node/label
 )
 def repo = env.JOB_BASE_NAME
 def repoMeta = vars.repoMeta(repo)

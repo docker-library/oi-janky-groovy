@@ -12,10 +12,10 @@ def vars = fileLoader.fromGit(
 	'https://github.com/docker-library/oi-janky-groovy.git', // repo
 	'master', // branch
 	null, // credentialsId
-	'master', // node/label
+	'', // node/label
 )
 
-node('master') {
+node('built-in') {
 	stage('Generate') {
 		def dsl = ''
 
@@ -73,9 +73,9 @@ node('master') {
 								'https://github.com/docker-library/oi-janky-groovy.git', // repo
 								'master', // branch
 								null, // credentialsId
-								'master', // node/label
+								'', // node/label
 							)
-							node('master') { vars.parseTimestamp(this) }
+							node('built-in') { vars.parseTimestamp(this) }
 		'''
 		for (arch in vars.arches) {
 			dsl += """

@@ -21,7 +21,7 @@ arches = [
 	's390x',
 ] as Set
 
-node('master') {
+node('built-in') {
 	stage('Generate') {
 		def dsl = ''
 

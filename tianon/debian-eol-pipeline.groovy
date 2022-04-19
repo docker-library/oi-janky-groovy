@@ -13,7 +13,7 @@ def vars = fileLoader.fromGit(
 	'https://github.com/docker-library/oi-janky-groovy.git', // repo
 	'master', // branch
 	null, // credentialsId
-	'master', // node/label
+	'', // node/label
 )
 
 env.debuerreotypeVersion = vars.debuerreotypeVersion

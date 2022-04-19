@@ -12,7 +12,7 @@ def vars = fileLoader.fromGit(
 	'https://github.com/docker-library/oi-janky-groovy.git', // repo
 	'master', // branch
 	null, // credentialsId
-	'master', // node/label
+	'', // node/label
 )
 
 env.ACT_ON_ARCH = env.JOB_BASE_NAME // "library", "i386", etc
