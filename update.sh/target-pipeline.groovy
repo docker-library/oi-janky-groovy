@@ -70,7 +70,12 @@ node {
 			git -C repo config user.name 'Docker Library Bot'
 			git -C repo config user.email 'github+dockerlibrarybot@infosiftr.com'
 
-			docker build --pull --tag oisupport/update.sh 'https://github.com/docker-library/oi-janky-groovy.git#:update.sh'
+			# https://github.com/moby/moby/issues/30973 🤦
+			# docker build --pull --tag oisupport/update.sh 'https://github.com/docker-library/oi-janky-groovy.git#:update.sh'
+			tempDir="$(mktemp -d -t docker-build-janky-XXXXXXXXXX)"
+			trap 'rm -rf "$tempDir"' EXIT
+			git clone --depth 1 https://github.com/docker-library/oi-janky-groovy.git "$tempDir"
+			docker build --pull --tag oisupport/update.sh "$tempDir/update.sh"
 
 			# prefill the bashbrew cache
 			cd repo

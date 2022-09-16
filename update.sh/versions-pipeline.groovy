@@ -90,7 +90,12 @@ node {
 		sh '''#!/usr/bin/env bash
 			set -Eeuo pipefail -x
 
-			docker build --pull --tag oisupport/update.sh 'https://github.com/docker-library/oi-janky-groovy.git#:update.sh'
+			# https://github.com/moby/moby/issues/30973 🤦
+			# docker build --pull --tag oisupport/update.sh 'https://github.com/docker-library/oi-janky-groovy.git#:update.sh'
+			tempDir="$(mktemp -d -t docker-build-janky-XXXXXXXXXX)"
+			trap 'rm -rf "$tempDir"' EXIT
+			git clone --depth 1 https://github.com/docker-library/oi-janky-groovy.git "$tempDir"
+			docker build --pull --tag oisupport/update.sh "$tempDir/update.sh"
 
 			# precreate the bashbrew cache (so we can get creative with "$BASHBREW_CACHE/git" later)
 			bashbrew --arch amd64 from --uniq --apply-constraints hello-world:linux > /dev/null
