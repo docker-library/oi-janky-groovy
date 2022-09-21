@@ -153,12 +153,6 @@ def rawReposData = [
 		],
 	]],
 
-	// knickers
-	['mongo-express', [
-		'url': 'git@github.com:mongo-express/mongo-express-docker.git',
-		'env': 'MONGO_EXPRESS',
-	]],
-
 	// tilosp
 	['nextcloud', [
 		'url': 'https://github.com/nextcloud/docker.git',
