@@ -243,14 +243,16 @@ node {
 
 		if (hasChanges) {
 			stage('Pull') {
-				retry(3) {
-					sh '#!/bin/bash -ex' + """
-						bashbrew cat -f '{{ range .Entries }}{{ \$.DockerFroms . | join "\\n" }}{{ "\\n" }}{{ end }}' '${repo}' \\
-							| sort -u \\
-							| grep -vE '^(scratch|mcr.microsoft.com/windows/(nanoserver|servercore):.*|microsoft/(nanoserver|windowsservercore):.*|${repo}:.*)\$' \\
-							| xargs -rtn1 docker pull \\
-							|| :
-					"""
+				timeout(time: 1, unit: 'HOURS') {
+					retry(3) {
+						sh '#!/bin/bash -ex' + """
+							bashbrew cat -f '{{ range .Entries }}{{ \$.DockerFroms . | join "\\n" }}{{ "\\n" }}{{ end }}' '${repo}' \\
+								| sort -u \\
+								| grep -vE '^(scratch|mcr.microsoft.com/windows/(nanoserver|servercore):.*|microsoft/(nanoserver|windowsservercore):.*|${repo}:.*)\$' \\
+								| xargs -rtn1 docker pull \\
+								|| :
+						"""
+					}
 				}
 			}
 
@@ -266,12 +268,14 @@ node {
 			}
 
 			stage('Test') {
-				retry(3) {
-					sh '#!/bin/bash -ex' + """
-						# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
-						bashbrew --namespace '${testBuildNamespace}' list --apply-constraints --uniq '${repo}' \\
-							| xargs '${testRun}'
-					"""
+				timeout(time: 1, unit: 'HOURS') {
+					retry(3) {
+						sh '#!/bin/bash -ex' + """
+							# TODO test "nanoserver" and "windowsservercore" images as well (separate Jenkins builder)
+							bashbrew --namespace '${testBuildNamespace}' list --apply-constraints --uniq '${repo}' \\
+								| xargs '${testRun}'
+						"""
+					}
 				}
 			}
 
