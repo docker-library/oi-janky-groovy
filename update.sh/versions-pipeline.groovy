@@ -49,6 +49,10 @@ node {
 				submoduleCfg: [],
 			],
 		)
+
+		// https://github.com/docker-library/bashbrew/pull/43
+		env.BASHBREW_BUILDKIT_SYNTAX = sh(script: 'cat oi/.bashbrew-buildkit-syntax', returnStdout: true).trim()
+
 		checkout([
 			$class: 'GitSCM',
 			userRemoteConfigs: [[
