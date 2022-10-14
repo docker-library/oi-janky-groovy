@@ -49,6 +49,9 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		)
 	}
 
+	// https://github.com/docker-library/bashbrew/pull/43
+	env.BASHBREW_BUILDKIT_SYNTAX = sh(script: 'cat oi/.bashbrew-buildkit-syntax', returnStdout: true).trim()
+
 	ansiColor('xterm') {
 		withEnv([
 			'BASHBREW_FROMS_TEMPLATE=' + '''
