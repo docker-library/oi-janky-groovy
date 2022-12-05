@@ -339,8 +339,11 @@ node {
 						> "$BASHBREW_LIBRARY/$repo"
 				)
 
-				oi/naughty-from.sh "$repo"
-				oi/naughty-constraints.sh "$repo"
+				naughty="$(
+					oi/naughty-from.sh "$repo"
+					oi/naughty-constraints.sh "$repo"
+				)"
+				[ -z "$naughty" ]
 
 				date="$(git -C repo log -1 --format='format:%aD')"
 				export GIT_AUTHOR_DATE="$date" GIT_COMMITTER_DATE="$date"
