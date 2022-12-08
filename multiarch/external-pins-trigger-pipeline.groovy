@@ -1,13 +1,11 @@
-properties([
-	buildDiscarder(logRotator(daysToKeepStr: '4')),
-	disableConcurrentBuilds(),
-	pipelineTriggers([
-		cron('@hourly'),
-	]),
-])
+// properties are set via "generate-pipeline.groovy" (jobDsl)
+
+// setup environment variables, etc.
+env.ACT_ON_ARCH = env.JOB_NAME.split('/')[-2] // "i386", etc
 
 node {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+	env.BASHBREW_ARCH = env.ACT_ON_ARCH
 
 	stage('Checkout') {
 		checkout(
@@ -41,25 +39,16 @@ node {
 				set -Eeuo pipefail
 				set -x
 
-				bashbrew children --depth 1 "$PIN" | xargs -rt bashbrew cat --format '
-						{{- range $e := .Entries -}}
-							{{- range $a := $e.Architectures -}}
-								{{- $a -}}
-								{{- "/" -}}
-								{{- $.RepoName -}}
-								{{- "\n" -}}
-							{{- end -}}
-						{{- end -}}
-					' | sort -u
+				bashbrew children --arch-filter --depth 1 "$PIN" \
+					| cut -d: -f1 \
+					| sort -u
 			''').tokenize()
 
 			for (child in children) { withEnv(['CHILD=' + child]) {
 				if (0 != sh(returnStatus: true, script: '''#!/usr/bin/env bash
 					set -Eeuo pipefail
 					set -x
-					arch="${CHILD%/*}"
-					repo="${CHILD#*/}"
-					commit="$(wget -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$arch/job/$repo/lastSuccessfulBuild/artifact/build-info/commit.txt")"
+					commit="$(wget -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$ACT_ON_ARCH/job/$CHILD/lastSuccessfulBuild/artifact/build-info/commit.txt")"
 					[ -n "$commit" ]
 					file="$(.external-pins/file.sh "$PIN")"
 					[ -s "$file" ]
