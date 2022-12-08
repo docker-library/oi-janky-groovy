@@ -152,12 +152,6 @@ def rawReposData = [
 			['hyrule', 'HYRULE_VERSION'],
 		],
 	]],
-
-	// tilosp
-	['nextcloud', [
-		'url': 'https://github.com/nextcloud/docker.git',
-		'update-script': 'true', // "update.sh" is handled via GitHub Actions
-	]],
 ]
 
 // list of repos: ["celery", "wordpress", ...]
