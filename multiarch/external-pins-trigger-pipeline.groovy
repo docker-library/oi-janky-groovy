@@ -3,7 +3,7 @@
 // setup environment variables, etc.
 env.ACT_ON_ARCH = env.JOB_NAME.split('/')[-2] // "i386", etc
 
-node {
+node(env.ACT_ON_ARCH) {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 	env.BASHBREW_ARCH = env.ACT_ON_ARCH
 
