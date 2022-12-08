@@ -14,7 +14,7 @@ env.PUSH_TO_NAMESPACE = 'library'
 
 env.BASHBREW_ARCH_NAMESPACES = vars.archNamespaces()
 
-node {
+node('put-shared') {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {
