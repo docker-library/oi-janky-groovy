@@ -32,12 +32,13 @@ node {
 				$class: 'GitSCM',
 				userRemoteConfigs: [
 					[
-						url: 'https://github.com/docker-library/official-images.git',
 						name: 'origin',
+						url: 'https://github.com/docker-library/official-images.git',
 					],
 					[
-						url: repoMeta['oi-fork'],
 						name: 'fork',
+						url: repoMeta['oi-fork'],
+						credentialsId: 'docker-library-bot',
 					],
 				],
 				branches: [[name: 'origin/master']],
