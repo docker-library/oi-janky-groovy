@@ -99,7 +99,7 @@ node {
 
 						file="$(.external-pins/file.sh "$tag")"
 						digest="$(< "$file")"
-						[ -s "$digest" ]
+						[ -n "$digest" ]
 
 						# TODO look up image metadata for reproducible commits (GIT_AUTHOR_DATE, GIT_COMMITTER_DATE)
 
