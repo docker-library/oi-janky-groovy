@@ -132,6 +132,6 @@ node {
 					sh 'git push fork --delete "refs/heads/$repo"'
 				}
 			}
-		} }
+		}
 	} }
 }
