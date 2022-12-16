@@ -117,6 +117,11 @@ def rawReposData = [
 		'update-script': 'true',
 	]],
 
+	// TODO it would be great to have one of these jobs per namespace ("mcr.microsoft.com/windows", "redhat", etc.)
+	['external-pins', [
+		'pipeline-script': 'update.sh/external-pins-pipeline.groovy',
+	]],
+
 	// tianon
 	['bash', [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
