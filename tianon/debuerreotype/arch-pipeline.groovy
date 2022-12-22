@@ -135,6 +135,18 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 					docker run "${args[@]}"
 				'''
 			}
+
+			stage('OCI') {
+				sh '''#!/usr/bin/env bash
+					set -Eeuo pipefail -x
+					shopt -s globstar
+
+					for rootfs in "$artifactsDir"/**/rootfs.tar.xz; do
+						dir="$(dirname "$rootfs")"
+						"$debuerreotypeDir/examples/oci-image.sh" "$dir/oci.tar" "$dir"
+					done
+				'''
+			}
 		}
 		dir(env.artifactsDir) {
 			stage('Archive') {
