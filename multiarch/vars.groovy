@@ -101,12 +101,24 @@ def bashbrewBuildAndPush(context) {
 		} else {
 			try {
 				withEnv(['tagFroms=' + tagFroms]) {
-					sh '''
-						# pre-build sanity check
+					env.SOURCE_DATE_EPOCH = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+						set -Eeuo pipefail -x
+
+						# pre-build sanity check (making sure all our FROMs exist) and calculating appropriate SOURCE_DATE_EPOCH value
+						export BASHBREW_CACHE="${BASHBREW_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/bashbrew}"
+						commit="$(bashbrew cat --format '{{- .TagEntry.ArchGitCommit arch -}}' "$tag")"
+						epoch="$(git -C "$BASHBREW_CACHE/git" show --no-patch --format='format:%ct' "$commit")"
 						for tagFrom in $tagFroms; do
-							[ "$tagFrom" = 'scratch' ] || docker inspect --type image "$tagFrom" > /dev/null
+							if [ "$tagFrom" = 'scratch' ]; then
+								continue
+							fi
+							created="$(docker image inspect --format '{{ .Created }}' "$tagFrom")"
+							created="$(TZ=UTC date --date "$created" '+%s.%N')"
+							epoch="$(sort -n <<<$"$epoch\n$created" | tail -1)" # sort instead of [ -gt ] to support nanoseconds correctly
 						done
-					'''
+						[ -n "$epoch" ]
+						echo "$epoch"
+					''').trim()
 				}
 				timeout(time: 3, unit: 'HOURS') {
 					retry(3) { // retry building each tag up to three times (but still within the same shared timeout)
