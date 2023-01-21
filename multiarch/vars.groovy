@@ -101,6 +101,9 @@ def bashbrewBuildAndPush(context) {
 		} else {
 			try {
 				withEnv(['tagFroms=' + tagFroms]) {
+					// https://reproducible-builds.org/docs/source-date-epoch/
+					// https://github.com/moby/buildkit/blob/2f27653c74dd57d26ff6474cd0635aced8e79765/docs/build-repro.md#source_date_epoch
+					// TODO something smarter with "Builder: oci-import" ? (doesn't invoke "docker build" in any capacity so probably doesn't matter much)
 					env.SOURCE_DATE_EPOCH = sh(returnStdout: true, script: '''#!/usr/bin/env bash
 						set -Eeuo pipefail -x
 
