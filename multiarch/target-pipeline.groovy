@@ -63,6 +63,10 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				{{- end -}}
 			''',
 		]) {
+			stage('Fetch') {
+				sh 'bashbrew fetch --apply-constraints "$ACT_ON_IMAGE"'
+			}
+
 			stage('Pull') {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail
