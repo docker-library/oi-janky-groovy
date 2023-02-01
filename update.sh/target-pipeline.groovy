@@ -14,12 +14,12 @@ def repoMeta = vars.repoMeta(repo)
 node {
 	env.BASHBREW_CACHE = env.WORKSPACE + '/bashbrew-cache'
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
+	dir(env.BASHBREW_CACHE) { deleteDir() }
 
 	env.BRANCH_BASE = repoMeta['branch-base']
 	env.BRANCH_PUSH = repoMeta['branch-push']
 
 	stage('Checkout') {
-		sh 'mkdir -p "$BASHBREW_CACHE"'
 		checkout(
 			poll: false,
 			changelog: false,
@@ -86,7 +86,7 @@ node {
 			user="$(id -u):$(id -g)"
 			docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
 				./generate-stackbrew-library.sh \\
-				| bashbrew from --apply-constraints /dev/stdin > /dev/null
+				| bashbrew fetch --arch-filter /dev/stdin
 		'''
 
 		if (repoMeta['branch-base'] != repoMeta['branch-push']) {
@@ -230,7 +230,8 @@ node {
 						./generate-stackbrew-library.sh \\
 						> "$BASHBREW_LIBRARY/$repo"
 
-					git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
+					gitCache="$(bashbrew cat --format '{{ gitCache }}' "$repo")"
+					git -C "$gitCache" fetch "$PWD" HEAD:
 				)
 			'''
 		}

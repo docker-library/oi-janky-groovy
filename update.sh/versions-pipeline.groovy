@@ -22,7 +22,6 @@ node {
 	env.BASHBREW_LIBRARY = workspace + '/oi/library'
 	env.BASHBREW_NAMESPACE = 'update.sh'
 	dir(env.BASHBREW_CACHE) { deleteDir() }
-	sh 'mkdir -p "$BASHBREW_CACHE"'
 
 	env.TEST_RUN_SH = workspace + '/oi/test/run.sh'
 
@@ -100,9 +99,6 @@ node {
 			trap 'rm -rf "$tempDir"' EXIT
 			git clone --depth 1 https://github.com/docker-library/oi-janky-groovy.git "$tempDir"
 			docker build --pull --tag oisupport/update.sh "$tempDir/update.sh"
-
-			# precreate the bashbrew cache (so we can get creative with "$BASHBREW_CACHE/git" later)
-			bashbrew --arch amd64 from --uniq --apply-constraints hello-world:linux > /dev/null
 		'''
 	}
 
@@ -180,7 +176,8 @@ node {
 								docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
 									./generate-stackbrew-library.sh "$version" \\
 									> "$BASHBREW_LIBRARY/$repo"
-								git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
+								gitCache="$(bashbrew cat --format '{{ gitCache }}' "$repo")"
+								git -C "$gitCache" fetch "$PWD" HEAD:
 
 								bashbrew cat -f '{{ range .Entries }}{{ $.DockerFroms . | join "\\n" }}{{ "\\n" }}{{ end }}' "$repo" \\
 									| sort -u \\
@@ -227,7 +224,9 @@ node {
 				docker run --init --rm --user "$user" --mount "type=bind,src=$PWD,dst=$PWD,ro" --workdir "$PWD" oisupport/update.sh \\
 					./generate-stackbrew-library.sh \\
 					> "$BASHBREW_LIBRARY/$repo"
-				git -C "$BASHBREW_CACHE/git" fetch "$PWD" HEAD:
+				gitCache="$(bashbrew cat --format '{{ gitCache }}' "$repo")"
+				git -C "$gitCache" fetch "$PWD" HEAD:
+				bashbrew fetch --arch-filter "$repo"
 				bashbrew from --uniq "$repo"
 
 				naughty="$(

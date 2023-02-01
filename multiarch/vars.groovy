@@ -108,9 +108,10 @@ def bashbrewBuildAndPush(context) {
 						set -Eeuo pipefail -x
 
 						# pre-build sanity check (making sure all our FROMs exist) and calculating appropriate SOURCE_DATE_EPOCH value
-						export BASHBREW_CACHE="${BASHBREW_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/bashbrew}"
+						bashbrew fetch --arch-filter "$tag" # this already happened earlier, but doing it again as a sanity check
+						gitCache="$(bashbrew cat --format '{{ gitCache }}' "$tag")"
 						commit="$(bashbrew cat --format '{{- .TagEntry.ArchGitCommit arch -}}' "$tag")"
-						epoch="$(git -C "$BASHBREW_CACHE/git" show --no-patch --format='format:%ct' "$commit")"
+						epoch="$(git -C "$gitCache" show --no-patch --format='format:%ct' "$commit")"
 						for tagFrom in $tagFroms; do
 							if [ "$tagFrom" = 'scratch' ]; then
 								continue
