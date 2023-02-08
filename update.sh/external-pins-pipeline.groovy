@@ -16,6 +16,7 @@ def repoMeta = vars.repoMeta(repo)
 node {
 	env.repo = repo
 
+	def headCommit = ''
 	stage('Checkout') {
 		checkout(
 			poll: false,
@@ -48,6 +49,8 @@ node {
 			],
 		)
 
+		headCommit = sh(script: 'git -C oi rev-parse HEAD', returnStdout: true).trim()
+
 		sh '''
 			git -C oi config user.name 'Docker Library Bot'
 			git -C oi config user.email 'github+dockerlibrarybot@infosiftr.com'
@@ -72,8 +75,6 @@ node {
 	}
 
 	ansiColor('xterm') { dir('oi') {
-		def initialCommit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-
 		// TODO filter this list by namespace/repo when we split this job
 		def tags = sh(
 			script: '''
@@ -140,7 +141,7 @@ node {
 		stage('Push') {
 			sshagent(['docker-library-bot']) {
 				def newCommit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-				if (newCommit != initialCommit) {
+				if (newCommit != headCommit) {
 					sh 'git push -f fork HEAD:refs/heads/$repo'
 				}
 				else {
