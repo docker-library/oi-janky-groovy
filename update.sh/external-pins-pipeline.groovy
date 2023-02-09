@@ -63,7 +63,7 @@ node {
 				cd oi
 
 				# if there's an existing branch for updating external-pins, we should start there to avoid rebasing our branch too aggressively
-				if git fetch fork "refs/heads/$repo:"; then
+				if git fetch fork "refs/heads/$repo:" && ! git merge-base --is-ancestor FETCH_HEAD HEAD; then
 					# before we go all-in, let's see if master has changes to .external-pins that we *should* aggressively rebase on top of
 					touchingCommits="$(git log --oneline 'FETCH_HEAD..HEAD' -- .external-pins)"
 					if [ -z "$touchingCommits" ]; then
