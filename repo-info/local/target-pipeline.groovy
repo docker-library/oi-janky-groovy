@@ -2,7 +2,7 @@
 
 def repo = env.JOB_BASE_NAME
 
-lock(label: 'repo-info-local', quantity: 1) { node('oracle-worker') { // TODO remove node restriction once worker-{01,02,03} are updated to 20.10.x 🤦
+lock(label: 'repo-info-local', quantity: 1) { node('repo-info-local') {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {
