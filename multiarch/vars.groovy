@@ -117,7 +117,7 @@ def bashbrewBuildAndPush(context) {
 								continue
 							fi
 							created="$(docker image inspect --format '{{ .Created }}' "$tagFrom")"
-							created="$(TZ=UTC date --date "$created" '+%s.%N')"
+							created="$(TZ=UTC date --date "$created" '+%s')" # this should be '+%s.%N' but: "invalid SOURCE_DATE_EPOCH: 1679051128.000000000: strconv.ParseInt: parsing "1679051128.000000000": invalid syntax"
 							epoch="$(sort -n <<<$"$epoch\n$created" | tail -1)" # sort instead of [ -gt ] to support nanoseconds correctly
 						done
 						[ -n "$epoch" ]
