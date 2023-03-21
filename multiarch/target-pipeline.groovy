@@ -49,10 +49,26 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		)
 	}
 
+	// https://github.com/docker-library/official-images/pull/14212
 	// https://github.com/docker-library/bashbrew/pull/43
-	env.BASHBREW_BUILDKIT_SYNTAX = sh(script: 'cat oi/.bashbrew-buildkit-syntax', returnStdout: true).trim()
+	def buildEnvs = []
+	stage('Prepare') {
+		def json = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+			set -Eeuo pipefail -x
 
-	ansiColor('xterm') {
+			builders="$(bashbrew cat --format '{{ range .Entries }}{{ .ArchBuilder arch }}{{ "\\n" }}{{ end }}' "$ACT_ON_IMAGE")"
+			if grep <<<"$builders" -qE '^buildkit$'; then
+				json="$(oi/.bin/bashbrew-buildkit-env-setup.sh)"
+				jq <<<"$json" 'to_entries | map(.key + "=" + .value)'
+			fi
+		''')
+		if (json) {
+			buildEnvs += readJSON(text: json)
+		}
+		echo("build envs:\n" + buildEnvs.join("\n")) // hack hack hack (org.jenkinsci.plugins.scriptsecurity.sandbox.RejectedAccessException: Scripts not permitted to use method net.sf.json.JSONArray join java.lang.String)
+	}
+
+	ansiColor('xterm') { withEnv(buildEnvs) {
 		withEnv([
 			'BASHBREW_FROMS_TEMPLATE=' + '''
 				{{- range $.Entries -}}
@@ -216,5 +232,5 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				}
 			}
 		}
-	}
+	} }
 }
