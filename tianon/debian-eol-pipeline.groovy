@@ -8,6 +8,9 @@ properties([
 	]),
 ])
 
+targetSuites = targetSuites.trim()
+currentBuild.displayName = targetSuites + ' (#' + currentBuild.number + ')'
+
 def vars = fileLoader.fromGit(
 	'tianon/debuerreotype/vars.groovy', // script
 	'https://github.com/docker-library/oi-janky-groovy.git', // repo
@@ -71,7 +74,7 @@ node() {
 			'''
 		}
 
-		targetSuites = targetSuites.trim().tokenize()
+		targetSuites = targetSuites.tokenize()
 		for (targetSuite in targetSuites) {
 			withEnv(['targetSuite=' + targetSuite]) {
 				stage('Generate ' + targetSuite) {
