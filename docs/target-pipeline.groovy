@@ -99,7 +99,7 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 		stage('Commit') {
 			sh('''
 				git config user.name 'Docker Library Bot'
-				git config user.email 'github+dockerlibrarybot@infosiftr.com'
+				git config user.email 'doi+docker-library-bot@docker.com'
 
 				git add . || :
 				if [ "$TARGET_NAMESPACE" = 'library' ]; then

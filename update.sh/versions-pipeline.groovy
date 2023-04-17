@@ -77,9 +77,9 @@ node {
 		])
 		sh '''
 			git -C oi config user.name 'Docker Library Bot'
-			git -C oi config user.email 'github+dockerlibrarybot@infosiftr.com'
+			git -C oi config user.email 'doi+docker-library-bot@docker.com'
 			git -C repo config user.name 'Docker Library Bot'
-			git -C repo config user.email 'github+dockerlibrarybot@infosiftr.com'
+			git -C repo config user.email 'doi+docker-library-bot@docker.com'
 		'''
 
 		if (repoMeta['branch-base'] != repoMeta['branch-push']) {

@@ -76,7 +76,7 @@ node {
 		stage('Commit') {
 			sh('''
 				git config user.name 'Docker Library Bot'
-				git config user.email 'github+dockerlibrarybot@infosiftr.com'
+				git config user.email 'doi+docker-library-bot@docker.com'
 
 				for repoDir in repos/*; do
 					repo="$(basename "$repoDir")"

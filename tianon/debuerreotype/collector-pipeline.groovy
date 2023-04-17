@@ -46,7 +46,7 @@ node {
 		sh '''
 			cd debian-artifacts
 			git config user.name 'Docker Library Bot'
-			git config user.email 'github+dockerlibrarybot@infosiftr.com'
+			git config user.email 'doi+docker-library-bot@docker.com'
 		'''
 	}
 

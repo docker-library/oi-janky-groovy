@@ -122,7 +122,7 @@ node {
 			sh('''
 				for dir in oi d faq; do
 					git -C "$dir" config user.name 'Docker Library Bot'
-					git -C "$dir" config user.email 'github+dockerlibrarybot@infosiftr.com'
+					git -C "$dir" config user.email 'doi+docker-library-bot@docker.com'
 
 					git -C "$dir" add README.md || :
 					git -C "$dir" commit -m 'Update Table of Contents' || :

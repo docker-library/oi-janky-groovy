@@ -137,7 +137,7 @@ lock(label: 'repo-info-local', quantity: 1) { node('repo-info-local') {
 		stage('Commit') {
 			sh """
 				git config user.name 'Docker Library Bot'
-				git config user.email 'github+dockerlibrarybot@infosiftr.com'
+				git config user.email 'doi+docker-library-bot@docker.com'
 
 				git add 'repos/${repo}/local' || :
 				git commit -m 'Run scan-local.sh on ${repo}:...' || :

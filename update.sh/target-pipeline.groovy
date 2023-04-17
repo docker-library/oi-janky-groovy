@@ -70,9 +70,9 @@ node {
 			set -Eeuo pipefail -x
 
 			git -C oi config user.name 'Docker Library Bot'
-			git -C oi config user.email 'github+dockerlibrarybot@infosiftr.com'
+			git -C oi config user.email 'doi+docker-library-bot@docker.com'
 			git -C repo config user.name 'Docker Library Bot'
-			git -C repo config user.email 'github+dockerlibrarybot@infosiftr.com'
+			git -C repo config user.email 'doi+docker-library-bot@docker.com'
 
 			# https://github.com/moby/moby/issues/30973 🤦
 			# docker build --pull --tag oisupport/update.sh 'https://github.com/docker-library/oi-janky-groovy.git#:update.sh'
