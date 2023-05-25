@@ -101,29 +101,30 @@ def bashbrewBuildAndPush(context) {
 		} else {
 			try {
 				withEnv(['tagFroms=' + tagFroms]) {
-					// https://reproducible-builds.org/docs/source-date-epoch/
-					// https://github.com/moby/buildkit/blob/2f27653c74dd57d26ff6474cd0635aced8e79765/docs/build-repro.md#source_date_epoch
-					// TODO something smarter with "Builder: oci-import" ? (doesn't invoke "docker build" in any capacity so probably doesn't matter much)
-					env.SOURCE_DATE_EPOCH = sh(returnStdout: true, script: '''#!/usr/bin/env bash
-						set -Eeuo pipefail -x
-
-						# pre-build sanity check (making sure all our FROMs exist) and calculating appropriate SOURCE_DATE_EPOCH value
+					sh '''#!/usr/bin/env bash
+						# pre-build sanity check (build context is definitely fetched, making sure all our FROMs exist locally)
 						bashbrew fetch --arch-filter "$tag" # this already happened earlier, but doing it again as a sanity check
-						gitCache="$(bashbrew cat --format '{{ gitCache }}' "$tag")"
-						commit="$(bashbrew cat --format '{{- .TagEntry.ArchGitCommit arch -}}' "$tag")"
-						epoch="$(git -C "$gitCache" show --no-patch --format='format:%ct' "$commit")"
 						for tagFrom in $tagFroms; do
 							if [ "$tagFrom" = 'scratch' ]; then
 								continue
 							fi
-							created="$(docker image inspect --format '{{ .Created }}' "$tagFrom")"
-							created="$(TZ=UTC date --date "$created" '+%s')" # this should be '+%s.%N' but: "invalid SOURCE_DATE_EPOCH: 1679051128.000000000: strconv.ParseInt: parsing "1679051128.000000000": invalid syntax"
-							epoch="$(sort -n <<<$"$epoch\n$created" | tail -1)" # sort instead of [ -gt ] to support nanoseconds correctly
+							docker image inspect --format '.' "$tagFrom" > /dev/null
 						done
-						[ -n "$epoch" ]
-						echo "$epoch"
-					''').trim()
+					'''
 				}
+
+				// https://reproducible-builds.org/docs/source-date-epoch/
+				// https://github.com/moby/buildkit/blob/2f27653c74dd57d26ff6474cd0635aced8e79765/docs/build-repro.md#source_date_epoch
+				env.SOURCE_DATE_EPOCH = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+					set -Eeuo pipefail -x
+
+					gitCache="$(bashbrew cat --format '{{ gitCache }}' "$tag")"
+					commit="$(bashbrew cat --format '{{- .TagEntry.ArchGitCommit arch -}}' "$tag")"
+					epoch="$(git -C "$gitCache" show --no-patch --format='format:%ct' "$commit")"
+					[ -n "$epoch" ]
+					echo "$epoch"
+				''').trim()
+
 				timeout(time: 3, unit: 'HOURS') {
 					retry(3) { // retry building each tag up to three times (but still within the same shared timeout)
 						sh 'bashbrew build "$tag"'
