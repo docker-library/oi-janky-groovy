@@ -13,7 +13,7 @@ properties([
 	parameters([
 		choice(
 			name: 'TARGET_NODE',
-			choices: vars.infraVars,
+			choices: infraVars.archWorkers,
 			description: 'which node to "cleanup" (list is hand-maintained 😭)',
 		),
 		string(
