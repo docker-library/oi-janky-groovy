@@ -51,6 +51,9 @@ node {
 		def arches = []
 		def archNamespaces = [:]
 		def archImages = [:]
+
+		// https://github.com/docker-library/meta/blob/subset/subset.txt
+		def subset = ['docker', 'notary', 'rabbitmq']
 	'''
 
 	for (arch in vars.arches) {
@@ -114,6 +117,7 @@ node {
 
 					pipelineJob("${arch}/${img}") {
 						description(desc)
+						disabled(subset.contains(img))
 						logRotator { numToKeep(24) }
 						// TODO concurrentBuild(false)
 						// see https://issues.jenkins-ci.org/browse/JENKINS-31832?focusedCommentId=343307&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-343307
