@@ -112,12 +112,15 @@ node {
 								<li><a href="https://github.com/docker-library/official-images/blob/master/library/${img}"><code>official-images/library/${img}</code></a></li>
 							</ul>
 						"""
-						groovyScript = 'multiarch/target-pipeline.groovy'
+						if (subset.contains(img)) {
+							groovyScript = 'multiarch/empty-pipeline.groovy'
+						} else {
+							groovyScript = 'multiarch/target-pipeline.groovy'
+						}
 					}
 
 					pipelineJob("${arch}/${img}") {
 						description(desc)
-						disabled(subset.contains(img))
 						logRotator { numToKeep(24) }
 						// TODO concurrentBuild(false)
 						// see https://issues.jenkins-ci.org/browse/JENKINS-31832?focusedCommentId=343307&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-343307
