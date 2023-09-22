@@ -8,7 +8,8 @@ def infraVars = fileLoader.fromGit(
 )
 
 properties([
-	buildDiscarder(logRotator(numToKeepStr: '10')),
+	// make sure there is enough for every arch triggered by an all-cleanup
+	buildDiscarder(logRotator(numToKeepStr: (infraVars.archWorkers.size() * 2).toString())),
 	disableResume(),
 	parameters([
 		choice(
@@ -148,7 +149,9 @@ node(params.TARGET_NODE) {
 					images="$(grep -vE '^(infosiftr/moby|oisupport/[^:@]+)(:|$)|^busybox:.+-builder$' <<<"$images")" || :
 
 					# exclude images of running containers if running from an explicit tag
-					containers="$(docker ps --no-trunc --format '{{ .Image }}' | awk '/[:@]/ { print; next } { print $0 ":latest" }')" || return 1
+					# or if it was pulled/run by tag@digest (docker images does not show the tag but docker ps does)
+					containers="$(docker ps --no-trunc --format '{{ .Image }}' | awk '/:[^@]+@/ {str=$0; sub(":[^@]+@","@", str); print str } /[:@]/ { print; next } { print $0 ":latest" }')" || return 1
+
 					images="$(comm -23 <(sort -u <<<"$images") <(sort -u <<<"$containers"))"
 
 					comm -13 <(sort -u <<<"$oiList") <(sort -u <<<"$images")
