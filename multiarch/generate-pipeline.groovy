@@ -53,7 +53,12 @@ node {
 		def archImages = [:]
 
 		// https://github.com/docker-library/meta/blob/subset/subset.txt
-		def subset = ['docker', 'notary', 'rabbitmq']
+		def subset = [
+			'docker',
+			'notary',
+			'postgres',
+			'rabbitmq'
+		]
 	'''
 
 	for (arch in vars.arches) {
