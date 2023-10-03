@@ -58,7 +58,8 @@ node {
 			'memcached',
 			'notary',
 			'postgres',
-			'rabbitmq'
+			'rabbitmq',
+			'redis'
 		]
 	'''
 
