@@ -55,6 +55,7 @@ node {
 		// https://github.com/docker-library/meta/blob/subset/subset.txt
 		def subset = [
 			'docker',
+			'memcached',
 			'notary',
 			'postgres',
 			'rabbitmq'
