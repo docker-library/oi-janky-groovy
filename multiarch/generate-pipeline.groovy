@@ -56,6 +56,7 @@ node {
 		def subset = [
 			'docker',
 			'memcached',
+			'mysql',
 			'notary',
 			'postgres',
 			'rabbitmq',
