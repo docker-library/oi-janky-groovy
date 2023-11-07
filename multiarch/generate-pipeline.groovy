@@ -54,8 +54,11 @@ node {
 
 		// https://github.com/docker-library/meta/blob/subset/subset.txt
 		def subset = [
+			'cassandra',
 			'docker',
+			'drupal',
 			'gcc',
+			'ghost',
 			'julia',
 			'memcached',
 			'mysql',
