@@ -53,21 +53,13 @@ node {
 		def archImages = [:]
 
 		// https://github.com/docker-library/meta/blob/subset/subset.txt
-		def subset = [
-			'cassandra',
-			'docker',
-			'drupal',
-			'gcc',
-			'ghost',
-			'julia',
-			'memcached',
-			'mysql',
-			'notary',
-			'postgres',
-			'rabbitmq',
-			'redis',
-			'redmine'
-		]
+		def subset = []
+		new URL('https://raw.githubusercontent.com/docker-library/meta/subset/subset.txt').eachLine { line ->
+			subset << line
+		}
+		if (subset.size == 0) {
+			throw new Error('refusing to continue; no subset items found')
+		}
 	'''
 
 	for (arch in vars.arches) {
