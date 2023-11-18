@@ -80,10 +80,7 @@ def rawReposData = [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['redmine', [
-		'env': 'REDMINE_VERSION',
-		'otherEnvs': [
-			['passenger', 'PASSENGER_VERSION'],
-		],
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 	['ruby', [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
