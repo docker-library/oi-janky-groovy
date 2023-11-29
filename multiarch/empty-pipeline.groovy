@@ -49,6 +49,21 @@ node {
 		}
 	}
 
+	// make sure "docker login" is localized to this workspace
+	env.DOCKER_CONFIG = workspace + '/.docker'
+	dir(env.DOCKER_CONFIG) { deleteDir() }
+
+	withCredentials([usernamePassword(
+		credentialsId: 'docker-hub-readonly',
+		usernameVariable: 'DOCKER_USERNAME',
+		passwordVariable: 'DOCKER_PASSWORD',
+	)]) {
+		sh '''#!/usr/bin/env bash
+			set -Eeuo pipefail
+			docker login --username "$DOCKER_USERNAME" --password-stdin <<<"$DOCKER_PASSWORD"
+		'''
+	}
+
 	stage('Build-Info') {
 		sh '''#!/usr/bin/env bash
 			set -Eeuo pipefail -x
@@ -77,6 +92,9 @@ node {
 			eval "$shell"
 		'''
 	}
+
+	// "docker logout"
+	dir(env.DOCKER_CONFIG) { deleteDir() }
 
 	stage('Archive') {
 		archiveArtifacts 'build-info/**'
