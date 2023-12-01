@@ -59,7 +59,13 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 			builders="$(bashbrew cat --format '{{ range .Entries }}{{ .ArchBuilder arch }}{{ "\\n" }}{{ end }}' "$ACT_ON_IMAGE")"
 			if grep <<<"$builders" -qE '^buildkit$'; then
 				json="$(oi/.bin/bashbrew-buildkit-env-setup.sh)"
-				jq <<<"$json" 'to_entries | map(.key + "=" + .value)'
+				jq <<<"$json" '
+					to_entries
+					| map(
+						select(.key == "BASHBREW_BUILDKIT_SYNTAX") # skip provenance, SBOM, etc because this build system cannot handle it without containerd in Docker
+						| .key + "=" + .value
+					)
+				' | tee /dev/stderr
 			fi
 		''')
 		if (json) {
