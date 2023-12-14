@@ -92,20 +92,6 @@ def rawReposData = [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
 
-	// Elastic images (specialized FROM tags)
-	['elasticsearch', [
-		'env': 'ELASTICSEARCH_VERSION',
-		'from': 'docker.elastic.co/elasticsearch/elasticsearch',
-	]],
-	['logstash', [
-		'env': 'LOGSTASH_VERSION',
-		'from': 'docker.elastic.co/logstash/logstash',
-	]],
-	['kibana', [
-		'env': 'KIBANA_VERSION',
-		'from': 'docker.elastic.co/kibana/kibana',
-	]],
-
 	// versionless
 	['buildpack-deps', [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
