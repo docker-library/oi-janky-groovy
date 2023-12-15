@@ -9,6 +9,7 @@ def defaultRepoMeta = [
 	['branch-base', 'master'], // branch to check out from
 	['branch-push', 'master'], // branch to push to
 	['update-script', './update.sh'],
+	['disabled', false],
 ]
 def rawReposData = [
 	['busybox', [
@@ -124,6 +125,7 @@ def rawReposData = [
 		'url': 'git@github.com:TimWolla/docker-adminer.git',
 		'env': 'ADMINER_VERSION',
 		'branch-push': 'docker-library-bot',
+		'disabled': true, // 2023-12-14, Tianon: has been failing to update for a year+, disabling until we have some signal that it might actually succeed again
 	]],
 
 	// pierreozoux
