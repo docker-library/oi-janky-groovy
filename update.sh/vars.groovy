@@ -10,6 +10,7 @@ def defaultRepoMeta = [
 	['branch-push', 'master'], // branch to push to
 	['update-script', './update.sh'],
 	['disabled', false],
+	['bot-branch', true],
 ]
 def rawReposData = [
 	['busybox', [
@@ -132,6 +133,7 @@ def rawReposData = [
 	['matomo', [
 		'url': 'git@github.com:matomo-org/docker.git',
 		'env': 'MATOMO_VERSION',
+		'bot-branch': false,
 	]],
 
 	// paultag
