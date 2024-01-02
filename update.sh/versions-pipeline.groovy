@@ -140,7 +140,7 @@ node {
 							./update.sh "$version"
 
 						componentsAfter="$(version_components)"
-						componentsChanged="$(comm -13 <(echo "$componentsBefore") <(echo "$componentsAfter"))"
+						componentsChanged="$(comm -13 --nocheck-order <(echo "$componentsBefore") <(echo "$componentsAfter"))"
 
 						# Example generated commit messages:
 						#   Update 3.7
