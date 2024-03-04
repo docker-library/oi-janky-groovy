@@ -62,6 +62,16 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				| awk -F ': ' '$1 == "Directory" { print $2 }'
 		''').trim()
 
+		env.SOURCE_DATE_EPOCH = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+			set -Eeuo pipefail -x
+
+			# convert "latest/uclibc" and friends into ":!latest/uclibc/*/**" to ignore per-architecture metadata for generating reproducible commit timestamps (that aren't dependent on arch-specific metadata)
+			# https://stackoverflow.com/a/21079437/433558
+			excludes="$(sed <<<"$variants" -e 's/^/:!/' -e 's!$!/*/**!')"
+
+			git log -1 --format='format:%ct' -- $excludes
+		''')
+
 		stage('Munge') {
 			sh '''#!/usr/bin/env bash
 				set -Eeuo pipefail -x
@@ -100,15 +110,14 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 		}
 
 		def variants = env.variants.tokenize()
-		def commitTimestamp = 0 as int
 		for (variant in variants) {
 			withEnv(['variant=' + variant]) { stage(variant) {
-				env.from = sh(returnStdout: true, script: '''
-					awk 'toupper($1) == "FROM" { print $2; exit }' "$variant/Dockerfile.builder" # TODO multi-stage?
-				''').trim()
+				sh '''#!/usr/bin/env bash
+					set -Eeuo pipefail -x
 
-				env.SOURCE_DATE_EPOCH = sh(returnStdout: true, script: '''
-					if ! fromCreated="$(docker image inspect --format '{{ .Created }}' "$from")" 2>/dev/null; then
+					from="$(awk 'toupper($1) == "FROM" { print $2; exit }' "$variant/Dockerfile.builder")" # TODO multi-stage?
+
+					if ! docker image inspect --format '.' "$from" &> /dev/null; then
 						# skip anything we couldn't successfully pull/tag above
 						# (deleting so that "./generate-stackbrew-library.sh" will DTRT)
 						echo >&2 "warning: $variant is 'FROM $from', which failed to pull -- skipping"
@@ -117,42 +126,23 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						exit
 					fi
 
-					gitTimestamp="$(git log -1 --format='format:%at' -- "$variant")"
-					if [ -n "$fromCreated" ] && [ "$fromCreated" != '0001-01-01T00:00:00Z' ]; then
-						fromCreated="$(TZ=UTC date --date "$fromCreated" +'%s')"
-						if [ "$fromCreated" -gt "$gitTimestamp" ]; then
-							echo "$fromCreated"
-							exit
-						fi
+					if ! ./build.sh "$variant"; then
+						v="$(basename "$variant")" # "uclibc", "glibc", etc
+						case "$ACT_ON_ARCH/$v" in
+							# expected failures (missing toolchain support, etc)
+							ppc64le/uclibc | s390x/uclibc)
+								echo >&2 "warning: $variant failed to build (expected) -- skipping"
+								git rm -rf --ignore-unmatch "$variant/$BASHBREW_ARCH"
+								rm -rf "$variant/$BASHBREW_ARCH"
+								exit
+								;;
+						esac
+
+						echo >&2 "error: $variant failed to build"
+						exit 1
 					fi
-					echo "$gitTimestamp"
-				''')
-
-				if (env.SOURCE_DATE_EPOCH) {
-					sh '''
-						if ! ./build.sh "$variant"; then
-							v="$(basename "$variant")" # "uclibc", "glibc", etc
-							case "$ACT_ON_ARCH/$v" in
-								# expected failures (missing toolchain support, etc)
-								ppc64le/uclibc | s390x/uclibc)
-									echo >&2 "warning: $variant failed to build (expected) -- skipping"
-									git rm -rf --ignore-unmatch "$variant/$BASHBREW_ARCH"
-									rm -rf "$variant/$BASHBREW_ARCH"
-									exit
-									;;
-							esac
-
-							echo >&2 "error: $variant failed to build"
-							exit 1
-						fi
-						git add -A "$variant/$BASHBREW_ARCH"
-					'''
-
-					def newTimestamp = env.SOURCE_DATE_EPOCH as int
-					if (newTimestamp > commitTimestamp) {
-						commitTimestamp = newTimestamp
-					}
-				}
+					git add -A "$variant/$BASHBREW_ARCH"
+				'''
 			} }
 		}
 
@@ -170,7 +160,6 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 		if (changed) {
 			stage('Commit') {
-				env.SOURCE_DATE_EPOCH = commitTimestamp as String
 				sh '''
 					# set explicit timestamps to try to get 100% reproducible commit hashes (given a master commit we're based on)
 					GIT_AUTHOR_DATE="$(date --date "@$SOURCE_DATE_EPOCH" --rfc-email)"
