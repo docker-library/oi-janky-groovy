@@ -1,7 +1,7 @@
 properties([
 	buildDiscarder(logRotator(numToKeepStr: '10')),
 	disableResume(),
-	pipelineTriggers([cron('H H * * 0')]),
+	pipelineTriggers([cron('H H(2-5) * * *')]),
 ])
 
 // we can't use "load()" here because we don't have a file context (or a real checkout of "oi-janky-groovy" -- the pipeline plugin hides that checkout from the actual pipeline execution)
