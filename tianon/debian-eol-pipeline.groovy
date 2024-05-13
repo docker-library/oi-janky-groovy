@@ -94,7 +94,7 @@ node() {
 					'''
 				}
 
-				sshagent(['docker-library-bot']) {
+				sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 					stage('Push ' + targetSuite) {
 						sh 'git push -f origin "HEAD:refs/heads/dist-$targetSuite"'
 					}

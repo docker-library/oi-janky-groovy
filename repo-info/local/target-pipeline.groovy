@@ -152,7 +152,7 @@ lock(label: 'repo-info-local', quantity: 1) { node('repo-info-local') {
 
 		stage('Push') {
 			if (hasChanges) {
-				sshagent(['docker-library-bot']) {
+				sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 					sh '''
 						# try catching up since this job takes so long to run sometimes
 						git checkout -- .

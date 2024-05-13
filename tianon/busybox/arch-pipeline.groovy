@@ -194,7 +194,7 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 				'''
 			}
 
-			sshagent(['docker-library-bot']) {
+			sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 				stage('Push') {
 					sh '''
 						git push -f origin "$META_BRANCH":"$META_BRANCH" "$ARCH_BRANCH":"$ARCH_BRANCH"

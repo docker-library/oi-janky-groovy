@@ -94,7 +94,7 @@ node {
 
 	withEnv([ 'timestamp=' + latestTimestamp, 'changes=' + changes.join('\n\n') ]) {
 		stage('Stage PR') {
-			sshagent(['docker-library-bot']) {
+			sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail -x
 

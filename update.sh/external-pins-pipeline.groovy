@@ -65,7 +65,7 @@ node {
 		).tokenize()
 
 		for (def org in orgs) { withEnv(['org=' + org, 'branch=' + repo + '-' + org]) {
-			sshagent(['docker-library-bot']) {
+			sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail -x
 
@@ -145,7 +145,7 @@ node {
 			} }
 
 			stage('Push ' + org) {
-				sshagent(['docker-library-bot']) {
+				sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 					def newCommit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 					if (newCommit != env.headCommit) {
 						sh 'git push -f fork HEAD:refs/heads/$branch'

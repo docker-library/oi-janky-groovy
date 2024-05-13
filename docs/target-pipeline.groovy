@@ -114,7 +114,7 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 			''')
 		}
 
-		sshagent(['docker-library-bot']) {
+		sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 			stage('Push') {
 				if (isLibrary) {
 					sh '''

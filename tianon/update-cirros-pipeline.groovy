@@ -29,7 +29,7 @@ node {
 			'''
 		}
 
-		sshagent(['docker-library-bot']) {
+		sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 			stage('Push') {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail

@@ -130,7 +130,7 @@ node {
 			''')
 		}
 
-		sshagent(['docker-library-bot']) {
+		sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 			stage('Push') {
 				sh '''
 					for dir in oi d faq; do

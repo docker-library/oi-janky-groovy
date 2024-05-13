@@ -86,7 +86,7 @@ node {
 			''')
 		}
 
-		sshagent(['docker-library-bot']) {
+		sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 			stage('Push') {
 				sh('''
 					# try catching up since this job takes so long to run

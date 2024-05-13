@@ -90,7 +90,7 @@ node {
 		'''
 
 		if (repoMeta['branch-base'] != repoMeta['branch-push']) {
-			sshagent(['docker-library-bot']) {
+			sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 				sh '''
 					git -C repo pull --rebase origin "$BRANCH_BASE"
 				'''
@@ -285,7 +285,7 @@ node {
 			}
 
 			stage('Push') {
-				sshagent(['docker-library-bot']) {
+				sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 					sh 'git push $([ "$BRANCH_BASE" = "$BRANCH_PUSH" ] || echo --force) origin "HEAD:$BRANCH_PUSH"'
 				}
 			}
@@ -296,7 +296,7 @@ node {
 
 	if (repoMeta['bot-branch']) {
 		stage('Stage PR') {
-			sshagent(['docker-library-bot']) {
+			sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail
 					set -x
