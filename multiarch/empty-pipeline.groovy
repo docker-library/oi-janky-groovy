@@ -85,9 +85,9 @@ node {
 							.build.arch == $arch
 							and .build.resolved != null
 							and (.build.resolved.manifests | length > 0)
-							and any(.source.tags[]; startswith($image + ":"))
+							and any(.source.arches[.build.arch].tags[]; startswith($image + ":"))
 						)
-						| @sh "crane manifest \\(.build.resolved.manifests[0].annotations["org.opencontainers.image.ref.name"]) | jq -r \\(".config.digest") | tee \\([ "build-info/image-ids/" + (.source.tags[] | select(startswith($image + ":")) | sub(":"; "_")) + ".txt" ])"
+						| @sh "crane manifest \\(.build.resolved.manifests[0].annotations["org.opencontainers.image.ref.name"]) | jq -r \\(".config.digest") | tee \\([ "build-info/image-ids/" + (.source.arches[.build.arch].tags[] | select(startswith($image + ":")) | sub(":"; "_")) + ".txt" ])"
 					' meta/builds.json
 			)"
 			eval "$shell"
