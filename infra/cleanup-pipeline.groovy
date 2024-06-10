@@ -34,8 +34,9 @@ if (params.BASHBREW_ARCH) {
 		env.BASHBREW_ARCH = params.TARGET_NODE - 'multiarch-'
 	} else if (params.TARGET_NODE.startsWith('windows-')) {
 		env.BASHBREW_ARCH = 'windows-amd64' // TODO non-amd64??  match the other naming scheme, probably
-	//} else if (params.TARGET_NODE.startsWith('worker-')) { // TODO figure out what to _actually_ do for worker nodes (we can't "lock" them exclusively, and they don't have all the "FROM" checkout data because they don't usually need it)
-	//	env.BASHBREW_ARCH = 'amd64'
+	} else if (params.TARGET_NODE.startsWith('worker-')) {
+		env.BASHBREW_ARCH = 'amd64' // all our workers are amd64 -- if that ever changes, we've probably got all kinds of assumptions we need to clean up! 😅
+		// TODO ideally, this would somehow lock the *entire* worker instance until the cleanup job completes, but for now we'll have to live with slightly racy behavior (and rely on our other jobs being forgiving / able to do the correct thing on a re-run if they fail due to over-aggressive cleanup)
 	} else {
 		error('BASHBREW_ARCH not specified and unable to infer from TARGET_NODE (' + params.TARGET_NODE + ') 😞')
 	}
@@ -85,6 +86,10 @@ node(params.TARGET_NODE) {
 
 		stage('Containers') {
 			sh 'docker container prune --force'
+		}
+
+		stage('Volumes') {
+			sh 'docker volume prune --all --force'
 		}
 
 		// TODO put this into a proper script somewhere 😅
@@ -185,5 +190,7 @@ node(params.TARGET_NODE) {
 				fi
 			'''
 		}
+
+		// TODO somehow clean up BASHBREW_CACHE ?
 	}
 }

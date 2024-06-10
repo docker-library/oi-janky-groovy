@@ -10,7 +10,12 @@ archWorkers = [
 	'multiarch-ppc64le',
 	'multiarch-riscv64',
 	'multiarch-s390x',
+
 	'windows-2022',
+
+	'worker-01',
+	'worker-02',
+	'worker-03',
 ]
 
 // return "this" (for use via "load" in Jenkins pipeline, for example)
