@@ -16,6 +16,7 @@ archWorkers = [
 	'worker-01',
 	'worker-02',
 	'worker-03',
+	'worker-04',
 ]
 
 // return "this" (for use via "load" in Jenkins pipeline, for example)
