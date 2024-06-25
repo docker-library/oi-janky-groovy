@@ -78,9 +78,6 @@ def rawReposData = [
 	['rabbitmq', [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
-	['redis', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
 	['redmine', [
 		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 	]],
