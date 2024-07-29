@@ -118,14 +118,6 @@ def rawReposData = [
 		'env': 'IRSSI_VERSION',
 	]],
 
-	// TimWolla
-	['adminer', [
-		'url': 'git@github.com:TimWolla/docker-adminer.git',
-		'env': 'ADMINER_VERSION',
-		'branch-push': 'docker-library-bot',
-		'disabled': true, // 2023-12-14, Tianon: has been failing to update for a year+, disabling until we have some signal that it might actually succeed again
-	]],
-
 	// pierreozoux
 	['matomo', [
 		'url': 'git@github.com:matomo-org/docker.git',
