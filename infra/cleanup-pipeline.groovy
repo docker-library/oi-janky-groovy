@@ -92,84 +92,54 @@ node(params.TARGET_NODE) {
 			sh 'docker volume prune --all --force'
 		}
 
-		// TODO put this into a proper script somewhere 😅
+		// TODO put these into proper scripts somewhere 😅
 		stage('Gather') {
 			sh '''#!/usr/bin/env bash
 				set -Eeuo pipefail -x
 
-				oi-list() {
-					local -
-					set -Eeuo pipefail +x
+				rm -f images-to-keep.txt
 
-					[ "$#" -gt 0 ] || set -- '--all'
-					bashbrew list --repos "$@" | xargs -n1 -P"$(nproc)" bashbrew cat --format '
-						{{- $ns := archNamespace arch -}}
-						{{- range (.Entries | archFilter arch) -}}
-							{{- range $.Tags "" false . -}}
-								{{- . -}}{{- "\\n" -}}
-								{{- if $ns -}}
-									{{- $ns -}}/{{- . -}}{{- "\\n" -}}
-								{{- end -}}
-							{{- end -}}
-							{{- $.DockerFroms . | join "\\n" -}}{{- "\\n" -}}
-						{{- end -}}
-					' | sed -r 's!:[^@]+@!@!' # handle ELK oddities
-					bashbrew list --uniq "$@" | xargs -n1 -P"$(nproc)" bashbrew cat --format '
-						{{- range (.Entries | archFilter arch) -}}
-							{{- $.DockerCacheName . -}}{{- "\\n" -}}
-						{{- end -}}
-					' 2>/dev/null || :
-				}
+				# build up a file with a list of things we know we want/need to keep
+				## all DOI tags
+				bashbrew list --all | tee -a images-to-keep.txt
+				## all "external pins"
+				oi/.external-pins/list.sh | tee -a images-to-keep.txt
+				## all container's images (normalized to either digest-only in "xxx:tag@digest" or ":latest" in "xxx")
+				docker ps --all --no-trunc --format '{{ .Image }}' | awk '{ gsub(":[^@]+@", "@"); if (!/[:@]/) { $0 = $0 ":latest" }; print }' | tee -a images-to-keep.txt
+			'''
+		}
 
-				docker-images() {
-					local -
-					set -Eeuo pipefail +x
+		stage('Filter') {
+			sh '''#!/usr/bin/env bash
+				set -Eeuo pipefail -x
 
-					docker images --digests --no-trunc --format '
-						{{- if (eq .Repository "<none>") -}}
-							{{- .ID -}}
-						{{- else -}}
-							{{- .Repository -}}
-							{{- if (eq .Tag "<none>") -}}
-								{{- "@" -}}{{- .Digest -}}
-							{{- else -}}
-								{{- ":" -}}{{- .Tag -}}
-							{{- end -}}
-						{{- end -}}
-					' "$@"
-				}
+				# gather the list of *all* images
+				docker images --no-trunc --digests --format '{{ json . }}' > images.json
 
-				# list useless images (official-images that are no longer supported and other random images that are not necessary/useful)
-				dlist() {
-					local -
-					set -Eeuo pipefail +x
-
-					# get the list of things we know should exist (based on "bashbrew" metadata)
-					oiList="$(oi-list)" || return 1
-
-					# get the list of everything this daemon contains so we can cross-reference
-					images="$(docker-images)" || return 1
-
-					# exclude images we know we want to keep
-					images="$(grep -vE '^(infosiftr/moby|oisupport/[^:@]+)(:|$)|^busybox:.+-builder$' <<<"$images")" || :
-
-					# exclude images of running containers if running from an explicit tag
-					# or if it was pulled/run by tag@digest (docker images does not show the tag but docker ps does)
-					containers="$(docker ps --no-trunc --format '{{ .Image }}' | awk '/:[^@]+@/ {str=$0; sub(":[^@]+@","@", str); print str } /[:@]/ { print; next } { print $0 ":latest" }')" || return 1
-
-					images="$(comm -23 <(sort -u <<<"$images") <(sort -u <<<"$containers"))"
-
-					comm -13 <(sort -u <<<"$oiList") <(sort -u <<<"$images")
-				}
-
-				dlist | tee ripe.txt
-
-				wc -l ripe.txt
+				# ... and post-process it to image ID + "references" so we can cross-reference our "images-to-keep.txt" list and end up with only a list of specific images safe to delete
+				jq -s --rawfile keepRaw images-to-keep.txt '
+					($keepRaw | rtrimstr("\n") | split("\n")) as $keep
+					| reduce .[] as $i ({};
+						.[$i.ID] += [ $i |
+							$i.ID,
+							if .Repository != "<none>" then
+								if .Tag != "<none>" then .Repository + ":" + .Tag else empty end,
+								if .Digest != "<none>" then .Repository + "@" + .Digest else empty end
+							else empty end
+						]
+					)
+					| del(.[] | select(.[] as $i | $keep | index($i)))
+				' images.json | tee images-to-delete.json
 			'''
 		}
 
 		stage('Clean') {
-			sh 'xargs -rt docker rmi < ripe.txt'
+			sh '''#!/usr/bin/env bash
+				set -Eeuo pipefail -x
+
+				# now we're confident - delete! (via xargs so it can split into multiple commands for efficiency based on the number of images we need to delete)
+				jq -r 'keys | join("\n")' images-to-delete.json | xargs -rt docker rmi -f
+			'''
 		}
 
 		stage('BuildKit') {
