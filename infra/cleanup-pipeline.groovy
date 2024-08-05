@@ -138,8 +138,9 @@ node(params.TARGET_NODE) {
 				set -Eeuo pipefail -x
 
 				# now we're confident - delete! (via xargs so it can split into multiple commands for efficiency based on the number of images we need to delete)
-				jq -r '[ .[][] | select(startswith("sha256:") | not) ] | unique | sort_by(contains("@") | not) | join("\n")' images-to-delete.json | xargs -rt docker rmi --no-prune
+				jq -r '[ .[][] | select(startswith("sha256:") | not) ] | unique | sort_by(contains("@") | not) | join("\n")' images-to-delete.json | tr -d '\r' | xargs -rt docker rmi --no-prune
 				# ("sort_by" because we have to remove all the digest references before tags because removing tag references might also remove the digests and thus lead to "No such image:" errors)
+				# ("tr -d '\r'" because Windows)
 
 				# we use "--no-prune" across all references (instead of just "docker rmi -f" across all IDs) because we might have images that are "FROM" an image in this set that we thus can't delete the image, but we *can* untag the reference, and then we let "docker image prune" clean up what can actually be deleted
 				docker image prune --force
