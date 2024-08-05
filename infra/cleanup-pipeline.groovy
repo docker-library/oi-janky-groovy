@@ -147,6 +147,7 @@ node(params.TARGET_NODE) {
 		}
 
 		stage('BuildKit') {
+			/*
 			sh '''#!/usr/bin/env bash
 				set -Eeuo pipefail -x
 
@@ -163,6 +164,7 @@ node(params.TARGET_NODE) {
 					docker buildx prune --force --filter type=frontend --all
 				fi
 			'''
+			*/
 		}
 
 		// TODO somehow clean up BASHBREW_CACHE ?
