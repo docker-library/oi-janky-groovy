@@ -40,7 +40,7 @@ node {
 				fi
 
 				# https://doi-janky.infosiftr.net/job/wip/job/crane
-				wget -O "crane$ext" "https://doi-janky.infosiftr.net/job/wip/job/crane/lastSuccessfulBuild/artifact/crane-$BASHBREW_ARCH$ext" --progress=dot:giga
+				wget --timeout=5 -O "crane$ext" "https://doi-janky.infosiftr.net/job/wip/job/crane/lastSuccessfulBuild/artifact/crane-$BASHBREW_ARCH$ext" --progress=dot:giga
 				# TODO checksum verification ("checksums.txt")
 				chmod +x "crane$ext"
 				"./crane$ext" version

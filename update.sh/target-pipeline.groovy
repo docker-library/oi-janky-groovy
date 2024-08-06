@@ -350,7 +350,7 @@ node {
 					date="$(git -C repo log -1 --format='format:%aD')"
 					export GIT_AUTHOR_DATE="$date" GIT_COMMITTER_DATE="$date"
 					if [ "$BRANCH_BASE" = "$BRANCH_PUSH" ] && git -C oi add "$BASHBREW_LIBRARY/$repo" && git -C oi commit "${commitArgs[@]}"; then
-						if diff "$BASHBREW_LIBRARY/$repo" <(wget -qO- "$oiForkUrl/raw/$repo/library/$repo") &> /dev/null; then
+						if diff "$BASHBREW_LIBRARY/$repo" <(wget --timeout=5 -qO- "$oiForkUrl/raw/$repo/library/$repo") &> /dev/null; then
 							# if this exact file content is already pushed to a bot branch, don't force push it again
 							exit
 						fi

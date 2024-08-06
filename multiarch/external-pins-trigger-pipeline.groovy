@@ -64,7 +64,7 @@ node(vars.node(env.ACT_ON_ARCH, 'external-pins-trigger')) {
 						if (0 != sh(returnStatus: true, script: '''#!/usr/bin/env bash
 							set -Eeuo pipefail
 							set -x
-							commit="$(wget -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$ACT_ON_ARCH/job/$CHILD/lastSuccessfulBuild/artifact/build-info/commit.txt")"
+							commit="$(wget --timeout=5 -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$ACT_ON_ARCH/job/$CHILD/lastSuccessfulBuild/artifact/build-info/commit.txt")"
 							[ -n "$commit" ]
 							file="$(.external-pins/file.sh "$PIN")"
 							[ -s "$file" ]

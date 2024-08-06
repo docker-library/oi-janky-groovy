@@ -93,7 +93,7 @@ node(multiarchVars.node(env.BUILD_ARCH, 'sbuild')) { ansiColor('xterm') {
 						set -Eeuo pipefail
 						set -x
 
-						wget -O sources.zip "https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/source/lastSuccessfulBuild/artifact/*_source.changes/*zip*/archive.zip"
+						wget --timeout=5 -O sources.zip "https://doi-janky.infosiftr.net/job/tianon/job/docker-deb/job/source/lastSuccessfulBuild/artifact/*_source.changes/*zip*/archive.zip"
 						unzip sources.zip
 						rm sources.zip
 					'
