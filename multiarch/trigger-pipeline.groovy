@@ -54,7 +54,9 @@ node(vars.node(env.ACT_ON_ARCH, 'trigger')) {
 		if (0 != sh(returnStatus: true, script: '''#!/usr/bin/env bash
 			set -Eeuo pipefail
 			set -x
-			commit="$(wget -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$ACT_ON_ARCH/job/$REPO/lastSuccessfulBuild/artifact/build-info/commit.txt")"
+
+			# ipv6 can be extremely slow on s390x so set a timeout and have wget try the other DNS addresses instead
+			commit="$(wget --timeout=5 -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$ACT_ON_ARCH/job/$REPO/lastSuccessfulBuild/artifact/build-info/commit.txt")"
 			[ -n "$commit" ]
 			touchingCommits="$(git -C "$BASHBREW_LIBRARY" log --oneline "$commit...HEAD" -- "$REPO")"
 			[ -z "$touchingCommits" ]

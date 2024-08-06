@@ -56,7 +56,7 @@ node {
 			failingTags=()
 			declare -A failingTagArches=()
 			for arch in $arches; do
-				tags="$(wget -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$arch/job/$repo/lastSuccessfulBuild/artifact/build-info/failed.txt" || :)"
+				tags="$(wget --timeout=5 -qO- "https://doi-janky.infosiftr.net/job/multiarch/job/$arch/job/$repo/lastSuccessfulBuild/artifact/build-info/failed.txt" || :)"
 				[ -n "$tags" ] || continue
 				IFS=$'\\n'; tags=( $tags ); unset IFS
 

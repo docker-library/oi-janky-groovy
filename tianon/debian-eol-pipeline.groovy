@@ -30,10 +30,10 @@ node() {
 		deleteDir()
 		stage('Download debuerreotype') {
 			sh '''
-				wget -O 'debuerreotype.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeVersion}.tar.gz"
+				wget --timeout=5 -O 'debuerreotype.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeVersion}.tar.gz"
 				tar -xf debuerreotype.tgz --strip-components=1
 				if [ "$debuerreotypeExamplesCommit" != "$debuerreotypeVersion" ]; then
-					wget -O 'debuerreotype-examples.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeExamplesCommit}.tar.gz"
+					wget --timeout=5 -O 'debuerreotype-examples.tgz' "https://github.com/debuerreotype/debuerreotype/archive/${debuerreotypeExamplesCommit}.tar.gz"
 					rm -rf examples
 					tar -xf debuerreotype-examples.tgz --strip-components=1 \
 						"debuerreotype-${debuerreotypeExamplesCommit}/.docker-image.sh" \
