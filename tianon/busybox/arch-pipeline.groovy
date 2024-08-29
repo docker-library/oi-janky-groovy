@@ -133,6 +133,14 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 						exit
 					fi
 
+					if [ "$ACT_ON_ARCH" = 'riscv64' ] && [[ "$variant" == */uclibc ]]; then
+						# https://github.com/docker-library/busybox/issues/203
+						echo >&2 "warning: $variant is sadness on riscv64 -- skipping 😭"
+						git rm -rf --ignore-unmatch "$variant/$BASHBREW_ARCH"
+						rm -rf "$variant/$BASHBREW_ARCH"
+						exit
+					fi
+
 					if ! ./build.sh "$variant"; then
 						v="$(basename "$variant")" # "uclibc", "glibc", etc
 						case "$ACT_ON_ARCH/$v" in
