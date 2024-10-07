@@ -49,9 +49,6 @@ node {
 			],
 		)
 
-		// https://github.com/docker-library/bashbrew/pull/43
-		env.BASHBREW_BUILDKIT_SYNTAX = sh(script: 'cat oi/.bashbrew-buildkit-syntax', returnStdout: true).trim()
-
 		checkout([
 			$class: 'GitSCM',
 			userRemoteConfigs: [[
@@ -102,7 +99,19 @@ node {
 		'''
 	}
 
-	ansiColor('xterm') { dir('repo') {
+	// https://github.com/docker-library/official-images/pull/14212
+	def buildEnvsJson = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+		set -Eeuo pipefail -x
+
+		oi/.bin/bashbrew-buildkit-env-setup.sh \\
+			| jq 'to_entries | map(.key + "=" + .value)'
+	''').trim()
+	def buildEnvs = []
+	if (buildEnvsJson) {
+		buildEnvs += readJSON(text: buildEnvsJson)
+	}
+
+	ansiColor('xterm') { withEnv(buildEnvs) { dir('repo') {
 		def initialCommit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
 		def versions = sh(
@@ -243,7 +252,7 @@ node {
 				sh 'git push $([ "$BRANCH_BASE" = "$BRANCH_PUSH" ] || echo --force) origin "HEAD:$BRANCH_PUSH"'
 			}
 		} }
-	} }
+	} } }
 
 	stage('Stage PR') {
 		sshagent(credentials: ['docker-library-bot'], ignoreMissing: true) {
