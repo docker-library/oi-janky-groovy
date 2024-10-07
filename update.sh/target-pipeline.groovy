@@ -43,9 +43,6 @@ node {
 			],
 		)
 
-		// https://github.com/docker-library/bashbrew/pull/43
-		env.BASHBREW_BUILDKIT_SYNTAX = sh(script: 'cat oi/.bashbrew-buildkit-syntax', returnStdout: true).trim()
-
 		checkout([
 			$class: 'GitSCM',
 			userRemoteConfigs: [[
@@ -101,7 +98,19 @@ node {
 	def testRun = workspace + '/oi/test/run.sh'
 	def testBuildNamespace = 'update.sh'
 
-	ansiColor('xterm') { dir('repo') {
+	// https://github.com/docker-library/official-images/pull/14212
+	def buildEnvsJson = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+		set -Eeuo pipefail -x
+
+		oi/.bin/bashbrew-buildkit-env-setup.sh \\
+			| jq 'to_entries | map(.key + "=" + .value)'
+	''').trim()
+	def buildEnvs = []
+	if (buildEnvsJson) {
+		buildEnvs += readJSON(text: buildEnvsJson)
+	}
+
+	ansiColor('xterm') { withEnv(buildEnvs) { dir('repo') {
 		env.UPDATE_SCRIPT = repoMeta['update-script']
 		stage('update.sh') {
 			retry(3) {
@@ -292,7 +301,7 @@ node {
 		} else {
 			echo("No changes in ${repo}!  Skipping.")
 		}
-	} }
+	} } }
 
 	if (repoMeta['bot-branch']) {
 		stage('Stage PR') {
