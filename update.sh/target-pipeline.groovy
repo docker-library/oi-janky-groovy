@@ -103,6 +103,7 @@ node {
 		set -Eeuo pipefail -x
 
 		oi/.bin/bashbrew-buildkit-env-setup.sh \\
+			| tee /dev/stderr \\
 			| jq 'to_entries | map(.key + "=" + .value)'
 	''').trim()
 	def buildEnvs = []
