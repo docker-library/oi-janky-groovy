@@ -52,9 +52,9 @@ node {
 		def archNamespaces = [:]
 		def archImages = [:]
 
-		// https://github.com/docker-library/meta/blob/subset/subset.txt
+		// https://github.com/docker-library/meta/blob/main/subset.txt
 		def subset = []
-		new URL('https://raw.githubusercontent.com/docker-library/meta/subset/subset.txt').eachLine { line ->
+		new URL('https://raw.githubusercontent.com/docker-library/meta/main/subset.txt').eachLine { line ->
 			subset << line
 		}
 		if (subset.size == 0) {

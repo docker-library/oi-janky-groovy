@@ -10,7 +10,7 @@ node {
 				url: 'https://github.com/docker-library/meta.git',
 				name: 'origin',
 			]],
-			branches: [[name: '*/subset']], // TODO back to main
+			branches: [[name: '*/main']],
 			extensions: [
 				submodule(
 					parentCredentials: true,
