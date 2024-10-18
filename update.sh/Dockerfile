@@ -3,9 +3,11 @@ FROM buildpack-deps:bullseye-scm
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
+		bsdextrautils \
 		bzip2 \
 		gawk \
 		jq \
+		xxd \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
