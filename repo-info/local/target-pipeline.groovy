@@ -83,6 +83,8 @@ lock(label: 'repo-info-local', quantity: 1) { node('repo-info-local') {
 						{{- $arch := .HasArchitecture arch | ternary arch (.Architectures | first) -}}
 						{{- if not (hasPrefix "windows-" $arch) -}}
 							{{- join " " .Tags -}}
+							{{- " " -}}
+							{{- join " " .SharedTags -}}
 							{{- "\\n" -}}
 						{{- end -}}
 					{{- end -}}
@@ -127,7 +129,7 @@ lock(label: 'repo-info-local', quantity: 1) { node('repo-info-local') {
 					for (int i = 1; i < tagGroup.size(); ++i) {
 						def nextTagName = tagGroup[i]
 						def nextTarget = "repos/${repo}/local/${nextTagName}.md"
-						shells << "cp '${firstTarget}' '${nextTarget}'"
+						shells << "[ -s '${nextTarget}' ] || cp -al '${firstTarget}' '${nextTarget}'" // testing first because of SharedTags -- we want the first "shared" tag to win, not the last
 					}
 					sh(shells.join('\n'))
 				}
