@@ -115,7 +115,7 @@ node {
 								bashbrew remote arches --json "$tag@$digest" \\
 									| jq -r '.arches[][].digest' \\
 									| xargs -rI'{}' docker run --rm --security-opt no-new-privileges --user "$RANDOM:$RANDOM" \\
-										gcr.io/go-containerregistry/crane@sha256:f0c28591e6b2f5d659cfa3170872675e855851eef4a6576d5663e3d80162b391 \\
+										gcr.io/go-containerregistry/crane@sha256:fc86bcad43a000c2a1ca926a1e167db26c053cebc3fa5d14285c72773fb8c11d \\
 										config "$tag@{}" \\
 									| jq -r '.created, .history[].created' \\
 									| sort -u \\
