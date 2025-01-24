@@ -11,7 +11,7 @@ archWorkers = [
 	'multiarch-riscv64',
 	'multiarch-s390x',
 
-	'windows-2022',
+	//'windows-2022',
 
 	'worker-01',
 	'worker-02',
