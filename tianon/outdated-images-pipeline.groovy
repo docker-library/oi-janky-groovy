@@ -6,8 +6,11 @@ properties([
 	]),
 ])
 
-repos = [
+def repos = [
 	'debian',
+
+	'alpine',
+	'oraclelinux',
 	'ubuntu',
 ]
 env.OUTDATED_SCALE = 24 * 60 * 60
@@ -45,7 +48,7 @@ node {
 	)
 
 	for (repo in repos) { withEnv(['repo=' + repo]) {
-		badNews = sh(returnStdout: true, script: '''#!/usr/bin/env bash
+		def badNews = sh(returnStdout: true, script: '''#!/usr/bin/env bash
 			set -Eeuo pipefail
 
 			t="$(git -C "$BASHBREW_LIBRARY" log -1 --format=format:%ct "./$repo")"
@@ -58,12 +61,11 @@ node {
 			fi
 		''').trim()
 
-		if (badNews) {
-			stage(repo) {
-				echo(badNews)
+		stage(repo) {
+			if (badNews) {
+				// "catchError" is the only way to set "stageResult" :(
+				catchError(message: badNews, buildResult: (repo == 'debian' ? 'FAILURE' : 'UNSTABLE'), stageResult: 'FAILURE') { error(badNews) }
 			}
-
-			currentBuild.result = 'FAILURE'
 		}
 	} }
 }
