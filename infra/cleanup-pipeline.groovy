@@ -45,44 +45,8 @@ echo('BASHBREW_ARCH: ' + env.BASHBREW_ARCH)
 
 currentBuild.displayName = params.TARGET_NODE + ' <' + env.BASHBREW_ARCH + '> (#' + currentBuild.number + ')'
 
-// we can't use "load()" here because we don't have a file context (or a real checkout of "oi-janky-groovy" -- the pipeline plugin hides that checkout from the actual pipeline execution)
-def multiarchVars = fileLoader.fromGit(
-	'multiarch/vars.groovy', // script
-	'https://github.com/docker-library/oi-janky-groovy.git', // repo
-	'master', // branch
-	null, // credentialsId
-	'', // node/label
-)
-
-env.BASHBREW_ARCH_NAMESPACES = env.BASHBREW_ARCH + ' = ' + multiarchVars.archNamespace(env.BASHBREW_ARCH)
-
 node(params.TARGET_NODE) {
 	ansiColor('xterm') {
-		env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
-
-		stage('Checkout') {
-			checkout(
-				poll: true,
-				scm: [
-					$class: 'GitSCM',
-					userRemoteConfigs: [[
-						url: 'https://github.com/docker-library/official-images.git',
-					]],
-					branches: [[name: '*/master']],
-					extensions: [
-						[
-							$class: 'CleanCheckout',
-						],
-						[
-							$class: 'RelativeTargetDirectory',
-							relativeTargetDir: 'oi',
-						],
-					],
-					doGenerateSubmoduleConfigurations: false,
-					submoduleCfg: [],
-				],
-			)
-		}
 
 		stage('Containers') {
 			sh 'docker container prune --force'
@@ -92,80 +56,9 @@ node(params.TARGET_NODE) {
 			sh 'docker volume prune --all --force'
 		}
 
-		// TODO put these into proper scripts somewhere 😅
-		stage('Gather') {
-			sh '''#!/usr/bin/env bash
-				set -Eeuo pipefail -x
-
-				rm -f images-to-keep.txt
-
-				# build up a file with a list of things we know we want/need to keep
-				## all DOI tags
-				bashbrew list --all | tee -a images-to-keep.txt
-				## all "external pins"
-				oi/.external-pins/list.sh | tee -a images-to-keep.txt
-				## all container's images (normalized to either digest-only in "xxx:tag@digest" or ":latest" in "xxx")
-				docker ps --all --no-trunc --format '{{ .Image }}' | awk '{ gsub(":[^@]+@", "@"); if (!/[:@]/) { $0 = $0 ":latest" }; print }' | tee -a images-to-keep.txt
-			'''
-		}
-
-		stage('Filter') {
-			sh '''#!/usr/bin/env bash
-				set -Eeuo pipefail -x
-
-				# gather the list of *all* images
-				docker images --no-trunc --digests --format '{{ json . }}' > images.json
-
-				# ... and post-process it to image ID + "references" so we can cross-reference our "images-to-keep.txt" list and end up with only a list of specific images safe to delete
-				jq -s --rawfile keepRaw images-to-keep.txt '
-					($keepRaw | rtrimstr("\n") | split("\n")) as $keep
-					| reduce .[] as $i ({};
-						.[$i.ID] += [ $i |
-							$i.ID,
-							if .Repository != "<none>" then
-								if .Tag != "<none>" then .Repository + ":" + .Tag else empty end,
-								if .Digest != "<none>" then .Repository + "@" + .Digest else empty end
-							else empty end
-						]
-					)
-					| del(.[] | select(.[] as $i | $keep | index($i)))
-				' images.json | tee images-to-delete.json
-			'''
-		}
-
-		stage('Clean') {
-			sh '''#!/usr/bin/env bash
-				set -Eeuo pipefail -x
-
-				# now we're confident - delete! (via xargs so it can split into multiple commands for efficiency based on the number of images we need to delete)
-				jq -r '[ .[][] | select(startswith("sha256:") | not) ] | unique | sort_by(contains("@") | not) | join("\n")' images-to-delete.json | tr -d '\r' | xargs -rt docker rmi --no-prune
-				# ("sort_by" because we have to remove all the digest references before tags because removing tag references might also remove the digests and thus lead to "No such image:" errors)
-				# ("tr -d '\r'" because Windows)
-
-				# we use "--no-prune" across all references (instead of just "docker rmi -f" across all IDs) because we might have images that are "FROM" an image in this set that we thus can't delete the image, but we *can* untag the reference, and then we let "docker image prune" clean up what can actually be deleted
-				docker image prune --force
-			'''
-		}
-
-		stage('BuildKit') {
-			/*
-			sh '''#!/usr/bin/env bash
-				set -Eeuo pipefail -x
-
-				docker builder prune --force
-				docker builder prune --force --filter type=frontend --all
-
-				json="$(oi/.bin/bashbrew-buildkit-env-setup.sh)"
-				shell="$(jq <<<"$json" -r 'to_entries | map("export " + (.key + "=" + .value | @sh)) | join("\\n")')"
-				eval "$shell"
-
-				if [ -n "${BUILDX_BUILDER:-}" ]; then
-					# again with "buildx" explicitly in case "bashbrew-buildkit-env-setup.sh" set BUILDX_BUILDER
-					docker buildx prune --force
-					docker buildx prune --force --filter type=frontend --all
-				fi
-			'''
-			*/
+		stage('Images') {
+			// we only use classic builder, so we don't need to save local images
+			sh 'docker image prune --all --force'
 		}
 
 		// TODO somehow clean up BASHBREW_CACHE ?
