@@ -30,8 +30,8 @@ switch (env.DPKG_ARCH) {
 	case [
 		'riscv64',
 	]:
-		// currently only supports unstable (hopefully trixie/testing sometime in the near future!)
-		env.DEBIAN_BUILD_SUITE_OVERRIDE = 'unstable'
+		// only supported on trixie+
+		env.DEBIAN_BUILD_SUITE_OVERRIDE = 'trixie'
 		break
 
 	default:
