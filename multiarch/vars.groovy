@@ -49,8 +49,8 @@ def node(arch, image) {
 		case [
 			'amd64 busybox-builder',
 			'amd64 debuerreotype',
-			//'i386 busybox-builder', // TODO figure out why this fails to build on many of our generic amd64 workers with what are pretty clearly libseccomp issues 😩
-			//'i386 debuerreotype', // this fails on many of our builders thanks to https://github.com/debuerreotype/docker-debian-artifacts/issues/97
+			'i386 busybox-builder',
+			'i386 debuerreotype',
 		]:
 			return ''
 	}
