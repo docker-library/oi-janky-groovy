@@ -130,7 +130,7 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 
 		withCredentials([[
 			$class: 'UsernamePasswordMultiBinding',
-			credentialsId: 'docker-hub-' + (isLibrary ? 'stackbrew' : env.ACT_ON_ARCH.replaceAll(/^[^-]+-/, '')),
+			credentialsId: 'docker-hub-' + (isLibrary ? 'stackbrew' : env.ACT_ON_ARCH),
 			usernameVariable: 'USERNAME',
 			passwordVariable: 'PASSWORD',
 		]]) {
