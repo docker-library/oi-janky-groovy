@@ -28,10 +28,10 @@ if (!env.DPKG_ARCH) {
 
 switch (env.DPKG_ARCH) {
 	case [
-		'riscv64',
+		'mips64el',
 	]:
-		// only supported on trixie+
-		env.DEBIAN_BUILD_SUITE_OVERRIDE = 'trixie'
+		// no longer supported on trixie+
+		env.DEBIAN_BUILD_SUITE_OVERRIDE = 'bookworm'
 		break
 
 	default:
