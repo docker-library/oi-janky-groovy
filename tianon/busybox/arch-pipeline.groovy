@@ -78,18 +78,6 @@ node(vars.node(env.ACT_ON_ARCH, env.ACT_ON_IMAGE)) {
 
 				dirs=( $variants )
 
-				if [ "$ACT_ON_ARCH" = 'riscv64' ]; then
-					# no stable distro releases for riscv64 yet 👀
-					./hack-unstable.sh "${dirs[@]}"
-
-					# TODO figure out why the heck `tar -xf busybox.tar.bz2 -C /usr/src "busybox-$BUSYBOX_VERSION"` fails with a bunch of EPERM on faccessat2 the first time it runs, but succeeds the second time, and only on Alpine Edge on our riscv64 builder! 😭
-					for dir in "${dirs[@]}"; do
-						[[ "$dir" == *musl* ]] || continue
-						sed -ri -e 's/^([[:space:]]*)(tar[[:space:]]+.*)(;[[:space:]]*\\\\)$/\\1\\2 || \\2\\3/' "$dir/Dockerfile.builder"
-						git diff "$dir/Dockerfile.builder"
-					done
-				fi
-
 				# convert "FROM debian:..." into "FROM arm32v7/debian:..." etc
 				sed -ri -e "s!^FROM !FROM $TARGET_NAMESPACE/!" "${dirs[@]/%//Dockerfile.builder}"
 			'''
