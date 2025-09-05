@@ -1,11 +1,11 @@
 archWorkers = [
 	// https://doi-janky.infosiftr.net/computer/
-	'multiarch-amd64',
-	'multiarch-arm32v5',
-	'multiarch-arm32v6',
-	'multiarch-arm32v7',
-	'multiarch-arm64v8',
-	'multiarch-i386',
+	//'multiarch-amd64',
+	//'multiarch-arm32v5',
+	//'multiarch-arm32v6',
+	//'multiarch-arm32v7',
+	//'multiarch-arm64v8',
+	//'multiarch-i386',
 	'multiarch-mips64le',
 	'multiarch-ppc64le',
 	'multiarch-riscv64',
