@@ -74,6 +74,14 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 					# temporarily resolve chicken and egg (https://lists.debian.org/debian-stable-announce/2019/07/msg00000.html)
 					echo 'RUN apt-get update -qq && apt-get install -yqq debian-archive-keyring && rm -rf /var/lib/apt/lists/*' >> Dockerfile
 					# TODO find a better solution for this in debuerreotype's scripts (https://github.com/debuerreotype/debuerreotype/issues/64)
+
+					if [ "$DPKG_ARCH" = 'armel' ]; then
+						# "armel removal from forky"
+						# https://lists.debian.org/debian-devel-announce/2025/09/msg00001.html
+						# > E: Couldn't find these debs: apt
+						sed -ri -e '/testing$/d' examples/debian-all.sh
+						# TODO hopefully we can remove this soon (testing/armel should be removed from the archive completely eventually)
+					fi
 				'''
 			}
 		}
