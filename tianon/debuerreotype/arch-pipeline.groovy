@@ -49,8 +49,8 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 	ansiColor('xterm') {
 		vars.parseTimestamp(this)
 
-		env.debuerreotypeDir = env.WORKSPACE + '/debuerreotype'
-		dir(env.debuerreotypeDir) {
+		env.DEBUERREOTYPE_DIRECTORY = env.WORKSPACE + '/debuerreotype'
+		dir(env.DEBUERREOTYPE_DIRECTORY) {
 			deleteDir()
 			stage('Download') {
 				sh '''
@@ -87,7 +87,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 				sh '''#!/usr/bin/env bash
 					set -Eeuo pipefail -x
 
-					docker build --pull --tag "$DOCKER_IMAGE" "$debuerreotypeDir"
+					docker build --pull --tag "$DOCKER_IMAGE" "$DEBUERREOTYPE_DIRECTORY"
 
 					mkdir -p "$targetDir"
 
@@ -110,7 +110,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 						--workdir /tmp/workdir
 						--env TMPDIR=/tmp
 
-						--mount "type=bind,src=$debuerreotypeDir/examples,dst=/examples,ro"
+						--mount "type=bind,src=$DEBUERREOTYPE_DIRECTORY/examples,dst=/examples,ro"
 
 						--mount "type=bind,src=$targetDir,dst=/output"
 					)
@@ -140,7 +140,7 @@ node(multiarchVars.node(env.BUILD_ARCH, env.ACT_ON_IMAGE)) {
 
 					for rootfs in "$artifactsDir"/**/rootfs.tar.xz; do
 						dir="$(dirname "$rootfs")"
-						"$debuerreotypeDir/examples/oci-image.sh" "$dir/oci.tar" "$dir"
+						"$DEBUERREOTYPE_DIRECTORY/examples/oci-image.sh" "$dir/oci.tar" "$dir"
 					done
 				'''
 			}
