@@ -13,8 +13,8 @@ archWorkers = [
 
 	//'windows-2022',
 
-	'worker-01',
-	'worker-02',
+	//'worker-01',
+	//'worker-02',
 	'worker-03',
 	'worker-04',
 ]
