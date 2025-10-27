@@ -3,7 +3,7 @@
 def defaultRepoMeta = [
 	['url', 'git@github.com:docker-library/%%REPO%%.git'],
 	['oi-fork', 'git@github.com:docker-library-bot/official-images.git'],
-	['pipeline-script', 'update.sh/target-pipeline.groovy'],
+	['pipeline-script', 'update.sh/versions-pipeline.groovy'],
 	['env', '.+_VERSION'], // gawk regex, anchored
 	['otherEnvs', []],
 	['branch-base', 'master'], // branch to check out from
@@ -13,91 +13,51 @@ def defaultRepoMeta = [
 	['bot-branch', true],
 ]
 def rawReposData = [
+	['buildpack-deps', []],
 	['busybox', [
+		'pipeline-script': 'update.sh/legacy-pipeline.groovy',
 		'env': 'BUSYBOX_VERSION',
 		'update-script': 'true', // TODO determine if more can/should be done here
 	]],
-	['cassandra', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['docker', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['drupal', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['gcc', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
+	['cassandra', []],
+	['docker', []],
+	['drupal', []],
+	['gcc', []],
 	['ghost', [
+		'pipeline-script': 'update.sh/legacy-pipeline.groovy',
 		'env': 'GHOST_VERSION',
 		'otherEnvs': [
 			['ghost-cli', 'GHOST_CLI_VERSION'],
 		],
 	]],
-	['golang', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['haproxy', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
+	['golang', []],
+	['haproxy', []],
+	['hello-world', [
+		'pipeline-script': 'update.sh/legacy-pipeline.groovy',
+		'update-script': 'true',
 	]],
 	['httpd', [
+		'pipeline-script': 'update.sh/legacy-pipeline.groovy',
 		'env': 'HTTPD_VERSION',
 		'otherEnvs': [
 			['nghttp2', 'NGHTTP2_VERSION'],
 			['openssl', 'OPENSSL_VERSION'],
 		],
 	]],
-	['julia', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['memcached', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['mongo', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['mysql', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['openjdk', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['php', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['postgres', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['pypy', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['python', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['rabbitmq', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['redmine', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['ruby', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['tomcat', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['wordpress', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-
-	// versionless
-	['buildpack-deps', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
-	]],
-	['hello-world', [
-		'update-script': 'true',
-	]],
+	['julia', []],
+	['memcached', []],
+	['mongo', []],
+	['mysql', []],
+	['openjdk', []],
+	['php', []],
+	['postgres', []],
+	['pypy', []],
+	['python', []],
+	['rabbitmq', []],
+	['redmine', []],
+	['ruby', []],
+	['tomcat', []],
+	['wordpress', []],
 
 	// TODO it would be great to have one of these jobs per namespace ("mcr.microsoft.com/windows", "redhat", etc.)
 	['external-pins', [
@@ -106,20 +66,22 @@ def rawReposData = [
 
 	// tianon
 	['bash', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 		'url': 'git@github.com:tianon/docker-bash.git',
 	]],
 	['cirros', [
+		'pipeline-script': 'update.sh/legacy-pipeline.groovy',
 		'url': 'git@github.com:tianon/docker-brew-cirros.git',
 		'update-script': 'true',
 	]],
 	['irssi', [
+		'pipeline-script': 'update.sh/legacy-pipeline.groovy',
 		'url': 'git@github.com:jessfraz/irssi.git',
 		'env': 'IRSSI_VERSION',
 	]],
 
 	// pierreozoux
 	['matomo', [
+		'pipeline-script': 'update.sh/legacy-pipeline.groovy',
 		'url': 'git@github.com:matomo-org/docker.git',
 		'env': 'MATOMO_VERSION',
 		'bot-branch': false,
@@ -127,7 +89,6 @@ def rawReposData = [
 
 	// paultag
 	['hylang', [
-		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 		'url': 'git@github.com:hylang/docker-hylang.git',
 	]],
 ]
