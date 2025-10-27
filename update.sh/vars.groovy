@@ -127,11 +127,8 @@ def rawReposData = [
 
 	// paultag
 	['hylang', [
+		'pipeline-script': 'update.sh/versions-pipeline.groovy',
 		'url': 'git@github.com:hylang/docker-hylang.git',
-		'env': 'HY_VERSION',
-		'otherEnvs': [
-			['hyrule', 'HYRULE_VERSION'],
-		],
 	]],
 ]
 
