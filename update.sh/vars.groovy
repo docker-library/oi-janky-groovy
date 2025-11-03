@@ -23,13 +23,7 @@ def rawReposData = [
 	['docker', [:]],
 	['drupal', [:]],
 	['gcc', [:]],
-	['ghost', [
-		'pipeline-script': 'update.sh/legacy-pipeline.groovy',
-		'env': 'GHOST_VERSION',
-		'otherEnvs': [
-			['ghost-cli', 'GHOST_CLI_VERSION'],
-		],
-	]],
+	['ghost', [:]],
 	['golang', [:]],
 	['haproxy', [:]],
 	['hello-world', [
