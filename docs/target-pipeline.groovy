@@ -128,6 +128,8 @@ node(vars.docsNode(env.ACT_ON_ARCH, 'docs')) {
 			}
 		}
 
+		env.DOCS_PUSH_USER_AGENT = 'Docker Official Images docs updating job; https://github.com/docker-library/docs/tree/HEAD/push.pl'
+
 		withCredentials([[
 			$class: 'UsernamePasswordMultiBinding',
 			credentialsId: 'docker-hub-' + (isLibrary ? 'stackbrew' : env.ACT_ON_ARCH),
