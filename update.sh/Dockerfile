@@ -1,4 +1,4 @@
-FROM buildpack-deps:bullseye-scm
+FROM buildpack-deps:trixie-scm
 
 RUN set -eux; \
 	apt-get update; \
@@ -9,10 +9,10 @@ RUN set -eux; \
 		jq \
 		xxd \
 	; \
-	rm -rf /var/lib/apt/lists/*
+	apt-get dist-clean
 
 # https://github.com/docker-library/bashbrew/releases
-ENV BASHBREW_VERSION 0.1.6
+ENV BASHBREW_VERSION 0.1.13
 RUN set -eux; \
 	git clone --quiet --depth 1 https://github.com/docker-library/bashbrew.git /tmp/bashbrew; \
 	bashbrewArch="$(/tmp/bashbrew/scripts/bashbrew-host-arch.sh)"; \
