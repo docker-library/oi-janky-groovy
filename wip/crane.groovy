@@ -114,6 +114,19 @@ node {
 	}
 
 	dir('ggcr/bin') { stage('Archive') {
+		sh '''#!/usr/bin/env bash
+			set -Eeuo pipefail -x
+
+			sha256sum crane-* \
+			| jq --raw-input --null-input '
+				reduce (
+					inputs
+					| capture("(?<sha>[a-f0-9]+)  (?<name>[a-z0-9-]+)")
+				) as $i ({};
+					.[$i.name] = { sha256: $i.sha }
+				)
+			' > checksums.json
+		'''
 		archiveArtifacts(
 			artifacts: '**',
 			fingerprint: true,
