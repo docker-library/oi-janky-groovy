@@ -23,7 +23,6 @@ def rawReposData = [
 	['docker', [:]],
 	['drupal', [:]],
 	['gcc', [:]],
-	['ghost', [:]],
 	['golang', [:]],
 	['haproxy', [:]],
 	['hello-world', [
@@ -71,6 +70,12 @@ def rawReposData = [
 		'pipeline-script': 'update.sh/legacy-pipeline.groovy',
 		'url': 'git@github.com:jessfraz/irssi.git',
 		'env': 'IRSSI_VERSION',
+	]],
+
+	// acburdine
+	['ghost', [
+		'url': 'git@github.com:TryGhost/docker-library-ghost.git',
+		'bot-branch': false,
 	]],
 
 	// pierreozoux
