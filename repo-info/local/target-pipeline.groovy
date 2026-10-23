@@ -2,7 +2,7 @@
 
 def repo = env.JOB_BASE_NAME
 
-lock(label: 'repo-info-local', quantity: 1) { node('repo-info-local') {
+lock(label: 'repo-info-local', quantity: 1) { node('repo-info-local') { timeout(time: 3, unit: 'HOURS') {
 	env.BASHBREW_LIBRARY = env.WORKSPACE + '/oi/library'
 
 	stage('Checkout') {
@@ -170,4 +170,4 @@ lock(label: 'repo-info-local', quantity: 1) { node('repo-info-local') {
 			}
 		}
 	} }
-} }
+} } }
